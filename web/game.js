@@ -23,8 +23,21 @@
   // Collision boundaries keep the player inside the playable street block.
   for(const x of [-7.6,7.6]){const wall=BABYLON.MeshBuilder.CreateBox("streetBoundary",{width:.5,height:4,depth:120},scene);wall.position.set(x,2,0);wall.checkCollisions=true;wall.visibility=0.001;}
   for(const z of [-58,58]){const wall=BABYLON.MeshBuilder.CreateBox("streetEndBoundary",{width:15.5,height:4,depth:.5},scene);wall.position.set(0,2,z);wall.checkCollisions=true;wall.isVisible=false;}
-  const player=BABYLON.MeshBuilder.CreateCapsule("player",{height:1.9,radius:.42},scene);player.material=heroMat;player.position.set(0,1,35);player.checkCollisions=true;player.ellipsoid=new BABYLON.Vector3(.42,.95,.42);camera.lockedTarget=player;
-  const head=BABYLON.MeshBuilder.CreateSphere("heroHead",{diameter:.48},scene);head.position.y=1.05;head.parent=player;head.material=skin;
+  const player=BABYLON.MeshBuilder.CreateCapsule("playerCollider",{height:1.9,radius:.42},scene);player.material=heroMat;player.visibility=0.001;player.position.set(0,.95,35);player.checkCollisions=true;player.ellipsoid=new BABYLON.Vector3(.42,.95,.42);camera.lockedTarget=player;
+  // Original modular hero blockout with articulated limbs and layered clothing.
+  const heroParts=[];
+  const part=(name,mesh,material,parent=player)=>{mesh.name=name;mesh.material=material;mesh.parent=parent;heroParts.push(mesh);return mesh;};
+  const torso=part("hero-jacket",BABYLON.MeshBuilder.CreateBox("heroJacket",{width:.62,height:.82,depth:.34},scene),heroMat);torso.position.set(0,.13,0);
+  const shirt=part("hero-shirt",BABYLON.MeshBuilder.CreateBox("heroShirt",{width:.3,height:.48,depth:.035},scene),shirtMat);shirt.position.set(0,.13,.183);
+  const head=part("hero-head",BABYLON.MeshBuilder.CreateSphere("heroHead",{diameter:.43,segments:16},scene),skin);head.position.set(0,.78,0);
+  const hair=part("hero-hair",BABYLON.MeshBuilder.CreateSphere("heroHair",{diameter:.44,segments:12},scene),hairMat);hair.position.set(0,.91,-.015);hair.scaling.y=.55;
+  const pack=part("hero-backpack",BABYLON.MeshBuilder.CreateBox("heroPack",{width:.4,height:.52,depth:.19},scene),packMat);pack.position.set(0,.18,-.25);
+  const limb=(name,x,y,material,length,radius)=>{const pivot=new BABYLON.TransformNode(name+"Pivot",scene);pivot.parent=player;pivot.position.set(x,y,0);const mesh=part(name,BABYLON.MeshBuilder.CreateCylinder(name+"Mesh",{height:length,diameter:radius*2,tessellation:10},scene),material,pivot);mesh.position.y=-length/2;return pivot;};
+  const leftArm=limb("hero-left-arm",-.39,.42,heroMat,.67,.115),rightArm=limb("hero-right-arm",.39,.42,heroMat,.67,.115);
+  const leftLeg=limb("hero-left-leg",-.17,-.3,pantsMat,.72,.14),rightLeg=limb("hero-right-leg",.17,-.3,pantsMat,.72,.14);
+  const leftBoot=part("hero-left-boot",BABYLON.MeshBuilder.CreateBox("heroLeftBoot",{width:.22,height:.16,depth:.34},scene),bootMat);leftBoot.position.set(-.17,-.79,.07);
+  const rightBoot=part("hero-right-boot",BABYLON.MeshBuilder.CreateBox("heroRightBoot",{width:.22,height:.16,depth:.34},scene),bootMat);rightBoot.position.set(.17,-.79,.07);
+  const heroRig={leftArm,rightArm,leftLeg,rightLeg,heroParts};
   const safe=BABYLON.MeshBuilder.CreateCylinder("safeZone",{diameter:5,height:.12,tessellation:48},scene);safe.position.set(0,.12,-43);safe.material=safeMat;
   const zombies=[];
   for(let i=0;i<5;i++){const z= BABYLON.MeshBuilder.CreateCapsule("walker"+i,{height:1.85,radius:.43},scene);z.material=zombieMat;z.position.set((i%2?1:-1)*(4+i),1,-10-i*7);zombies.push(z);}
