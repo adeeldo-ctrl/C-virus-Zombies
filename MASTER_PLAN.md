@@ -114,7 +114,9 @@ The player should be able to approach, enter, exit and drive supported vehicles.
 ## 14. Technical direction and Android delivery
 - Babylon.js is the active browser-first prototype path, replacing Godot as the active development route because Godot runtime/editor validation was unavailable in the previous environment.
 - Keep gameplay systems modular and testable; use Babylon.js features appropriate to 3D rendering, animation, physics, audio and mobile input.
-- Evaluate and implement a reliable Android packaging route (such as a suitable native WebView/container workflow) only after browser gameplay is stable; verify native plugin needs and performance before committing to it.
+- **Android packaging route selected: Capacitor 8** as the native Android container for the Babylon.js web game. Capacitor supports adding Android to an existing web project; the Android project is managed through Android Studio and an Android SDK. See https://capacitorjs.com/docs/android and https://capacitorjs.com/docs/getting-started/environment-setup.
+- Before packaging, bundle Babylon.js locally with the game assets (do not rely on the current external CDN script at runtime), configure Capacitor to use the built web directory, and add the Android platform once the browser build is stable.
+- Build and test the native Android project with Android Studio/SDK; verify device performance and required native plugins before release.
 - A browser build is not itself an Android APK. APK packaging, installation and device testing are mandatory final-stage tasks.
 - Use efficient collision, AI, object pooling, asset loading and world streaming.
 - Do not claim runtime/device testing unless it has actually been run and recorded.
