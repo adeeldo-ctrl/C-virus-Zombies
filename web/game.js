@@ -32,10 +32,15 @@
   // Read-only debug surface used by the automated browser smoke test.
   window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig};
   scene.onBeforeRenderObservable.add(()=>{
-    const dt=Math.min(engine.getDeltaTime()/1000,.04);\n    const moving=state.moveX*state.moveX+state.moveY*state.moveY>.025;\n    const gait=moving?Math.sin(performance.now()*.012*(state.sprint?1.35:1)):0;\n    heroRig.leftLeg.rotation.x=gait*.62;heroRig.rightLeg.rotation.x=-gait*.62;heroRig.leftArm.rotation.x=-gait*.48;heroRig.rightArm.rotation.x=gait*.48;
+    const dt=Math.min(engine.getDeltaTime()/1000,.04);
+    const moving=state.moveX*state.moveX+state.moveY*state.moveY>.025;
+    const gait=moving?Math.sin(performance.now()*.012*(state.sprint?1.35:1)):0;
+    heroRig.leftLeg.rotation.x=gait*.62;heroRig.rightLeg.rotation.x=-gait*.62;heroRig.leftArm.rotation.x=-gait*.48;heroRig.rightArm.rotation.x=gait*.48;
     const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
     const right=new BABYLON.Vector3(-forward.z,0,forward.x);
-    const move=forward.scale(-state.moveY).add(right.scale(state.moveX));\n    if(move.lengthSquared()>1)move.normalize();\n    jumpCooldown=Math.max(0,jumpCooldown-dt);
+    const move=forward.scale(-state.moveY).add(right.scale(state.moveX));
+    if(move.lengthSquared()>1)move.normalize();
+    jumpCooldown=Math.max(0,jumpCooldown-dt);
     if(move.lengthSquared()>0.001&&!state.safe&&state.health>0){move.normalize();player.rotation.y=Math.atan2(move.x,move.z);}
     if(!state.safe&&state.health>0){
       const wantsSprint=(state.sprint||keys.shift)&&move.lengthSquared()>.01&&state.stamina>1;
