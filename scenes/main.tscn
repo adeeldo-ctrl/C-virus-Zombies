@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="2"]
@@ -13,6 +13,9 @@ ambient_light_energy = 0.7
 
 [sub_resource type="PlaneMesh" id="Plane_ground"]
 size = Vector2(80, 80)
+
+[sub_resource type="BoxShape3D" id="Box_ground"]
+size = Vector3(80, 1, 80)
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1")
@@ -38,6 +41,3 @@ position = Vector3(0, 1, 5)
 
 [node name="Zombie" parent="." instance=ExtResource("3")]
 position = Vector3(0, 1, -7)
-
-[sub_resource type="BoxShape3D" id="Box_ground"]
-size = Vector3(80, 1, 80)
