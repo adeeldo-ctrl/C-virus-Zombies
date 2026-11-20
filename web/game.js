@@ -24,7 +24,7 @@
   const safe=BABYLON.MeshBuilder.CreateCylinder("safeZone",{diameter:5,height:.12,tessellation:48},scene);safe.position.set(0,.12,-43);safe.material=safeMat;
   const zombies=[];
   for(let i=0;i<5;i++){const z= BABYLON.MeshBuilder.CreateCapsule("walker"+i,{height:1.85,radius:.43},scene);z.material=zombieMat;z.position.set((i%2?1:-1)*(4+i),1,-10-i*7);zombies.push(z);}
-  let last=performance.now(), damageTimer=0;
+  let damageTimer=0, touchX=0, touchY=0;
   scene.onBeforeRenderObservable.add(()=>{
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
     const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,Math.cos(state.yaw));
@@ -41,13 +41,13 @@
   });
   // Keyboard controls
   const keys={};window.addEventListener("keydown",e=>keys[e.key.toLowerCase()]=true);window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
-  engine.runRenderLoop(()=>{state.moveX=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);state.moveY=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);scene.render();});
+  engine.runRenderLoop(()=>{const keyX=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const keyY=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);state.moveX=touchX!==0?touchX:keyX;state.moveY=touchY!==0?touchY:keyY;scene.render();});
   // Touch joystick
   const stick=document.getElementById("stick"),knob=document.getElementById("knob");let active=false;
-  function joystick(e){const r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const max=36,len=Math.hypot(dx,dy)||1;if(len>max){dx=dx/len*max;dy=dy/len*max;}knob.style.transform="translate("+dx+"px,"+dy+"px)";state.moveX=dx/max;state.moveY=dy/max;}
+  function joystick(e){const r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const max=36,len=Math.hypot(dx,dy)||1;if(len>max){dx=dx/len*max;dy=dy/len*max;}knob.style.transform="translate("+dx+"px,"+dy+"px)";touchX=dx/max;touchY=dy/max;}
   stick.addEventListener("pointerdown",e=>{active=true;stick.setPointerCapture(e.pointerId);joystick(e);});
   stick.addEventListener("pointermove",e=>{if(active)joystick(e);});
-  const reset=()=>{active=false;knob.style.transform="";state.moveX=0;state.moveY=0;};
+  const reset=()=>{active=false;knob.style.transform="";touchX=0;touchY=0;};
   stick.addEventListener("pointerup",reset);stick.addEventListener("pointercancel",reset);
   // Drag on right side to rotate the follow camera.
   let look=null;canvas.addEventListener("pointerdown",e=>{if(e.clientX>innerWidth*.42)look={x:e.clientX,y:e.clientY};});
