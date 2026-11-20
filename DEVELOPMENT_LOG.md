@@ -44,3 +44,15 @@
 - Do not claim a phase, runtime test, or APK is complete unless it has actually been verified.
 - Preserve the approved requirements in `MASTER_PLAN.md`.
 - Update this log after meaningful work and before ending a development session.
+
+
+## Engine change and browser prototype — 2026-11-21
+- Godot runtime/editor was not available in the previous work environment, so development now has a browser-first prototype path using Babylon.js.
+- Babylon.js was selected for its web 3D renderer, mobile input support and native platform options; see the official specifications at https://www.babylonjs.com/specifications/.
+- Added `web/index.html`, `web/style.css`, `web/game.js`, and `web/README.md`.
+- Browser prototype includes a generated 3D street block, third-person follow camera, keyboard movement, touch joystick, simple pursuing walkers, yellow energy bar, and a safe-zone objective.
+- Fixed touch joystick input so it can be used alongside keyboard controls.
+- These are greybox generated meshes only. No final character assets, polished animation, Urdu dialogue, full city, transport system, or APK are complete.
+- **Browser runtime has not yet been executed in this environment.** Files are committed and source-reviewed, but browser/device validation remains pending.
+- The original Godot files remain in the repository as an archived/secondary prototype path; the active development path is now `web/` with Babylon.js.
+- Next: run the browser prototype on desktop and Android browser, fix any runtime errors, then improve character models/animations, city layout, interaction and story systems in Master Plan order.
