@@ -2,7 +2,7 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
-const root = path.resolve(__dirname);
+const root = path.resolve(__dirname, "dist");
 const mime = {".html":"text/html",".js":"text/javascript",".css":"text/css"};
 const server = http.createServer((req,res) => {
   const pathname = decodeURIComponent(new URL(req.url,"http://localhost").pathname);
@@ -18,7 +18,7 @@ const server = http.createServer((req,res) => {
   page.on("pageerror",e=>errors.push(e.message));
   page.on("console",m=>{if(m.type()==="error")errors.push(m.text());});
   try {
-    await page.goto("http://127.0.0.1:4173/index.html",{waitUntil:"domcontentloaded"});
+    await page.goto("http://127.0.0.1:4173/",{waitUntil:"domcontentloaded"});
     await page.waitForFunction(()=>window.__CVIRUS_DEBUG__ && window.__CVIRUS_DEBUG__.scene.isReady(),null,{timeout:30000});
     const initial=await page.evaluate(()=>({canvas:!!document.querySelector("#game"),zombies:window.__CVIRUS_DEBUG__.zombies.length,playerZ:window.__CVIRUS_DEBUG__.player.position.z}));
     if(!initial.canvas||initial.zombies!==5)throw new Error("Initial scene assertions failed: "+JSON.stringify(initial));
@@ -53,7 +53,7 @@ const server = http.createServer((req,res) => {
     if(errors.length)throw new Error("Desktop browser errors: "+errors.join(" | "));
     const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
     mobile.on("pageerror",e=>errors.push(e.message));
-    await mobile.goto("http://127.0.0.1:4173/index.html",{waitUntil:"domcontentloaded"});
+    await mobile.goto("http://127.0.0.1:4173/",{waitUntil:"domcontentloaded"});
     await mobile.waitForFunction(()=>window.__CVIRUS_DEBUG__ && window.__CVIRUS_DEBUG__.scene.isReady(),null,{timeout:30000});
     const touch=await mobile.context().newCDPSession(mobile);
     const beforeTouch=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
