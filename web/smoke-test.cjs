@@ -21,9 +21,9 @@ const server = http.createServer((req,res) => {
     await page.goto("http://127.0.0.1:4173/index.html",{waitUntil:"domcontentloaded"});
     await page.waitForFunction(()=>window.__CVIRUS_DEBUG__ && window.__CVIRUS_DEBUG__.scene.isReady(),null,{timeout:30000});
     const initial=await page.evaluate(()=>({canvas:!!document.querySelector("#game"),zombies:window.__CVIRUS_DEBUG__.zombies.length,playerZ:window.__CVIRUS_DEBUG__.player.position.z}));
-    if(!initial.canvas||initial.zombies!==5)throw new Error("Initial scene assertions failed: "+JSON.stringify(initial));
+    if(!initial.canvas||initial.zombies!==5)throw new Error("Initial scene assertions failed: "+JSON.stringify(initial));\n    const heroParts=await page.evaluate(()=>window.__CVIRUS_DEBUG__.heroRig.heroParts.length);\n    if(heroParts<10)throw new Error("Original modular hero character parts are missing.");
     await page.keyboard.down("w");await page.waitForTimeout(500);await page.keyboard.up("w");
-    const moved=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
+    const moved=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);\n    const legMotion=await page.evaluate(()=>Math.abs(window.__CVIRUS_DEBUG__.heroRig.leftLeg.rotation.x)+Math.abs(window.__CVIRUS_DEBUG__.heroRig.rightLeg.rotation.x));\n    if(legMotion<.05)throw new Error("Hero walk-cycle animation did not respond to movement.");
     if(!(moved<initial.playerZ))throw new Error("Forward input did not move player toward objective.");
     const normalDistance=initial.playerZ-moved;
     const sprintStart=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);\n    const staminaBefore=await page.evaluate(()=>window.__CVIRUS_DEBUG__.state.stamina);
