@@ -27,17 +27,17 @@
   let damageTimer=0, touchX=0, touchY=0;
   scene.onBeforeRenderObservable.add(()=>{
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
-    const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,Math.cos(state.yaw));
+    const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
     const right=new BABYLON.Vector3(forward.z,0,-forward.x);
     const move=forward.scale(-state.moveY).add(right.scale(state.moveX));
-    if(move.lengthSquared()>0.001){move.normalize();player.position.addInPlace(move.scale(5.0*dt));player.rotation.y=Math.atan2(move.x,move.z);}
+    if(move.lengthSquared()>0.001&&!state.safe&&state.health>0){move.normalize();player.position.addInPlace(move.scale(5.0*dt));player.rotation.y=Math.atan2(move.x,move.z);}
     player.position.x=BABYLON.Scalar.Clamp(player.position.x,-7,7);player.position.z=BABYLON.Scalar.Clamp(player.position.z,-54,54);
     let near=false;
-    zombies.forEach(z=>{const delta=player.position.subtract(z.position);delta.y=0;const dist=delta.length();if(dist>1.25&&dist<28){delta.normalize();z.position.addInPlace(delta.scale(1.45*dt));z.rotation.y=Math.atan2(delta.x,delta.z);}if(dist<1.7)near=true;});
-    if(near&&!state.safe){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
+    zombies.forEach(z=>{if(state.safe||state.health<=0)return;const delta=player.position.subtract(z.position);delta.y=0;const dist=delta.length();if(dist>1.25&&dist<28){delta.normalize();z.position.addInPlace(delta.scale(1.45*dt));z.rotation.y=Math.atan2(delta.x,delta.z);}if(dist<1.7)near=true;});
+    if(near&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
     const reached=BABYLON.Vector3.Distance(player.position,safe.position)<3;
     if(reached){state.safe=true;document.getElementById("message").textContent="Safe zone reached — prototype objective complete!";document.getElementById("status").textContent="You made it to safety.";}
-    else if(state.health<=0){document.getElementById("message").textContent="Energy depleted — refresh to retry";document.getElementById("status").textContent="Try avoiding the walkers and keep moving.";}
+    else if(state.health<=0){document.getElementById("message").textContent="Health depleted — refresh to retry";document.getElementById("status").textContent="You were caught. Refresh the page to retry.";}
   });
   // Keyboard controls
   const keys={};window.addEventListener("keydown",e=>keys[e.key.toLowerCase()]=true);window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
