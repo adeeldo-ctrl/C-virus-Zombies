@@ -6,7 +6,8 @@ const root = path.resolve(__dirname, "dist");
 const mime = {".html":"text/html",".js":"text/javascript",".css":"text/css"};
 const server = http.createServer((req,res) => {
   const pathname = decodeURIComponent(new URL(req.url,"http://localhost").pathname);
-  const file = path.resolve(root, "." + pathname);
+  const requested = pathname === "/" ? "/index.html" : pathname;
+  const file = path.resolve(root, "." + requested);
   if (!file.startsWith(root + path.sep) && file !== path.join(root,"index.html")) {res.writeHead(403);return res.end("Forbidden");}
   fs.readFile(file,(err,data)=>{if(err){res.writeHead(404);return res.end("Not found");}res.writeHead(200,{"content-type":mime[path.extname(file)]||"application/octet-stream"});res.end(data);});
 });
