@@ -1,73 +1,56 @@
 # C virus Zombies — Development Log
 
+**Last updated:** 2026-11-21  
+**Repository:** https://github.com/adeeldo-ctrl/C-virus-Zombies  
+**Branch:** `main`  
+**Active engine:** Babylon.js (browser-first 3D)  
+**Final target:** Android APK
+
 ## Current checkpoint
-- Project: C virus Zombies
-- Repository: https://github.com/adeeldo-ctrl/C-virus-Zombies
-- Default branch: main
-- Last updated: 2026-11-21
+- **Active phase:** Phase 1 — technical foundation and runtime validation.
+- **Current playable slice:** generated 3D street, third-person follow camera, desktop keyboard movement, mobile joystick and camera-look input, five simple pursuing walkers, yellow health bar, and green safe-zone objective.
+- **Automated desktop browser smoke test:** passed on Chromium. It confirmed the Babylon scene loads, five walkers spawn, forward keyboard movement works, the safe-zone objective completes, and no browser/page errors are reported.
+- **Mobile touch smoke test:** an extended test now emulates a 390×844 touch device and checks joystick movement and right-side camera look. GitHub Actions run is in progress; its result must be checked before this test is marked passed.
+- **Real Android phone/browser test:** not performed in this environment.
+- **Android APK:** not built.
+- **Art status:** all current characters/buildings are temporary generated greybox meshes; no final-quality assets are complete.
 
-## Completed in this session
-- Re-checked repository access and confirmed the approved `MASTER_PLAN.md` and this development log are present on `main`.
-- Added a Godot 4 project foundation to GitHub:
-  - `project.godot`
-  - `README.md`
-  - `scenes/main.tscn`
-  - `scenes/player.tscn`
-  - `scenes/zombie.tscn`
-  - `scripts/main.gd`
-  - `scripts/player.gd`
-  - `scripts/zombie.gd`
-- Added a basic third-person player controller with keyboard movement, jump, mouse camera look, and a follow camera.
-- Added a basic zombie approach/follow behaviour.
-- Added a greybox ground/test scene and fixed scene resource declarations, ground collision shape, and player group assignment by source inspection.
-- All meshes remain temporary primitive placeholders, not final art.
+## Work completed in the current session
+1. Finalised `MASTER_PLAN.md` v2.0 as the project baseline, including drivable cars plus bikes, auto rickshaws, Chingchi, mini buses and Pakistani 4K buses.
+2. Confirmed Babylon.js as the active browser-first path; earlier Godot files remain archived/secondary and are not the active build.
+3. Corrected forward movement so the forward key moves toward the safe-zone objective.
+4. Added terminal-state handling so movement and walker pursuit stop after safe-zone completion or health depletion.
+5. Added GitHub Actions validation for JavaScript syntax and required web files; source-validation workflow passed.
+6. Added a Playwright/Chromium browser smoke test. Desktop gameplay smoke test passed.
+7. Extended the smoke test to cover emulated mobile touch joystick and camera-look controls. The latest CI result is pending at the time of this log update.
 
-## Current development status
-- Phase 1 — technical prototype and engine decision: **in progress**.
-- Godot 4 is the selected initial prototype engine; final suitability still requires runtime and Android performance validation.
-- Source files are now stored in the GitHub repository.
-- **Runtime validation has not been performed**: no Godot executable was available in the current working environment during this session.
-- Scene/script source was reviewed and corrected, but this is not a substitute for opening and running the project in Godot.
-- No Android APK has been built or verified.
+## Earlier project history
+- A Godot 4 starter was committed first (`project.godot`, initial scenes and scripts). It remains in the repository as a secondary/archived experiment because a Godot runtime/editor validation environment was unavailable.
+- The active prototype was moved to `web/` using Babylon.js. This is still a greybox technical prototype, not the finished game.
 
-## Next actions
-1. Open/import the repository in Godot 4 and run the main scene; fix any parser/runtime errors revealed by the editor.
-2. Add an in-game yellow hero health bar and basic health/damage loop.
-3. Replace the greybox player/zombie primitives with original properly licensed/created 3D models and animation rigs.
-4. Add Android touch controls and validate camera/movement on mobile.
-5. Complete Phase 1 validation, then continue the approved Master Plan phases in order.
-6. Keep Urdu voice, city interiors, Pakistani transport/driving, missions, survival systems, audio, Android optimisation, and APK delivery on the approved roadmap.
-7. Build and verify the Android APK only after development phases and final testing are complete.
+## Remaining work — ordered
+1. Finish Phase 1: obtain a passing desktop + emulated-mobile browser smoke test; resolve failures; document how to run the browser build; choose and validate an Android packaging route. A real Android device check remains required when a device/build environment is available.
+2. Phase 2: robust player controller, camera, movement, collision and mobile controls.
+3. Phase 3: original hero model, rig, materials and animation.
+4. Phase 4: original zombie models, animations, navigation and non-graphic AI encounters.
+5. Phase 5: modular Pakistani city, enterable buildings/interiors and world loading.
+6. Phase 6: drivable cars, bikes, auto rickshaws, Chingchi, mini buses and 4K buses; enter/exit, driving, audio, fuel and repair.
+7. Phase 7: story, Urdu dialogue/subtitles and missions.
+8. Phase 8: inventory, survival supplies, safe house and progression.
+9. Phase 9: Urdu voice acting, music and sound effects.
+10. Phase 10: menus, HUD, garage, settings and save/load.
+11. Phase 11: Android optimisation, compatibility, regression and device QA.
+12. Phase 12: package, install and verify the Android APK.
 
-## Important continuity rules
-- When the user says **“C virus”** in a new chat, resume from this checkpoint.
-- Do not claim a phase, runtime test, or APK is complete unless it has actually been verified.
-- Preserve the approved requirements in `MASTER_PLAN.md`.
-- Update this log after meaningful work and before ending a development session.
+## Continuity instructions
+When the user says **“C virus”** in a new chat:
+1. Read this file and `MASTER_PLAN.md` from the repository.
+2. Check the latest GitHub Actions run and repository commits.
+3. Resume at the exact current phase and unfinished item above; do not restart completed work or ask the user to repeat confirmed requirements.
+4. Update this log after meaningful work and before ending the session.
 
-
-## Engine change and browser prototype — 2026-11-21
-- Godot runtime/editor was not available in the previous work environment, so development now has a browser-first prototype path using Babylon.js.
-- Babylon.js was selected for its web 3D renderer, mobile input support and native platform options; see the official specifications at https://www.babylonjs.com/specifications/.
-- Added `web/index.html`, `web/style.css`, `web/game.js`, and `web/README.md`.
-- Browser prototype includes a generated 3D street block, third-person follow camera, keyboard movement, touch joystick, simple pursuing walkers, yellow energy bar, and a safe-zone objective.
-- Fixed touch joystick input so it can be used alongside keyboard controls.
-- These are greybox generated meshes only. No final character assets, polished animation, Urdu dialogue, full city, transport system, or APK are complete.
-- **Browser runtime has not yet been executed in this environment.** Files are committed and source-reviewed, but browser/device validation remains pending.
-- The original Godot files remain in the repository as an archived/secondary prototype path; the active development path is now `web/` with Babylon.js.
-- Next: run the browser prototype on desktop and Android browser, fix any runtime errors, then improve character models/animations, city layout, interaction and story systems in Master Plan order.
-
-
-## Final master plan and active development checkpoint — 2026-11-21
-- Replaced the draft roadmap with `MASTER_PLAN.md` version 2.0, marked as the final development baseline.
-- Locked the active technical direction to Babylon.js browser-first development; Godot remains a secondary/archived prototype path.
-- Expanded the vehicle scope to explicitly include drivable cars as well as bikes, auto rickshaws, Chingchi, mini buses and Pakistani 4K buses. Specific car makes/models are intentionally not locked because the exact model names have not been confirmed in the available project notes.
-- Added explicit phase completion gates, Android packaging validation, release acceptance criteria and continuity rules.
-- Corrected the prototype's forward movement direction so the forward control moves toward the green safe-zone objective from the starting position.
-- Prevented player movement and zombie pursuit after the safe-zone objective is completed or health is depleted; updated the failure message.
-- Added GitHub Actions source validation workflow at `.github/workflows/validate-prototype.yml` to check JavaScript syntax and required prototype file references on pushes/pull requests.
-- **Verification status:** GitHub commits confirm the plan, gameplay-source change and workflow were saved. Automated source validation passed. The browser game has still not been launched in a real browser or on Android in this environment. No APK has been built.
-- **Current phase:** Phase 1 — technical foundation, in progress. Next: inspect the GitHub Actions result; run the browser build on desktop and Android browser; fix any runtime/input/rendering issues; decide the verified Android packaging route. Do not advance the phase until these checks pass.
-
-## Continuity checkpoint for next chat
-When the user says **“C virus”**, first read `MASTER_PLAN.md` and this log from the repository, then resume at Phase 1 technical foundation. Current active path is `web/` (Babylon.js). Latest known work: master plan v2.0 finalized; prototype forward direction and terminal-state handling updated; automated source-validation workflow added. Runtime browser/device testing and APK packaging remain outstanding.
+## Accuracy rules
+- Do not call greybox assets final art.
+- Do not mark mobile/device testing complete based only on desktop tests or browser emulation.
+- Do not claim Android APK creation, installation or device testing until actually verified.
+- Skip redundant tests; retain focused automated checks that validate real gameplay and release requirements.
