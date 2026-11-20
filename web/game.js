@@ -14,7 +14,7 @@
   const light = new BABYLON.HemisphericLight("sky", new BABYLON.Vector3(0,1,0), scene); light.intensity = 0.9;
   const sun = new BABYLON.DirectionalLight("sun", new BABYLON.Vector3(-0.4,-1,0.3), scene); sun.position = new BABYLON.Vector3(20,35,-20); sun.intensity = 0.75;
   const mat = (name,color) => {const m=new BABYLON.StandardMaterial(name,scene);m.diffuseColor=BABYLON.Color3.FromHexString(color);return m;};
-  const road=mat("road","#343b40"), pavement=mat("pavement","#777b78"), wallA=mat("wallA","#b6a58c"), wallB=mat("wallB","#87949a"), windowMat=mat("windows","#344c59"), heroMat=mat("hero","#2879a8"), skin=mat("skin","#b98462"), zombieMat=mat("zombie","#667d58"), safeMat=mat("safe","#35c979");
+  const road=mat("road","#343b40"), pavement=mat("pavement","#777b78"), wallA=mat("wallA","#b6a58c"), wallB=mat("wallB","#87949a"), windowMat=mat("windows","#344c59"), heroMat=mat("hero","#183f65"), skin=mat("skin","#b98462"), zombieMat=mat("zombie","#667d58"), safeMat=mat("safe","#35c979"), pantsMat=mat("pants","#263443"), bootMat=mat("boots","#302a25"), hairMat=mat("hair","#17191b"), shirtMat=mat("shirt","#d2d0c7"), packMat=mat("pack","#8b6844");
   const ground=BABYLON.MeshBuilder.CreateGround("ground",{width:130,height:130},scene); ground.material=pavement; ground.checkCollisions=true;
   const street=BABYLON.MeshBuilder.CreateGround("street",{width:15,height:115},scene); street.position.y=.025; street.material=road;
   for(let i=-5;i<=5;i++){const line=BABYLON.MeshBuilder.CreateBox("lane",{width:.12,height:.025,depth:4},scene);line.position.set(0,.06,i*10);line.material=mat("lane"+i,"#d7cfa7");}
@@ -32,7 +32,7 @@
   // Read-only debug surface used by the automated browser smoke test.
   window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state};
   scene.onBeforeRenderObservable.add(()=>{
-    const dt=Math.min(engine.getDeltaTime()/1000,.04);
+    const dt=Math.min(engine.getDeltaTime()/1000,.04);\n    const moving=state.moveX*state.moveX+state.moveY*state.moveY>.025;\n    const gait=moving?Math.sin(performance.now()*.012*(state.sprint?1.35:1)):0;\n    heroRig.leftLeg.rotation.x=gait*.62;heroRig.rightLeg.rotation.x=-gait*.62;heroRig.leftArm.rotation.x=-gait*.48;heroRig.rightArm.rotation.x=gait*.48;
     const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
     const right=new BABYLON.Vector3(-forward.z,0,forward.x);
     const move=forward.scale(-state.moveY).add(right.scale(state.moveX));\n    if(move.lengthSquared()>1)move.normalize();\n    jumpCooldown=Math.max(0,jumpCooldown-dt);
