@@ -25,6 +25,8 @@
   const zombies=[];
   for(let i=0;i<5;i++){const z= BABYLON.MeshBuilder.CreateCapsule("walker"+i,{height:1.85,radius:.43},scene);z.material=zombieMat;z.position.set((i%2?1:-1)*(4+i),1,-10-i*7);zombies.push(z);}
   let damageTimer=0, touchX=0, touchY=0;
+  // Read-only debug surface used by the automated browser smoke test.
+  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state};
   scene.onBeforeRenderObservable.add(()=>{
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
     const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
