@@ -1,0 +1,25 @@
+{
+  "name": "c-virus-zombies",
+  "version": "0.1.0",
+  "private": true,
+  "description": "C virus Zombies browser-first 3D game and Android wrapper",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "android:add": "cap add android",
+    "android:sync": "cap sync android",
+    "android:open": "cap open android",
+    "test:browser": "node smoke-test.cjs"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^9.37.1",
+    "@capacitor/core": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/cli": "^8.0.0",
+    "playwright": "^1.57.0",
+    "vite": "^7.1.12"
+  }
+}
