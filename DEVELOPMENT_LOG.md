@@ -6,25 +6,38 @@
 - Default branch: main
 - Last updated: 2026-11-21
 
-## Completed
-- Created the public GitHub repository.
-- Added and verified `MASTER_PLAN.md` on the `main` branch.
-- Master plan commit: `b15eb40e4c2aacc65d4870ff7a8cea4f65877e79`
-- Starter Godot 4 project was previously scaffolded in the ChatGPT working folder. It contains the initial scene, player and zombie scenes/scripts, project settings, README, and Master Plan. Its placeholder capsule meshes are greybox only, not final game art.
+## Completed in this session
+- Re-checked repository access and confirmed the approved `MASTER_PLAN.md` and this development log are present on `main`.
+- Added a Godot 4 project foundation to GitHub:
+  - `project.godot`
+  - `README.md`
+  - `scenes/main.tscn`
+  - `scenes/player.tscn`
+  - `scenes/zombie.tscn`
+  - `scripts/main.gd`
+  - `scripts/player.gd`
+  - `scripts/zombie.gd`
+- Added a basic third-person player controller with keyboard movement, jump, mouse camera look, and a follow camera.
+- Added a basic zombie approach/follow behaviour.
+- Added a greybox ground/test scene and fixed scene resource declarations, ground collision shape, and player group assignment by source inspection.
+- All meshes remain temporary primitive placeholders, not final art.
 
 ## Current development status
 - Phase 1 — technical prototype and engine decision: **in progress**.
-- The starter project's source files have **not yet been synced to GitHub**.
-- Godot runtime validation has **not** been performed.
+- Godot 4 is the selected initial prototype engine; final suitability still requires runtime and Android performance validation.
+- Source files are now stored in the GitHub repository.
+- **Runtime validation has not been performed**: no Godot executable was available in the current working environment during this session.
+- Scene/script source was reviewed and corrected, but this is not a substitute for opening and running the project in Godot.
 - No Android APK has been built or verified.
 
 ## Next actions
-1. Inspect the existing starter project files and sync the actual source files to the GitHub repository without replacing them with guessed code.
-2. Verify the repository tree and project configuration.
-3. Check whether Godot 4 is available in the development environment; run the project and fix startup/script errors if possible.
-4. Complete the Phase 1 technical prototype and document the engine decision.
-5. Continue through the approved Master Plan phases in order. Integrate and test each phase before moving on.
-6. Defer hands-on Android testing and final APK delivery until the development phases are complete; then perform device/build verification.
+1. Open/import the repository in Godot 4 and run the main scene; fix any parser/runtime errors revealed by the editor.
+2. Add an in-game yellow hero health bar and basic health/damage loop.
+3. Replace the greybox player/zombie primitives with original properly licensed/created 3D models and animation rigs.
+4. Add Android touch controls and validate camera/movement on mobile.
+5. Complete Phase 1 validation, then continue the approved Master Plan phases in order.
+6. Keep Urdu voice, city interiors, Pakistani transport/driving, missions, survival systems, audio, Android optimisation, and APK delivery on the approved roadmap.
+7. Build and verify the Android APK only after development phases and final testing are complete.
 
 ## Important continuity rules
 - When the user says **“C virus”** in a new chat, resume from this checkpoint.
