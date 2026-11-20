@@ -34,7 +34,7 @@
   scene.onBeforeRenderObservable.add(()=>{
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
     const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
-    const right=new BABYLON.Vector3(forward.z,0,-forward.x);
+    const right=new BABYLON.Vector3(-forward.z,0,forward.x);
     const move=forward.scale(-state.moveY).add(right.scale(state.moveX));
     if(move.lengthSquared()>0.001&&!state.safe&&state.health>0){move.normalize();player.rotation.y=Math.atan2(move.x,move.z);}
     if(!state.safe&&state.health>0){verticalVelocity-=18*dt;const speed=(state.sprint||keys.shift)?8:5;player.moveWithCollisions(new BABYLON.Vector3(move.x*speed*dt,verticalVelocity*dt,move.z*speed*dt));if(player.position.y<=.97&&verticalVelocity<=0){player.position.y=.95;verticalVelocity=0;grounded=true;}else if(player.position.y>.97){grounded=false;}}
