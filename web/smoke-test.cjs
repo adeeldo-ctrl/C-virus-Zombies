@@ -18,9 +18,13 @@ const server = http.createServer((req,res) => {
   const errors=[];
   page.on("pageerror",e=>errors.push(e.message));
   page.on("console",m=>{if(m.type()==="error")errors.push(m.text());});
+  page.on("requestfailed",r=>errors.push("Request failed: "+r.url()+" "+(r.failure()?.errorText||"")));
+  page.on("response",r=>{if(r.status()>=400)errors.push("HTTP "+r.status()+": "+r.url());});
   try {
     await page.goto("http://127.0.0.1:4173/",{waitUntil:"domcontentloaded"});
-    await page.waitForFunction(()=>window.__CVIRUS_DEBUG__ && window.__CVIRUS_DEBUG__.scene.isReady(),null,{timeout:30000});
+    await page.waitForTimeout(2500);
+    if(!await page.evaluate(()=>!!window.__CVIRUS_DEBUG__))throw new Error("Desktop scene initialization failed: "+errors.join(" | "));
+    await page.waitForFunction(()=>window.__CVIRUS_DEBUG__.scene.isReady(),null,{timeout:10000});
     const initial=await page.evaluate(()=>({canvas:!!document.querySelector("#game"),zombies:window.__CVIRUS_DEBUG__.zombies.length,playerZ:window.__CVIRUS_DEBUG__.player.position.z}));
     if(!initial.canvas||initial.zombies!==5)throw new Error("Initial scene assertions failed: "+JSON.stringify(initial));
     const heroParts=await page.evaluate(()=>window.__CVIRUS_DEBUG__.heroRig.heroParts.length);
@@ -54,8 +58,12 @@ const server = http.createServer((req,res) => {
     if(errors.length)throw new Error("Desktop browser errors: "+errors.join(" | "));
     const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
     mobile.on("pageerror",e=>errors.push(e.message));
+    mobile.on("console",m=>{if(m.type()==="error")errors.push(m.text());});
+    mobile.on("requestfailed",r=>errors.push("Mobile request failed: "+r.url()+" "+(r.failure()?.errorText||"")));
     await mobile.goto("http://127.0.0.1:4173/",{waitUntil:"domcontentloaded"});
-    await mobile.waitForFunction(()=>window.__CVIRUS_DEBUG__ && window.__CVIRUS_DEBUG__.scene.isReady(),null,{timeout:30000});
+    await mobile.waitForTimeout(2500);
+    if(!await mobile.evaluate(()=>!!window.__CVIRUS_DEBUG__))throw new Error("Mobile scene initialization failed: "+errors.join(" | "));
+    await mobile.waitForFunction(()=>window.__CVIRUS_DEBUG__.scene.isReady(),null,{timeout:10000});
     const touch=await mobile.context().newCDPSession(mobile);
     const beforeTouch=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
     await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:76,y:768,id:1}]});
