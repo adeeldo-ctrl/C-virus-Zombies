@@ -25,6 +25,20 @@ const server = http.createServer((req,res) => {
     await page.keyboard.down("w");await page.waitForTimeout(500);await page.keyboard.up("w");
     const moved=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
     if(!(moved<initial.playerZ))throw new Error("Forward input did not move player toward objective.");
+    const normalDistance=initial.playerZ-moved;
+    const sprintStart=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
+    await page.keyboard.down("w");await page.keyboard.down("Shift");await page.waitForTimeout(450);await page.keyboard.up("w");await page.keyboard.up("Shift");
+    const sprintEnd=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
+    if(!(sprintStart-sprintEnd>normalDistance*.8))throw new Error("Sprint input did not move the player.");
+    const jumpStart=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.y);
+    await page.keyboard.press("Space");await page.waitForTimeout(180);
+    const jumpPeak=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.y);
+    if(!(jumpPeak>jumpStart+.3))throw new Error("Jump input did not raise the player.");
+    await page.waitForTimeout(1000);
+    const sideStart=await page.evaluate(()=>{const p=window.__CVIRUS_DEBUG__.player;p.position.x=6;return p.position.x;});
+    await page.keyboard.down("d");await page.waitForTimeout(800);await page.keyboard.up("d");
+    const sideEnd=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.x);
+    if(!(sideEnd<7.4&&sideEnd>sideStart))throw new Error("Street boundary collision did not constrain lateral movement.");
     await page.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.player.position.copyFrom(d.safe.position);});
     await page.waitForFunction(()=>window.__CVIRUS_DEBUG__.state.safe,{timeout:5000});
     const message=await page.locator("#message").innerText();
@@ -48,7 +62,13 @@ const server = http.createServer((req,res) => {
     await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
     const yawAfter=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.state.yaw);
     if(yawAfter===yawBefore)throw new Error("Mobile right-side camera look did not respond.");
+    const mobileJumpStart=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.y);
+    await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:339,y:785,id:3}]});
+    await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+    await mobile.waitForTimeout(180);
+    const mobileJumpPeak=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.y);
+    if(!(mobileJumpPeak>mobileJumpStart+.3))throw new Error("Mobile jump button did not work.");
     if(errors.length)throw new Error("Browser errors: "+errors.join(" | "));
-    console.log("PASS: desktop scene, five pursuers, keyboard movement and safe-zone objective; mobile viewport, touch joystick and camera-look input; no browser errors.");
+    console.log("PASS: desktop scene, walkers, keyboard movement, sprint, jump, street collision and safe-zone objective; mobile viewport, joystick, camera-look and jump controls; no browser errors.");
   } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(e=>{console.error(e);process.exit(1);});
