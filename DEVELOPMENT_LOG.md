@@ -66,7 +66,7 @@
 - Corrected the prototype's forward movement direction so the forward control moves toward the green safe-zone objective from the starting position.
 - Prevented player movement and zombie pursuit after the safe-zone objective is completed or health is depleted; updated the failure message.
 - Added GitHub Actions source validation workflow at `.github/workflows/validate-prototype.yml` to check JavaScript syntax and required prototype file references on pushes/pull requests.
-- **Verification status:** GitHub commits confirm the plan, gameplay-source change and workflow were saved. The browser game has still not been launched in a real browser or on Android in this environment. The newly added GitHub Actions workflow run has not yet been observed, so its result is pending. No APK has been built.
+- **Verification status:** GitHub commits confirm the plan, gameplay-source change and workflow were saved. Automated source validation passed. The browser game has still not been launched in a real browser or on Android in this environment. No APK has been built.
 - **Current phase:** Phase 1 — technical foundation, in progress. Next: inspect the GitHub Actions result; run the browser build on desktop and Android browser; fix any runtime/input/rendering issues; decide the verified Android packaging route. Do not advance the phase until these checks pass.
 
 ## Continuity checkpoint for next chat
