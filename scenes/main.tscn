@@ -26,7 +26,8 @@ environment = SubResource("Environment_main")
 mesh = SubResource("Plane_ground")
 
 [node name="Collision" type="CollisionShape3D" parent="Ground"]
-shape = SubResource("Plane_ground")
+position = Vector3(0, -0.5, 0)
+shape = SubResource("Box_ground")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 rotation_degrees = Vector3(-55, -25, 0)
@@ -37,3 +38,6 @@ position = Vector3(0, 1, 5)
 
 [node name="Zombie" parent="." instance=ExtResource("3")]
 position = Vector3(0, 1, -7)
+
+[sub_resource type="BoxShape3D" id="Box_ground"]
+size = Vector3(80, 1, 80)
