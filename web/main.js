@@ -1,5 +1,22 @@
-import * as BABYLON from "@babylonjs/core";
+import {
+  Engine,
+  Scene,
+  Color3,
+  Color4,
+  Vector3,
+  HemisphericLight,
+  DirectionalLight,
+  StandardMaterial,
+  MeshBuilder,
+  FollowCamera,
+  Scalar,
+  TransformNode
+} from "@babylonjs/core";
 
-// Keep the existing gameplay module global API while bundling Babylon locally.
-window.BABYLON = BABYLON;
+// Expose only the Babylon APIs used by the gameplay module.
+window.BABYLON = {
+  Engine, Scene, Color3, Color4, Vector3,
+  HemisphericLight, DirectionalLight, StandardMaterial,
+  MeshBuilder, FollowCamera, Scalar, TransformNode
+};
 await import("./game.js");
