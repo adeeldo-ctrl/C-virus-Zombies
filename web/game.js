@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, sprint:false};
+  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, sprint:false};
   const scene = new BABYLON.Scene(engine);
   scene.collisionsEnabled = true;
   scene.clearColor = new BABYLON.Color4(0.48,0.66,0.77,1);
@@ -28,16 +28,27 @@
   const safe=BABYLON.MeshBuilder.CreateCylinder("safeZone",{diameter:5,height:.12,tessellation:48},scene);safe.position.set(0,.12,-43);safe.material=safeMat;
   const zombies=[];
   for(let i=0;i<5;i++){const z= BABYLON.MeshBuilder.CreateCapsule("walker"+i,{height:1.85,radius:.43},scene);z.material=zombieMat;z.position.set((i%2?1:-1)*(4+i),1,-10-i*7);zombies.push(z);}
-  let damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true;
+  let damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
   window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state};
   scene.onBeforeRenderObservable.add(()=>{
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
     const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
     const right=new BABYLON.Vector3(-forward.z,0,forward.x);
-    const move=forward.scale(-state.moveY).add(right.scale(state.moveX));
+    const move=forward.scale(-state.moveY).add(right.scale(state.moveX));\n    if(move.lengthSquared()>1)move.normalize();\n    jumpCooldown=Math.max(0,jumpCooldown-dt);
     if(move.lengthSquared()>0.001&&!state.safe&&state.health>0){move.normalize();player.rotation.y=Math.atan2(move.x,move.z);}
-    if(!state.safe&&state.health>0){verticalVelocity-=18*dt;const speed=(state.sprint||keys.shift)?8:5;player.moveWithCollisions(new BABYLON.Vector3(move.x*speed*dt,verticalVelocity*dt,move.z*speed*dt));if(player.position.y<=.97&&verticalVelocity<=0){player.position.y=.95;verticalVelocity=0;grounded=true;}else if(player.position.y>.97){grounded=false;}}
+    if(!state.safe&&state.health>0){
+      const wantsSprint=(state.sprint||keys.shift)&&move.lengthSquared()>.01&&state.stamina>1;
+      if(wantsSprint)state.stamina=Math.max(0,state.stamina-27*dt);
+      else state.stamina=Math.min(100,state.stamina+18*dt);
+      const speed=wantsSprint?8.2:5.2;
+      verticalVelocity-=19*dt;
+      player.moveWithCollisions(new BABYLON.Vector3(move.x*speed*dt,verticalVelocity*dt,move.z*speed*dt));
+      if(player.position.y<=.97&&verticalVelocity<=0){player.position.y=.95;verticalVelocity=0;grounded=true;}
+      else if(player.position.y>.97){grounded=false;}
+      const staminaBar=document.getElementById("stamina");
+      if(staminaBar)staminaBar.style.width=state.stamina+"%";
+    }
     let near=false;
     zombies.forEach(z=>{if(state.safe||state.health<=0)return;const delta=player.position.subtract(z.position);delta.y=0;const dist=delta.length();if(dist>1.25&&dist<28){delta.normalize();z.position.addInPlace(delta.scale(1.45*dt));z.rotation.y=Math.atan2(delta.x,delta.z);}if(dist<1.7)near=true;});
     if(near&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
@@ -46,14 +57,18 @@
     else if(state.health<=0){document.getElementById("message").textContent="Health depleted — refresh to retry";document.getElementById("status").textContent="You were caught. Refresh the page to retry.";}
   });
   // Keyboard controls
-  const keys={};window.addEventListener("keydown",e=>{keys[e.key.toLowerCase()]=true;if(e.code==="Space"){e.preventDefault();if(grounded&&!state.safe&&state.health>0){verticalVelocity=7.2;grounded=false;}}});window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+  const keys={};
+  const doJump=()=>{if(grounded&&jumpCooldown===0&&!state.safe&&state.health>0){verticalVelocity=7.2;grounded=false;jumpCooldown=.22;}};
+  window.addEventListener("keydown",e=>{const key=e.key.toLowerCase();if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
+  window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+  window.addEventListener("blur",()=>{for(const key in keys)keys[key]=false;state.sprint=false;});
   engine.runRenderLoop(()=>{const keyX=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const keyY=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);state.moveX=touchX!==0?touchX:keyX;state.moveY=touchY!==0?touchY:keyY;scene.render();});
   // Touch joystick
   const stick=document.getElementById("stick"),knob=document.getElementById("knob");let active=false;
   const sprintButton=document.getElementById("sprint"),jumpButton=document.getElementById("jump");
   sprintButton.addEventListener("pointerdown",e=>{state.sprint=true;sprintButton.setPointerCapture(e.pointerId);});
   const stopSprint=()=>state.sprint=false;sprintButton.addEventListener("pointerup",stopSprint);sprintButton.addEventListener("pointercancel",stopSprint);sprintButton.addEventListener("lostpointercapture",stopSprint);
-  const jump=()=>{if(grounded&&!state.safe&&state.health>0){verticalVelocity=7.2;grounded=false;}};
+  const jump=doJump;
   jumpButton.addEventListener("pointerdown",jump);
   function joystick(e){const r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy;const max=36,len=Math.hypot(dx,dy)||1;if(len>max){dx=dx/len*max;dy=dy/len*max;}knob.style.transform="translate("+dx+"px,"+dy+"px)";touchX=dx/max;touchY=dy/max;}
   stick.addEventListener("pointerdown",e=>{active=true;stick.setPointerCapture(e.pointerId);joystick(e);});
@@ -64,5 +79,7 @@
   let look=null;canvas.addEventListener("pointerdown",e=>{if(e.clientX>innerWidth*.42)look={x:e.clientX,y:e.clientY};});
   canvas.addEventListener("pointermove",e=>{if(!look)return;state.yaw-=(e.clientX-look.x)*.006;camera.rotationOffset=180+state.yaw*180/Math.PI;camera.heightOffset=BABYLON.Scalar.Clamp(camera.heightOffset+(e.clientY-look.y)*.018,2.2,5.5);look={x:e.clientX,y:e.clientY};});
   canvas.addEventListener("pointerup",()=>look=null);canvas.addEventListener("pointercancel",()=>look=null);
+  canvas.addEventListener("wheel",e=>{camera.radius=BABYLON.Scalar.Clamp(camera.radius+Math.sign(e.deltaY)*.7,5,12);},{passive:true});
+  document.addEventListener("visibilitychange",()=>{if(document.hidden){state.sprint=false;touchX=0;touchY=0;reset();}});
   window.addEventListener("resize",()=>engine.resize());
 })();
