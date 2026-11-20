@@ -56,3 +56,18 @@
 - **Browser runtime has not yet been executed in this environment.** Files are committed and source-reviewed, but browser/device validation remains pending.
 - The original Godot files remain in the repository as an archived/secondary prototype path; the active development path is now `web/` with Babylon.js.
 - Next: run the browser prototype on desktop and Android browser, fix any runtime errors, then improve character models/animations, city layout, interaction and story systems in Master Plan order.
+
+
+## Final master plan and active development checkpoint — 2026-11-21
+- Replaced the draft roadmap with `MASTER_PLAN.md` version 2.0, marked as the final development baseline.
+- Locked the active technical direction to Babylon.js browser-first development; Godot remains a secondary/archived prototype path.
+- Expanded the vehicle scope to explicitly include drivable cars as well as bikes, auto rickshaws, Chingchi, mini buses and Pakistani 4K buses. Specific car makes/models are intentionally not locked because the exact model names have not been confirmed in the available project notes.
+- Added explicit phase completion gates, Android packaging validation, release acceptance criteria and continuity rules.
+- Corrected the prototype's forward movement direction so the forward control moves toward the green safe-zone objective from the starting position.
+- Prevented player movement and zombie pursuit after the safe-zone objective is completed or health is depleted; updated the failure message.
+- Added GitHub Actions source validation workflow at `.github/workflows/validate-prototype.yml` to check JavaScript syntax and required prototype file references on pushes/pull requests.
+- **Verification status:** GitHub commits confirm the plan, gameplay-source change and workflow were saved. The browser game has still not been launched in a real browser or on Android in this environment. The newly added GitHub Actions workflow run has not yet been observed, so its result is pending. No APK has been built.
+- **Current phase:** Phase 1 — technical foundation, in progress. Next: inspect the GitHub Actions result; run the browser build on desktop and Android browser; fix any runtime/input/rendering issues; decide the verified Android packaging route. Do not advance the phase until these checks pass.
+
+## Continuity checkpoint for next chat
+When the user says **“C virus”**, first read `MASTER_PLAN.md` and this log from the repository, then resume at Phase 1 technical foundation. Current active path is `web/` (Babylon.js). Latest known work: master plan v2.0 finalized; prototype forward direction and terminal-state handling updated; automated source-validation workflow added. Runtime browser/device testing and APK packaging remain outstanding.
