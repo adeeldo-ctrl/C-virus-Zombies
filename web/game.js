@@ -21,7 +21,7 @@
   function building(x,z,w,d,h,material){const b=BABYLON.MeshBuilder.CreateBox("building",{width:w,height:h,depth:d},scene);b.position.set(x,h/2,z);b.material=material;b.checkCollisions=true;for(let y=2;y<h-1;y+=3)for(let side=-1;side<=1;side+=2){const win=BABYLON.MeshBuilder.CreateBox("window",{width:1.1,height:1.25,depth:.08},scene);win.position.set(x+side*(w/2+.045),y,z-d/2-.02);win.material=windowMat;}}
   for(let z=-45;z<=45;z+=18){building(-13,z,10,12,9+(Math.abs(z)%3)*2,wallA);building(13,z,10,12,11,wallB);}
   // Collision boundaries keep the player inside the playable street block.
-  for(const x of [-7.6,7.6]){const wall=BABYLON.MeshBuilder.CreateBox("streetBoundary",{width:.5,height:4,depth:120},scene);wall.position.set(x,2,0);wall.checkCollisions=true;wall.isVisible=false;}
+  for(const x of [-7.6,7.6]){const wall=BABYLON.MeshBuilder.CreateBox("streetBoundary",{width:.5,height:4,depth:120},scene);wall.position.set(x,2,0);wall.checkCollisions=true;wall.visibility=0.001;}
   for(const z of [-58,58]){const wall=BABYLON.MeshBuilder.CreateBox("streetEndBoundary",{width:15.5,height:4,depth:.5},scene);wall.position.set(0,2,z);wall.checkCollisions=true;wall.isVisible=false;}
   const player=BABYLON.MeshBuilder.CreateCapsule("player",{height:1.9,radius:.42},scene);player.material=heroMat;player.position.set(0,1,35);player.checkCollisions=true;player.ellipsoid=new BABYLON.Vector3(.42,.95,.42);camera.lockedTarget=player;
   const head=BABYLON.MeshBuilder.CreateSphere("heroHead",{diameter:.48},scene);head.position.y=1.05;head.parent=player;head.material=skin;
