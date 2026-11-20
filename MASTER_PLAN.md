@@ -12,7 +12,7 @@ Create a third-person 3D zombie-survival adventure set in an explorable Pakistan
 ## 2. Visual quality and assets
 - Original, detailed 3D human heroes, zombies, vehicles and environments.
 - Realistic proportions, faces, clothing, materials, lighting, shadows and environmental detail; avoid flat vector-style presentation.
-- Rigged characters with suitable idle, walk, run, jump, interaction, driving and non-graphic combat animations.
+- Rigged characters with suitable idle, walk, run, jump, interaction, driving, rescue and evasion animations.
 - Use original creations or assets with clear licences suitable for the intended release.
 - Temporary primitive/greybox meshes are acceptable only during prototyping and must not be marked as final art.
 - Optimise geometry, textures, animation and effects for Android hardware.
@@ -57,11 +57,11 @@ The player should be able to approach, enter, exit and drive supported vehicles.
 - Distinct normal, fast, heavy, special and boss zombie archetypes.
 - Detection, pursuit, obstacle-aware navigation and varied behaviours.
 - Difficulty tuned for fair mobile gameplay.
-- Boss encounters with clear attack cues, health display and arena objectives.
+- Boss encounters with clear hazard cues, health display, obstacle navigation and escape objectives.
 - Non-graphic presentation.
 
 ## 7. Gameplay and equipment
-- Exploration, stealth/avoidance and suitable non-graphic combat gameplay.
+- Exploration, stealth/avoidance, rescue, obstacle navigation and survival challenges. Keep encounters non-graphic and avoid realistic weapon-use detail.
 - Character movement, camera, jumping, running, interaction and context-sensitive actions.
 - Equipment and inventory management.
 - If weapons are included, represent them only as fictional game systems with age-appropriate, non-instructional presentation.
