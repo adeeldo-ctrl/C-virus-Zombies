@@ -1,4 +1,4 @@
-name: Prototype source validation
+name: Prototype browser validation
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
       - ".github/workflows/validate-prototype.yml"
 
 jobs:
-  validate:
+  browser-smoke-test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
@@ -21,15 +21,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Check JavaScript syntax
-        run: node --check web/game.js
-      - name: Check required prototype files
-        run: |
-          test -s web/index.html
-          test -s web/style.css
-          test -s web/game.js
-          test -s web/README.md
-      - name: Check HTML script and stylesheet references
-        run: |
-          grep -q 'src="./game.js"' web/index.html
-          grep -q 'href="./style.css"' web/index.html
+      - name: Install browser test runner
+        run: npm install --no-save playwright
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run browser gameplay smoke test
+        run: node web/smoke-test.cjs
