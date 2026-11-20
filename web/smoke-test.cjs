@@ -29,7 +29,26 @@ const server = http.createServer((req,res) => {
     await page.waitForFunction(()=>window.__CVIRUS_DEBUG__.state.safe,{timeout:5000});
     const message=await page.locator("#message").innerText();
     if(!message.includes("Safe zone reached"))throw new Error("Safe-zone completion message missing.");
+    if(errors.length)throw new Error("Desktop browser errors: "+errors.join(" | "));
+    const mobile=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
+    mobile.on("pageerror",e=>errors.push(e.message));
+    await mobile.goto("http://127.0.0.1:4173/index.html",{waitUntil:"domcontentloaded"});
+    await mobile.waitForFunction(()=>window.__CVIRUS_DEBUG__ && window.__CVIRUS_DEBUG__.scene.isReady(),null,{timeout:30000});
+    const touch=await mobile.context().newCDPSession(mobile);
+    const beforeTouch=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
+    await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:76,y:768,id:1}]});
+    await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:76,y:728,id:1}]});
+    await mobile.waitForTimeout(450);
+    await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+    const afterTouch=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
+    if(!(afterTouch<beforeTouch))throw new Error("Mobile touch joystick did not move player forward.");
+    const yawBefore=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.state.yaw);
+    await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:330,y:500,id:2}]});
+    await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:350,y:500,id:2}]});
+    await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+    const yawAfter=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.state.yaw);
+    if(yawAfter===yawBefore)throw new Error("Mobile right-side camera look did not respond.");
     if(errors.length)throw new Error("Browser errors: "+errors.join(" | "));
-    console.log("PASS: scene loaded, five pursuers spawned, keyboard movement works, safe-zone objective completes, no browser errors.");
+    console.log("PASS: desktop scene, five pursuers, keyboard movement and safe-zone objective; mobile viewport, touch joystick and camera-look input; no browser errors.");
   } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(e=>{console.error(e);process.exit(1);});
