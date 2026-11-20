@@ -30,7 +30,7 @@
   for(let i=0;i<5;i++){const z= BABYLON.MeshBuilder.CreateCapsule("walker"+i,{height:1.85,radius:.43},scene);z.material=zombieMat;z.position.set((i%2?1:-1)*(4+i),1,-10-i*7);zombies.push(z);}
   let damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
-  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state};
+  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig};
   scene.onBeforeRenderObservable.add(()=>{
     const dt=Math.min(engine.getDeltaTime()/1000,.04);\n    const moving=state.moveX*state.moveX+state.moveY*state.moveY>.025;\n    const gait=moving?Math.sin(performance.now()*.012*(state.sprint?1.35:1)):0;\n    heroRig.leftLeg.rotation.x=gait*.62;heroRig.rightLeg.rotation.x=-gait*.62;heroRig.leftArm.rotation.x=-gait*.48;heroRig.rightArm.rotation.x=gait*.48;
     const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
