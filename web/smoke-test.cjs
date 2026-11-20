@@ -26,10 +26,10 @@ const server = http.createServer((req,res) => {
     const moved=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
     if(!(moved<initial.playerZ))throw new Error("Forward input did not move player toward objective.");
     const normalDistance=initial.playerZ-moved;
-    const sprintStart=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
+    const sprintStart=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);\n    const staminaBefore=await page.evaluate(()=>window.__CVIRUS_DEBUG__.state.stamina);
     await page.keyboard.down("w");await page.keyboard.down("Shift");await page.waitForTimeout(450);await page.keyboard.up("w");await page.keyboard.up("Shift");
     const sprintEnd=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
-    if(!(sprintStart-sprintEnd>normalDistance*.8))throw new Error("Sprint input did not move the player.");
+    if(!(sprintStart-sprintEnd>normalDistance*.8))throw new Error("Sprint input did not move the player.");\n    const staminaAfter=await page.evaluate(()=>window.__CVIRUS_DEBUG__.state.stamina);\n    if(!(staminaAfter<staminaBefore))throw new Error("Sprint did not consume stamina.");
     const jumpStart=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.y);
     await page.keyboard.press("Space");await page.waitForTimeout(180);
     const jumpPeak=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.y);
@@ -66,7 +66,7 @@ const server = http.createServer((req,res) => {
     await mobile.locator("#jump").evaluate(el=>el.dispatchEvent(new PointerEvent("pointerdown",{bubbles:true,pointerId:7,pointerType:"touch"})));
     await mobile.waitForTimeout(180);
     const mobileJumpPeak=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.y);
-    if(!(mobileJumpPeak>mobileJumpStart+.3))throw new Error("Mobile jump button did not work.");
+    if(!(mobileJumpPeak>mobileJumpStart+.3))throw new Error("Mobile jump button did not work.");\n    if(!await mobile.locator("#stamina").count())throw new Error("Mobile stamina HUD missing.");
     if(errors.length)throw new Error("Browser errors: "+errors.join(" | "));
     console.log("PASS: desktop scene, walkers, keyboard movement, sprint, jump, street collision and safe-zone objective; mobile viewport, joystick, camera-look and jump controls; no browser errors.");
   } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
