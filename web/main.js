@@ -1,8 +1,14 @@
-import {
-  Engine, Scene, Color3, Color4, Vector3,
-  HemisphericLight, DirectionalLight, StandardMaterial,
-  MeshBuilder, FollowCamera, Scalar, TransformNode
-} from "@babylonjs/core";
+import { Engine } from "@babylonjs/core/Engines/engine";
+import { Scene } from "@babylonjs/core/scene";
+import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
+import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
+import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
+import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
+import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
+import { FollowCamera } from "@babylonjs/core/Cameras/followCamera";
+import { Scalar } from "@babylonjs/core/Maths/math.scalar";
+import { TransformNode } from "@babylonjs/core/Meshes/transformNode";
 import "@babylonjs/core/Meshes/Builders/boxBuilder";
 import "@babylonjs/core/Meshes/Builders/groundBuilder";
 import "@babylonjs/core/Meshes/Builders/sphereBuilder";
