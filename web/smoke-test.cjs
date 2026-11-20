@@ -63,7 +63,7 @@ const server = http.createServer((req,res) => {
     const yawAfter=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.state.yaw);
     if(yawAfter===yawBefore)throw new Error("Mobile right-side camera look did not respond.");
     const mobileJumpStart=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.y);
-    await mobile.locator("#jump").tap();
+    await mobile.locator("#jump").evaluate(el=>el.dispatchEvent(new PointerEvent("pointerdown",{bubbles:true,pointerId:7,pointerType:"touch"})));
     await mobile.waitForTimeout(180);
     const mobileJumpPeak=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.y);
     if(!(mobileJumpPeak>mobileJumpStart+.3))throw new Error("Mobile jump button did not work.");
