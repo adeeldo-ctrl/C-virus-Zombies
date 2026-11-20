@@ -1,0 +1,9 @@
+{
+  "appId": "com.madeel.cviruszombies",
+  "appName": "C virus Zombies",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
