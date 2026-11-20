@@ -1,0 +1,35 @@
+name: Prototype source validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/validate-prototype.yml"
+  pull_request:
+    paths:
+      - "web/**"
+      - ".github/workflows/validate-prototype.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check JavaScript syntax
+        run: node --check web/game.js
+      - name: Check required prototype files
+        run: |
+          test -s web/index.html
+          test -s web/style.css
+          test -s web/game.js
+          test -s web/README.md
+      - name: Check HTML script and stylesheet references
+        run: |
+          grep -q 'src="./game.js"' web/index.html
+          grep -q 'href="./style.css"' web/index.html
