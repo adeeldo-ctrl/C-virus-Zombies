@@ -1,174 +1,167 @@
-# C virus Zombies
-## Complete Game Master Plan
-**Version:** 1.0 — Final approved starting plan  
-**Platform:** Android (APK delivered at the end of development)
+# C virus Zombies — Final Master Plan
 
----
+**Version:** 2.0 — Final development baseline  
+**Status:** Approved roadmap; development is active  
+**Game target:** Android APK  
+**Current prototype path:** Babylon.js browser-first 3D build  
+**Repository:** https://github.com/adeeldo-ctrl/C-virus-Zombies
 
 ## 1. Game vision
-A third-person 3D zombie-survival game set in a large, explorable Pakistani city after a dangerous virus outbreak. The player explores streets and buildings, survives zombie encounters, drives local transport, completes missions, gathers supplies, and progresses through a story.
+Create a third-person 3D zombie-survival adventure set in an explorable Pakistani city after a virus outbreak. The player explores roads, streets and buildings, survives zombie encounters, drives vehicles, helps survivors, collects supplies and progresses through a story.
 
-## 2. Original 3D graphics
-- Original 3D human heroes and original 3D zombie characters.
-- Realistic 3D character models, faces, clothing, materials, and environments; no flat vector-art presentation.
-- Proper skeletal animations for idle, walking, running, jumping, combat, getting hit, and other actions.
-- Original or properly licensed 3D assets, sounds, and music.
-- Cinematic lighting, shadows, textures, and visual effects, balanced for Android performance.
+## 2. Visual quality and assets
+- Original, detailed 3D human heroes, zombies, vehicles and environments.
+- Realistic proportions, faces, clothing, materials, lighting, shadows and environmental detail; avoid flat vector-style presentation.
+- Rigged characters with suitable idle, walk, run, jump, interaction, driving and non-graphic combat animations.
+- Use original creations or assets with clear licences suitable for the intended release.
+- Temporary primitive/greybox meshes are acceptable only during prototyping and must not be marked as final art.
+- Optimise geometry, textures, animation and effects for Android hardware.
 
-## 3. City and world
-- Explorable city streets, roads, intersections, alleys, and outdoor areas.
-- Buildings and enterable interiors, including houses, shops, hospitals, police stations, warehouses, garages, and malls.
+## 3. World and Pakistani city
+- A large, explorable city with roads, intersections, streets, alleys and outdoor spaces.
+- Enterable buildings: homes, shops, hospitals, police stations, warehouses, garages and malls.
 - Multiple floors and rooftops where practical.
-- Loot and useful supplies placed throughout the world.
-- Zombie activity across the city and distinct areas with different atmosphere and difficulty.
+- Loot, supplies, safe areas, mission locations and distinct city districts.
+- Day/night cycle and weather such as rain, fog, wind and clouds.
+- World streaming/loading and performance management appropriate for mobile.
 
-## 4. Pakistani transport and driving
-Vehicles the player can enter, exit, and drive:
+## 4. Vehicles: cars and Pakistani transport
+The player should be able to approach, enter, exit and drive supported vehicles.
+
+**Cars**
+- Include a range of familiar Pakistani road cars (hatchbacks and sedans) with distinct visual designs.
+- Specific make/model variants will be selected during the vehicle-art phase; do not treat unconfirmed model names as locked requirements.
+
+**Other Pakistani transport**
 - Motorcycles / bikes.
 - Auto rickshaws.
 - Chingchi rickshaws.
 - Mini buses.
 - Pakistani 4K buses.
-- Other suitable local cars and public transport may be added.
 
-Vehicle features planned:
-- Distinct handling, speed, engine audio, horn, headlights, and camera behaviour.
-- Vehicle condition/damage and repair.
-- Fuel system and refuelling.
-- Garage and vehicle selection/customisation, where practical.
-- Vehicle entry/exit and mobile driving controls.
+**Vehicle systems**
+- Vehicle-specific handling, acceleration, braking, steering, speed and camera behaviour.
+- Engine audio, horn, headlights and brake/reverse lights.
+- Vehicle condition, repair and refuelling.
+- Garage, vehicle selection and practical customisation.
+- Mobile touch driving controls, enter/exit interaction and collision handling.
 
-## 5. Hero and health HUD
+## 5. Heroes, health and HUD
 - Playable hero selection with distinct appearance and animations.
-- Yellow hero health/life bar positioned near the top of the screen.
-- Health decreases when the hero takes damage.
-- Health recovery items and low-health warning.
-- Game-over and continue/restart flow.
+- Yellow hero health/life bar near the top of the screen.
+- Health changes from gameplay damage; recovery items and low-health warning.
+- Clear mission objective and interaction prompts.
+- Game-over, retry and continue flow.
 
-## 6. Zombie types and AI
-Potential enemy types:
-- Normal zombie.
-- Fast zombie.
-- Strong/heavy zombie.
-- Special zombie with a distinct behaviour.
-- Boss zombies.
+## 6. Zombies and AI
+- Distinct normal, fast, heavy, special and boss zombie archetypes.
+- Detection, pursuit, obstacle-aware navigation and varied behaviours.
+- Difficulty tuned for fair mobile gameplay.
+- Boss encounters with clear attack cues, health display and arena objectives.
+- Non-graphic presentation.
 
-AI goals:
-- Detect and react to the player.
-- Navigate around world obstacles.
-- Follow and attack the player.
-- Use varied behaviours and difficulty.
-- Bosses have their own health bars, attack patterns, and arena encounters.
+## 7. Gameplay and equipment
+- Exploration, stealth/avoidance and suitable non-graphic combat gameplay.
+- Character movement, camera, jumping, running, interaction and context-sensitive actions.
+- Equipment and inventory management.
+- If weapons are included, represent them only as fictional game systems with age-appropriate, non-instructional presentation.
+- Responsive feedback through animation, sound and HUD.
 
-## 7. Combat and equipment
-- Melee combat, punches, kicks, and suitable melee weapons.
-- Firearms, ammunition, reload, and weapon switching.
-- Hit reactions, damage feedback, blocking/dodging where suitable.
-- Weapon inventory and upgrades.
-- Combat animations and readable visual/audio feedback.
+## 8. Story, missions and Urdu dialogue
+- A connected story with mission progression and memorable characters.
+- Mission types: escape infected areas, search buildings, rescue survivors, reach safe locations, find supplies/fuel and face special threats.
+- Urdu character dialogue and story conversations.
+- Urdu spoken mission instructions, warnings and important announcements.
+- Urdu subtitles for dialogue and objectives.
+- Suitable character voices and clear subtitle timing.
 
-## 8. Missions and story
-Mission ideas:
-- Escape an infected area.
-- Search buildings for supplies.
-- Rescue survivors.
-- Reach a safe location.
-- Find fuel, food, medicine, and equipment.
-- Defeat special zombie threats and bosses.
-- Progress through a main story with mission objectives and rewards.
-
-## 9. Survival, inventory, and crafting
-- Collect food, water, medicine, ammunition, and useful materials.
-- Backpack/inventory with capacity.
-- Storage at a safe house.
+## 9. Inventory, survival and crafting
+- Collect food, water, medicine and useful materials.
+- Backpack with capacity and clear item descriptions.
+- Safe-house storage and mission preparation.
 - Health recovery and survival supplies.
-- Optional crafting and equipment upgrades.
+- Optional crafting and equipment upgrades where they improve gameplay.
 
 ## 10. Safe house and progression
-- A safe house/base for the player.
-- Store supplies and equipment.
+- Player base/safe house with storage and useful facilities.
 - Restock and prepare for missions.
-- Upgrade the base and unlock useful facilities.
-- Save campaign progress, mission completion, and unlocks.
+- Unlock upgrades and new areas.
+- Save campaign progress, mission completion, inventory and unlocks.
+- Reliable save/load and recovery from interrupted sessions.
 
-## 11. World atmosphere
-- Day/night cycle.
-- Weather options such as rain, fog, wind, and clouds.
-- Ambient city sounds and environmental effects.
-- Night-time visibility and atmosphere tuned for playability.
+## 11. Sound and music
+- Quality background music and sound design.
+- Urdu dialogue/voice acting.
+- Zombie ambience, footsteps, environment, weather, vehicles, engines, horns, menus and mission feedback.
+- Separate volume controls for music, effects and dialogue.
+- Audio assets must be original or properly licensed.
 
-## 12. Urdu voice and sound
-- Urdu voice acting for hero dialogue and story conversations.
-- Urdu spoken mission instructions, warnings, and important announcements.
-- Urdu subtitles for dialogue and mission information.
-- Suitable male/female character voices according to the story.
-- Professional-quality background music and sound design.
-- Zombie sounds, footsteps, weapons, impacts, engines, horns, weather, menus, and mission feedback.
-- Separate volume controls for music, effects, and dialogue.
-
-## 13. Mobile interface and controls
-- Touchscreen-friendly third-person controls.
-- Left-side movement joystick.
-- Right-side camera control.
-- Context-sensitive attack, jump, run, interact, and weapon buttons.
-- Vehicle entry/exit and driving controls.
-- HUD includes yellow health bar, weapon/ammo information, mission objective, and relevant vehicle information.
-- Adjustable graphics, sensitivity, and audio settings.
-
-## 14. Main menu
-Planned sections:
-- New Game.
-- Continue.
-- Hero Selection.
-- Missions.
-- Garage.
-- Inventory / equipment.
-- Settings.
-- Exit.
-
-## 15. Android performance and technical approach
-- Select a suitable 3D engine after a small technical prototype; evaluate Godot 4 and Unity against the required 3D world, vehicles, animation, and Android performance.
-- Optimise models, textures, lighting, shadows, effects, and world loading for mobile devices.
-- Graphics presets such as Low, Medium, and High where supported.
-- Use efficient collision, AI, object pooling, and scene/world streaming as needed.
+## 12. Mobile controls and interface
+- Third-person touchscreen controls.
+- Left movement joystick and right-side camera look.
+- Contextual interact, jump, run and gameplay action buttons.
+- Vehicle enter/exit and driving controls.
+- HUD with yellow health bar, mission objective and relevant vehicle information.
+- Settings for graphics, sensitivity and audio.
 - Support common Android screen sizes and aspect ratios.
-- Use only original or properly licensed assets.
 
-## 16. Development phases
-1. Technical prototype and engine decision.
-2. Player controller, camera, and mobile controls.
-3. Original hero model and animation integration.
-4. Zombie models, AI, and combat.
-5. City environment, buildings, and interiors.
-6. Pakistani vehicles and driving system.
-7. Missions, story, and boss encounters.
-8. Inventory, survival, safe house, and progression.
-9. Urdu voice acting, subtitles, music, and sound effects.
-10. Main menu, HUD, settings, and save system.
-11. Android optimisation, device testing, and bug fixing.
-12. Final Android APK build and installation testing.
+## 13. Menus and settings
+- Main menu: New Game, Continue, Hero Selection, Missions, Garage, Inventory/Equipment, Settings and Exit.
+- Pause menu and clear mission-completion/failure screens.
+- Save/load management.
+- Low/Medium/High graphics presets where supported.
 
-## 17. Testing and release criteria
-- Test player movement, camera, combat, and interactions.
-- Test zombie navigation, attacks, and boss encounters.
-- Test vehicle entry/exit, handling, collisions, and controls.
-- Test building interiors, mission progression, inventory, and saving.
-- Test Urdu dialogue/subtitles and all sound settings.
-- Test performance, memory use, crashes, and controls on Android devices.
-- Build and verify the APK only after the game is integrated and tested.
+## 14. Technical direction and Android delivery
+- Babylon.js is the active browser-first prototype path, replacing Godot as the active development route because Godot runtime/editor validation was unavailable in the previous environment.
+- Keep gameplay systems modular and testable; use Babylon.js features appropriate to 3D rendering, animation, physics, audio and mobile input.
+- Evaluate and implement a reliable Android packaging route (such as a suitable native WebView/container workflow) only after browser gameplay is stable; verify native plugin needs and performance before committing to it.
+- A browser build is not itself an Android APK. APK packaging, installation and device testing are mandatory final-stage tasks.
+- Use efficient collision, AI, object pooling, asset loading and world streaming.
+- Do not claim runtime/device testing unless it has actually been run and recorded.
 
----
+## 15. Development phases and completion gates
+1. **Technical foundation:** validate Babylon.js project in desktop and Android browsers; establish repeatable run/build/test workflow and decide the Android packaging route.
+2. **Player foundation:** polished third-person controller, camera, movement, collisions, mobile joystick and touch look.
+3. **Hero production:** original hero model, rig, materials and animation integration.
+4. **Zombie gameplay:** original zombie models, animations, navigation, AI and balanced non-graphic encounters.
+5. **City production:** modular Pakistani city streets, buildings, enterable interiors and world loading.
+6. **Vehicles:** cars, bikes, rickshaws, Chingchi and buses; enter/exit, driving, audio, repair and fuel.
+7. **Story and missions:** Urdu story, objectives, rescue/search/escape missions and boss encounters.
+8. **Survival systems:** inventory, supplies, safe house, crafting/upgrades and progression.
+9. **Audio and Urdu:** dialogue, voice acting, subtitles, music and sound effects.
+10. **Game interface:** main menu, HUD, garage, inventory, settings and save/load.
+11. **Optimisation and QA:** Android performance, controls, memory, compatibility, regression and bug fixing on target devices.
+12. **Release:** package Android APK, install it on test devices, verify launch/gameplay/save/audio/controls, and record final build details.
 
-## Confirmed requirements from the game owner
-1. Game title: **C virus Zombies**.
-2. Original 3D heroes and zombies; not vector-style graphics.
-3. Buildings and streets in an explorable city.
-4. Player can drive vehicles.
-5. Pakistani transport: bikes, auto rickshaws, Chingchi rickshaws, mini buses, and 4K buses.
-6. Yellow hero life/health bar near the top of the screen.
-7. Urdu-language character voices and dialogue.
+A phase is complete only when its implementation and relevant automated/manual verification are recorded. Continue phases in order; do not skip unfinished dependencies.
+
+## 16. Release acceptance checklist
+- Player movement, camera, collisions and mobile controls work reliably.
+- Hero health and HUD work correctly.
+- Zombie navigation and gameplay encounters work.
+- City areas and building interiors are explorable.
+- All approved vehicle categories can be entered, exited and driven.
+- Missions, Urdu dialogue/subtitles, inventory and progression work.
+- Audio and settings work.
+- Save/load survives app restart.
+- Android performance, memory use, compatibility and crash checks pass on target devices.
+- Final APK installs and launches successfully; final build/version is recorded.
+
+## 17. Confirmed owner requirements
+1. Title: **C virus Zombies**.
+2. Detailed original 3D heroes and zombies; not flat vector-style art.
+3. Explorable city streets and enterable buildings.
+4. Drivable cars and Pakistani transport.
+5. Bikes, auto rickshaws, Chingchi, mini buses and 4K buses.
+6. Yellow hero health bar near the top.
+7. Urdu voices, dialogue and mission communication with subtitles.
 8. Good-quality sound and music.
-9. Android APK is the final delivery, after development and testing.
+9. Android APK as final delivery after development and testing.
 
-## Planning note
-This document is the approved starting master plan. Additional ideas can be added as requirements are decided. Recommended features are planning proposals until explicitly approved. Development should begin only when the owner gives the go-ahead.
+## 18. Scope discipline and continuity
+- This file is the final baseline roadmap. Preserve its requirements while implementing in phases.
+- Do not silently remove approved features or call placeholder assets final.
+- Specific car makes/models remain to be selected in the vehicle phase; the general requirement for drivable cars is confirmed.
+- Update `DEVELOPMENT_LOG.md` after each meaningful development session with completed work, test evidence, known limitations, commit and exact next checkpoint.
+- When the owner starts a new chat with **“C virus”**, read this plan and the latest development log and resume from the recorded checkpoint without asking them to repeat known requirements.
+- Never claim a feature, test, phase or APK is complete unless verified.
