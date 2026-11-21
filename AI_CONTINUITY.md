@@ -355,3 +355,9 @@ When the user says **“C virus”** in a new chat:
 
 - Packaging workflow correction: `.github/workflows/build-android-apk.yml` now runs only on explicit `workflow_dispatch`; ordinary development/documentation commits no longer launch repeated APK builds. APK creation remains a deliberate release-stage action.
 - Browser validation run `44931956438` for the hunger/hydration implementation: production web bundle succeeded; Chromium installation was still in progress at the last status check, so the gameplay smoke suite has not yet run and no pass is claimed.
+
+
+## Latest visible-world checkpoint — 2026-11-21
+- Directly updated `web/game.js`: added Pakistani street dressing (utility poles/cables, street lamps, roadside market stalls/carts, direction boards) and increased initial zombie population to 12 with spread-out neighbourhood spawn points.
+- Updated `web/smoke-test.cjs` to assert the new city details and zombie population. Latest browser workflow is queued/running; verify its result before claiming success.
+- These are procedural prototype improvements, not final production-quality city assets or final zombie models. Continue toward original high-quality character/environment assets and functional AI; do not call the game complete.
