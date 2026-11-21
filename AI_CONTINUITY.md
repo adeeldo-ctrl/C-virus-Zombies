@@ -333,3 +333,14 @@ When the user says **“C virus”** in a new chat:
 - Browser desktop/mobile smoke test passed and Android debug APK workflow passed for the same code commit. APK SHA-256: `33a27dc213622967b32fbe54ce7547f58cd25d1321863561fe610e821a7c9b5a`.
 - Physical Android device testing has not yet been done; ask user to install and check feel/sound. The realistic hero/zombie art requirement is still incomplete; don't represent current procedural zombies as final production models.
 - Follow-up: wait for or disregard any docs-only workflow runs from this continuity update; do not confuse them with the verified game-code build above. Continue from latest main and do not regress joystick hit-area spacing, audio unlock, or the shield cooldown.
+
+
+## Latest verified checkpoint — 2026-11-21 (Ibrahim / controls / Super Water Gun)
+- Verified game-code commit: `282a3618cc7d898e4cd8fccbef2290f82c0e7856`.
+- Ibrahim's existing skinned Quaternius GLB now has a refined runtime gait with alternating thigh stride, knee flex, opposite upper-arm swing, bent elbow follow-through, shoulder/hand response and torso motion. Browser smoke assertions check actual limb-bone pose values during movement.
+- On-foot joystick input now has responsive frame-rate-smoothed starts/stops. Vehicle steering/throttle remains unchanged and direct.
+- Added a visible Super Water Gun mobile action. The blue projectile is a playful non-damaging game effect. On hit, a zombie travels a long distance in an airborne arc, spins, lands on the ground and recovers.
+- Browser test now checks Ibrahim gait, projectile hit, airborne arc, displacement, landing and recovery. Integrated browser workflow `44893068933` passed. Android debug APK workflow `44893068950` passed.
+- APK SHA-256: `327eb65c09a2c4aa60f72e00c339d63a5ce9facdb5bce5edd1510f878f7c2bb6`. APK is landscape-locked debug build.
+- Physical Android device visual/control testing remains pending. The current hero uses the bundled Quaternius skinned model and this pass is a runtime animation improvement, not completion of final original character art. Zombie models also remain stylised prototypes.
+- Do not change the vehicle joystick behaviour. Continue to preserve the on-foot joystick hit area, camera touch control, audio unlock and shield cooldown.
