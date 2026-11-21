@@ -167,3 +167,9 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Workflow `44878034035` failed before build at dependency installation because npm requested unavailable Rollup `4.68.8`. Pinned the published `4.68.7` release using an npm override (commit `3337f3b960ab57084bb2dfa94ca927b02364a13d`). New workflow `44878101794` is pending/needs result check.
 - Commits: `942db9c455fc02c1f6004e182bb872b6921d7139`, `19a411645d3f0440100b80e65eaccef5c2578ad2`, `c1a9492d940bac6cfa86593b2be5ea7f2b3eabc9`, `d82de395dfd95567d6f36340cbc191635b6e2d52`, `9ace0abde57b2dc2754fb6f1f5c77458bdc41d75`, `e2fa1760d12f4e82d8290635f1bc21f373297e76`, `3337f3b960ab57084bb2dfa94ca927b02364a13d`.
 - No APK/device validation claimed.
+
+
+## Latest validation note (2026-11-21)
+- Workflow `44878101794`: npm install and Vite production build passed; smoke test stopped on a desktop mouse surrogate for the joystick. That desktop-only surrogate assertion was removed. Actual mobile Chromium touch joystick/camera/jump checks remain in the suite.
+- Latest workflow `44878209378`: npm install and production bundle build passed; Chromium installation was still running at last check, so overall smoke-test result remains unverified.
+- Fix commit: `f2052db1d8d7d83d7d744db2c3094e88301373a0`.
