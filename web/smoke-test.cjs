@@ -29,6 +29,8 @@ const server = http.createServer((req,res) => {
     if(!initial.canvas||initial.zombies!==5)throw new Error("Initial scene assertions failed: "+JSON.stringify(initial));
     const heroParts=await page.evaluate(()=>window.__CVIRUS_DEBUG__.heroRig.heroParts.length);
     if(heroParts<10)throw new Error("Original modular hero character parts are missing.");
+    const interiors=await page.evaluate(()=>window.__CVIRUS_DEBUG__.interiorRooms.map(r=>r.type));
+    if(interiors.join(",")!=="CLINIC,SHOP,POLICE")throw new Error("Walk-in city interiors are missing: "+interiors.join(","));
     await page.keyboard.down("w");await page.waitForTimeout(500);await page.keyboard.up("w");
     const moved=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
     // A walk cycle naturally crosses zero at specific animation phases.
@@ -74,6 +76,11 @@ const server = http.createServer((req,res) => {
     const consumed=await page.evaluate(()=>({health:window.__CVIRUS_DEBUG__.state.health,medicine:window.__CVIRUS_DEBUG__.state.inventory.medicine}));
     if(consumed.health!==80||consumed.medicine!==0)throw new Error("Backpack medicine did not restore health and consume one item.");
     await page.locator("#inventory-button").click();
+    // Walk from the street through the clinic doorway and confirm the interior prompt.
+    await page.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.state.yaw=0;d.player.position.set(-1.4,.95,18);});
+    await page.keyboard.down("a");await page.waitForTimeout(850);await page.keyboard.up("a");
+    const clinicEntry=await page.evaluate(()=>({x:window.__CVIRUS_DEBUG__.player.position.x,prompt:document.getElementById("building-prompt").textContent}));
+    if(!(clinicEntry.x<-3.5&&clinicEntry.prompt.includes("CLINIC")))throw new Error("Player could not walk through the clinic doorway: "+JSON.stringify(clinicEntry));
     await page.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.pickups.forEach(p=>{p.collected=true;p.mesh.setEnabled(false);p.marker.setEnabled(false);});d.state.supplies=4;document.getElementById("supplies").textContent="4";d.player.position.copyFrom(d.safe.position);});
     await page.waitForFunction(()=>window.__CVIRUS_DEBUG__.state.safe,{timeout:5000});
     const message=await page.locator("#message").innerText();
