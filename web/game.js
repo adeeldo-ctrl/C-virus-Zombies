@@ -46,6 +46,50 @@
     const tank=BABYLON.MeshBuilder.CreateCylinder("roofWaterTank",{diameter:1.5,height:1.9,tessellation:16},scene);tank.position.set(x+streetSide*1.7,h+1.15,z+2.1);tank.material=metalMat;
   }
   for(let z=-45;z<=45;z+=18){building(-13,z,10,12,9+(Math.abs(z)%3)*2,wallA);building(13,z,10,12,11,wallB);}
+  // Walk-in interiors placed inside the playable street block. Each room has
+  // a real doorway and collidable walls, with its roof omitted for clear play.
+  const interiorRooms=[];
+  function createInterior(type,x,z){
+    const width=5.2,depth=7.2,height=4.1,doorWidth=1.7,side=x<0?1:-1;
+    const center=new BABYLON.Vector3(x,0,z),floorMat=mat(type+"Floor","#77756b"),insideWall=mat(type+"Inside","#b8b4a7"),trim=mat(type+"Trim","#5c6668");
+    const floor=BABYLON.MeshBuilder.CreateBox(type+"Floor",{width,height:.18,depth},scene);floor.position.set(x,.02,z);floor.material=floorMat;floor.checkCollisions=true;
+    const wall=(name,wx,wy,wz,ww,wh,wd,material=insideWall)=>{
+      const m=BABYLON.MeshBuilder.CreateBox(name,{width:ww,height:wh,depth:wd},scene);m.position.set(wx,wy,wz);m.material=material;m.checkCollisions=true;return m;
+    };
+    wall(type+"BackWall",x, height/2,z-depth/2,width,height,.2);
+    wall(type+"FarSideWall",x-side*width/2,height/2,z,.2,height,depth,trim);
+    wall(type+"NearSideWall",x+side*width/2,height/2,z,.2,height,depth,trim);
+    const segment=(depth-doorWidth)/2;
+    wall(type+"FrontWallA",x+side*(width/2-.05),height/2,z-(doorWidth/2+segment/2),.2,height,segment,trim);
+    wall(type+"FrontWallB",x+side*(width/2-.05),height/2,z+(doorWidth/2+segment/2),.2,height,segment,trim);
+    // Door lintel and visible frame mark the opening without blocking entry.
+    wall(type+"DoorLintel",x+side*(width/2-.05),height-.16,z,.2,.32,doorWidth,trim);
+    for(const dz of [-doorWidth/2,doorWidth/2])wall(type+"DoorJamb",x+side*(width/2-.05),1.95,z+dz,.22,3.9,.16,mat(type+"DoorFrame","#d8c9a5"));
+    const sign=BABYLON.MeshBuilder.CreateBox(type+"Sign",{width:2.5,height:.58,depth:.13},scene);sign.position.set(x+side*(width/2+.12),3.35,z);sign.rotation.y=Math.PI/2;sign.material=mat(type+"SignMat",type==="CLINIC"?"#287f79":type==="SHOP"?"#a65b37":"#315a82");
+    const prop=(name,px,py,pz,w,h,d,color)=>{
+      const m=BABYLON.MeshBuilder.CreateBox(name,{width:w,height:h,depth:d},scene);m.position.set(px,py,pz);m.material=mat(name+"Mat",color);return m;
+    };
+    if(type==="CLINIC"){
+      prop("clinicBed",x-side*.55,.62,z-.7,1.45,.28,2.35,"#d8ddd8");
+      prop("clinicPillow",x-side*.55,.82,z-1.55,.8,.16,.48,"#eef0e9");
+      prop("clinicCabinet",x-side*1.55,1.05,z+2.1,.65,2.0,.75,"#d7d1bd");
+      prop("clinicCounter",x+side*.7,.62,z+2.55,1.35,.25,.75,"#806c55");
+      prop("clinicCross",x+side*.15,2.8,z-depth/2+.18,.7,.7,.12,"#2b9b73");
+    }else if(type==="SHOP"){
+      for(let i=0;i<3;i++)prop("shopShelf"+i,x-side*1.55,1.3,z-2.1+i*1.8,.38,2.5,1.1,"#806044");
+      prop("shopCounter",x+side*.75,.65,z+2.45,1.5,.3,.8,"#79583c");
+      for(let i=0;i<5;i++)prop("shopGoods"+i,x-side*1.52,2.15,z-2.1+i*1.05,.42,.35,.42,"#c39a4d");
+    }else{
+      prop("policeDesk",x-side*.65,.68,z-.65,2.0,.32,.95,"#594a3d");
+      prop("policeCabinet",x+side*1.55,1.2,z+2.0,.65,2.3,.8,"#52606b");
+      prop("policeBench",x-side*.65,.5,z+2.3,1.8,.18,.55,"#786b58");
+      prop("policeBadge",x+side*.15,2.8,z-depth/2+.18,.85,.65,.12,"#d3b34a");
+    }
+    interiorRooms.push({type,center,door:new BABYLON.Vector3(x+side*(width/2),0,z)});
+  }
+  createInterior("CLINIC",-4.8,18);
+  createInterior("SHOP",4.8,-13);
+  createInterior("POLICE",-4.8,-35);
   // Collision boundaries keep the player inside the playable street block.
   for(const x of [-7.6,7.6]){const wall=BABYLON.MeshBuilder.CreateBox("streetBoundary",{width:.5,height:4,depth:120},scene);wall.position.set(x,2,0);wall.checkCollisions=true;wall.visibility=0.001;}
   for(const z of [-58,58]){const wall=BABYLON.MeshBuilder.CreateBox("streetEndBoundary",{width:15.5,height:4,depth:.5},scene);wall.position.set(0,2,z);wall.checkCollisions=true;wall.isVisible=false;}
