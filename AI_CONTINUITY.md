@@ -302,3 +302,5 @@ When the user says **“C virus”** in a new chat:
 - Owner confirmed the basic APK runs well and requested forced landscape orientation before continuing game development.
 - Updated Android packaging workflow to set the generated Capacitor `MainActivity` to `android:screenOrientation="landscape"` before Gradle packaging. This locks the Android app to landscape; browser preview remains responsive and is not forcibly rotated.
 - Next implementation checkpoint: continue the Master Plan in order, prioritising Phase 2 mobile controller/camera ergonomics and Phase 3 hero production improvements. Keep work consolidated and avoid unnecessary test runs.
+
+- Follow-up mobile ergonomics: added a landscape-specific HUD, joystick, action-button, subtitle, vehicle-status and main-menu layout for short-height Android screens. Existing portrait/browser styles remain unchanged.

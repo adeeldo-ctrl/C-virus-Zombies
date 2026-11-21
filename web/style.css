@@ -79,3 +79,34 @@
 #action-buttons #vehicle-brake{width:68px;height:52px;border-radius:14px;border:1px solid #e18b7e;background:#79372fed;color:#fff;font-size:10px;touch-action:none}#action-buttons #vehicle-brake[hidden]{display:none}
 
 #action-buttons #crouch{width:68px;height:52px;border-radius:14px;border:1px solid #8bc9d7;background:#21485bed;font-size:10px}#action-buttons #crouch[hidden]{display:none}
+
+/* Android landscape gameplay layout */
+@media screen and (orientation:landscape) and (max-height:560px){
+  #hud{top:9px;left:12px;right:12px;padding-right:190px}
+  .hud-title{font-size:15px}
+  .health-wrap{width:230px;height:11px;margin-top:5px}
+  .stamina-wrap{width:230px;margin-top:4px}
+  #status{font-size:10px;max-width:38vw}
+  .supply-pill{padding:3px 7px;font-size:9px}
+  #top-actions{gap:5px}
+  #top-actions button{padding:6px 9px;font-size:9px}
+  #controls{height:112px;bottom:max(10px,env(safe-area-inset-bottom));left:max(14px,env(safe-area-inset-left));right:max(14px,env(safe-area-inset-right))}
+  #stick{width:100px;height:100px}
+  #knob{width:42px;height:42px;left:27px;top:27px}
+  #look-help{left:108px;bottom:5px;font-size:9px}
+  #action-buttons{bottom:0;gap:8px}
+  #action-buttons button{width:58px;height:58px;font-size:10px}
+  #message{bottom:125px;font-size:11px;padding:7px 11px}
+  #subtitles{bottom:142px;padding:7px 12px}
+  #subtitle-urdu{font-size:16px;line-height:1.5}
+  #subtitle-translation{font-size:10px}
+  #vehicle-prompt{bottom:132px}
+  #building-prompt{bottom:164px}
+  #vehicle-status{top:76px;right:12px;width:126px}
+  .main-menu-card{padding:18px 24px;width:min(380px,72vw)}
+  .menu-title{font-size:28px;margin-top:7px}
+  .menu-title span{font-size:20px;margin-top:3px}
+  .menu-copy{margin:10px 0 12px;font-size:11px}
+  .main-menu-card button{margin-top:7px;padding:9px}
+  .menu-foot{margin-top:12px}
+}
