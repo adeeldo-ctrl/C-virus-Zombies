@@ -182,6 +182,7 @@
   let driving=false;
   const driveButton=document.getElementById("drive");
   const vehiclePrompt=document.getElementById("vehicle-prompt");
+  const buildingPrompt=document.getElementById("building-prompt");
   function toggleVehicle(){
     if(state.paused||state.ended)return;
     if(!driving&&BABYLON.Vector3.Distance(player.position,vehicle.position)<4.3){
@@ -263,7 +264,7 @@
   window.addEventListener("pagehide",saveProgress);
   let saveClock=0, damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
-  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,get driving(){return driving;}};
+  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,interiorRooms,get driving(){return driving;}};
   let worldClock=0;
   let subtitleTimer=null;
   const subtitlePanel=document.getElementById("subtitles");
@@ -341,6 +342,16 @@
     const vehicleDistance=BABYLON.Vector3.Distance(player.position,vehicle.position);
     vehiclePrompt.hidden=!driving&&vehicleDistance>4.3;
     vehiclePrompt.textContent=driving?"Press E / EXIT to leave vehicle":"Press E / DRIVE to enter sedan";
+    let nearestRoom=null,nearestDoor=Infinity,insideRoom=null;
+    if(!driving){
+      for(const room of interiorRooms){
+        const doorDistance=BABYLON.Vector3.Distance(player.position,room.door);
+        if(doorDistance<nearestDoor){nearestDoor=doorDistance;nearestRoom=room;}
+        if(Math.abs(player.position.x-room.center.x)<2.15&&Math.abs(player.position.z-room.center.z)<3.05)insideRoom=room;
+      }
+    }
+    buildingPrompt.hidden=driving||(!insideRoom&&(!nearestRoom||nearestDoor>3.2));
+    buildingPrompt.textContent=insideRoom?insideRoom.type+" INTERIOR — EXPLORE":nearestRoom?nearestRoom.type+" — WALK INSIDE":"";
     const reached=BABYLON.Vector3.Distance(driving?vehicle.position:player.position,safe.position)<3;
     if(reached&&!state.safe&&state.supplies===4){state.safe=true;document.getElementById("message").textContent="Safe zone reached — mission complete!";document.getElementById("status").textContent="Mission complete. All 4 supplies secured.";endTitle.textContent="MISSION COMPLETE";endText.textContent="You reached the safe zone with all supplies.";endOverlay.hidden=false;showSubtitle("ہم محفوظ مقام تک پہنچ گئے! مشن مکمل۔","Safe zone reached. Mission complete.",5000);saveProgress();}
     else if(reached&&!state.safe){document.getElementById("message").textContent="Safe zone ahead — collect all 4 supplies first.";document.getElementById("status").textContent="Supplies secured: "+state.supplies+"/4. Find the remaining crates.";}
