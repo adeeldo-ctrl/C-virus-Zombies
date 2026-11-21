@@ -31,8 +31,15 @@ const server = http.createServer((req,res) => {
     if(heroParts<10)throw new Error("Original modular hero character parts are missing.");
     await page.keyboard.down("w");await page.waitForTimeout(500);await page.keyboard.up("w");
     const moved=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
-    const legMotion=await page.evaluate(()=>Math.abs(window.__CVIRUS_DEBUG__.heroRig.leftLeg.rotation.x)+Math.abs(window.__CVIRUS_DEBUG__.heroRig.rightLeg.rotation.x));
-    if(legMotion<.05)throw new Error("Hero walk-cycle animation did not respond to movement.");
+    // A walk cycle naturally crosses zero at specific animation phases.
+    // Sample several frames so the assertion checks motion over time, not one instant.
+    let maxLegMotion=0;
+    for(let sample=0;sample<8;sample++){
+      const legMotion=await page.evaluate(()=>Math.abs(window.__CVIRUS_DEBUG__.heroRig.leftLeg.rotation.x)+Math.abs(window.__CVIRUS_DEBUG__.heroRig.rightLeg.rotation.x));
+      maxLegMotion=Math.max(maxLegMotion,legMotion);
+      await page.waitForTimeout(45);
+    }
+    if(maxLegMotion<.05)throw new Error("Hero walk-cycle animation did not respond to movement.");
     if(!(moved<initial.playerZ))throw new Error("Forward input did not move player toward objective.");
     const normalDistance=initial.playerZ-moved;
     const sprintStart=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
