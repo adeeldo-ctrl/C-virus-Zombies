@@ -114,3 +114,14 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 ## Mobile-first priority correction
 - This is an Android touchscreen game. Prioritise left virtual joystick, right-side camera drag, contextual touch actions, vehicle touch driving, safe-area handling, screen scaling and Android performance.
 - Desktop keyboard automation is secondary and must not be treated as the main gameplay acceptance criterion. Do not spend time chasing keyboard-only smoke failures when the real issue/requirement is touch gameplay.
+
+
+## Latest update — survivor rescue objective (2026-11-21)
+- Added a shopkeeper survivor inside the General Store, a proximity-triggered RESCUE touch action, Urdu/English rescue dialogue, and save/load persistence for the rescue state.
+- Safe-zone extraction now requires the survivor to be rescued as well as all four supplies collected. The HUD explains missing requirements.
+- Commits: `2a0ddd334f24ed3c2c926c0112a77b4d51d623d9`, `58f7298725e9164f9206d0bc28aabc254d71bd19`, `9337757c76a3a9e0136701ab890e77106e27f0a3`.
+- Workflow `44876919628`: production bundle passed; browser smoke suite failed on a desktop keyboard-forward-movement assertion. Do not claim the integrated browser suite or Android device validation passed.
+
+## Android-first implementation rule
+- The game is intended for Android touchscreen. Main acceptance is virtual joystick movement, independent right-side camera drag, contextual touch actions, vehicle controls and Android layout/performance. Desktop keyboard input is optional and must not define gameplay readiness.
+- Avoid repeated micro-tests. Run only consolidated build/integration checks when they provide useful evidence; build the APK only after the full approved game scope is implemented.
