@@ -198,3 +198,5 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Extended the existing integrated flow to cover service interactions. Validation is pending; no browser-suite or Android-device pass is claimed.
 
 - Follow-up correction: the service smoke scenario now parks the sedan at the service bay before checking the contextual action; exiting a vehicle also immediately hides the driving-only status panel.
+
+- Integrated run `44879112614`: npm install, Vite production build and Chromium installation passed. The browser flow still failed on the vehicle prompt assertion. The next run forces one scene render after the deterministic teleport and captures player position, nearest-vehicle distance and pause state in the failure message, so the remaining mismatch can be diagnosed without another blind timeout.
