@@ -151,3 +151,10 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Hero blockout gained a chest harness, radio and antenna. Zombie walker prototypes gained non-graphic face details (glowing eyes, sockets, brows, nose, mouth/teeth) and torn clothing panels.
 - Commit: `4af7d0a103abab25fd3935f617ec49002323cdbe`.
 - Still procedural prototype art; final rigged models/animations and Android device validation are outstanding.
+
+
+## Latest implementation update — Chingchi and safe-house storage (2026-11-21)
+- Added a six-vehicle fleet by adding a drivable Chingchi rickshaw with three-wheel passenger-cabin design and mobile controls. It was appended after the original five fleet entries to preserve old save slot compatibility. Garage selector includes it.
+- Added a safe-house hub with a persistent storage chest for water, food, medicine and parts. Contextual STORE action opens a paused storage panel; Store All and Take All respect the backpack's 99-per-item limit. Stash persists with campaign save.
+- Commits: `4de6e33024670b432c8af7e678b1bda17c32cba4`, `361f44f56f0c1eae4fa0c6936f16c3c99a5da873`, `d89115535cd97f8dd219f0d97ec5b817057e8196`, `a82000cb4edc258fb519d768e12911862a7e2d70`.
+- Workflow `44877776879` was still running at last inspection; do not claim pass until completed. No Android device validation or APK build.
