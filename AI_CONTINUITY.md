@@ -277,3 +277,5 @@ When the user says **“C virus”** in a new chat:
 ## Latest vehicle lighting implementation
 - Vehicle headlight toggle now enables/disables paired forward spotlights as well as visible lamp meshes. Beam range is longer for minibuses and 4K buses.
 - Latest integrated browser workflow before this change: run 44881954461 completed successfully. The new spotlight change is awaiting its automatically triggered workflow; no device/APK claim.
+
+- Follow-up correction: saved headlight state now restores the actual spotlights on reload, not only the visible lamp meshes.

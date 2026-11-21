@@ -282,3 +282,7 @@ When the user says **“C virus”** in a new chat:
 - Upgraded the vehicle LIGHTS toggle from visible lamp meshes only to actual Babylon spotlights, parented to each vehicle and aimed forward; beam range scales for cars, minibuses and the 4K bus.
 - Beams remain disabled until the driver switches lights on; the same toggle controls both visible lamp meshes and scene illumination.
 - Existing vehicle save state continues to restore the light toggle. Android/device performance still requires final validation.
+
+
+## 2026-11-21 — Persisted headlight beam restoration
+- Corrected vehicle load restoration so saved headlight state restores both front lamp meshes and forward spotlights after reloading the game.
