@@ -45,8 +45,10 @@ const server = http.createServer((req,res) => {
       // Stand beside the sedan, outside its collision box but inside DRIVE range.
       d.state.paused=false;
       d.player.position.set(d.vehicle.position.x+2.3,.95,d.vehicle.position.z);
+      d.scene.render();
     });
-    await desktop.waitForFunction(()=>!document.getElementById("vehicle-prompt").hidden,null,{timeout:5000});
+    const vehiclePromptState=await desktop.evaluate(()=>({hidden:document.getElementById("vehicle-prompt").hidden,paused:window.__CVIRUS_DEBUG__.state.paused,distance:window.__CVIRUS_DEBUG__.nearestVehicle.distance,player:[window.__CVIRUS_DEBUG__.player.position.x,window.__CVIRUS_DEBUG__.player.position.z]}));
+    if(vehiclePromptState.hidden||vehiclePromptState.distance>4.8)throw new Error("Vehicle proximity prompt failed: "+JSON.stringify(vehiclePromptState));
     const vehicleRange=await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.nearestVehicle.distance);
     if(vehicleRange>4.8)throw new Error("Vehicle proximity prompt appeared outside interaction range: "+vehicleRange);
     await desktop.locator("#drive").click();
@@ -54,7 +56,7 @@ const server = http.createServer((req,res) => {
     await desktop.locator("#drive").click();
     if(await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.driving))throw new Error("Vehicle exit interaction failed.");
     // Vehicle service bay: refuel is free, repairs consume one spare part.
-    await desktop.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.vehicles[0].root.position.set(d.serviceCenter.x,.425,d.serviceCenter.z);d.player.position.set(d.serviceCenter.x+2.3,.95,d.serviceCenter.z);d.vehicles[0].fuel=12;d.vehicles[0].condition=42;d.state.inventory.parts=1;});
+    await desktop.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.vehicles[0].root.position.set(d.serviceCenter.x,.425,d.serviceCenter.z);d.player.position.set(d.serviceCenter.x+2.3,.95,d.serviceCenter.z);d.vehicles[0].fuel=12;d.vehicles[0].condition=42;d.state.inventory.parts=1;d.scene.render();});
     await desktop.waitForFunction(()=>!document.getElementById("service-button").hidden,null,{timeout:5000});
     await desktop.locator("#service-button").click();
     await desktop.locator("#refuel-vehicle").click();
