@@ -36,6 +36,8 @@ const server = http.createServer((req,res) => {
     await waitScene(desktop);
     const initial=await desktop.evaluate(()=>({zombies:window.__CVIRUS_DEBUG__.zombies.length,heroParts:window.__CVIRUS_DEBUG__.heroRig.heroParts.length,interiors:window.__CVIRUS_DEBUG__.interiorRooms.map(r=>r.type),vehicles:window.__CVIRUS_DEBUG__.vehicles.map(v=>v.type)}));
     if(initial.zombies!==5||initial.heroParts<10||initial.interiors.join(",")!=="CLINIC,SHOP,POLICE")throw new Error("Core world initialization failed: "+JSON.stringify(initial));
+    const zombieRig=await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.zombies.map(z=>({lowerArms:z.rig.lowerArms?.length,lowerLegs:z.rig.lowerLegs?.length,torso:!!z.rig.torso,head:!!z.rig.head})));
+    if(zombieRig.some(r=>r.lowerArms!==2||r.lowerLegs!==2||!r.torso||!r.head))throw new Error("Articulated zombie animation rig missing joints: "+JSON.stringify(zombieRig));
     for(const required of ["SEDAN","MOTORCYCLE","AUTO RICKSHAW","CHINGCHI","MINI BUS","4K BUS"])if(!initial.vehicles.includes(required))throw new Error("Missing drivable transport: "+required);
     const started=await desktop.evaluate(()=>({paused:window.__CVIRUS_DEBUG__.state.paused,menuHidden:document.getElementById("main-menu").hidden}));
     if(started.paused||!started.menuHidden)throw new Error("New Game did not enter active gameplay.");
