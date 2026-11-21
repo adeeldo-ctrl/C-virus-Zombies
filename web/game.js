@@ -155,6 +155,8 @@
   let savedGame=null;
   try{savedGame=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");}catch{savedGame=null;}
   state.supplies=Number.isInteger(savedGame?.supplies)?Math.max(0,Math.min(4,savedGame.supplies)):0;
+  state.inventory={water:0,food:0,medicine:0,parts:0,...(savedGame?.inventory||{})};
+  for(const key of ["water","food","medicine","parts"])state.inventory[key]=Number.isInteger(state.inventory[key])?Math.max(0,Math.min(99,state.inventory[key])):0;
   state.safe=savedGame?.missionComplete===true;
   state.health=Number.isFinite(savedGame?.health)?BABYLON.Scalar.Clamp(savedGame.health,1,100):100;
   if(Array.isArray(savedGame?.vehicle)&&savedGame.vehicle.length===3&&savedGame.vehicle.every(Number.isFinite))vehicle.position.set(savedGame.vehicle[0],.58,savedGame.vehicle[2]);
@@ -169,6 +171,11 @@
   });
   document.getElementById("supplies").textContent=String(state.supplies);
   document.getElementById("health").style.width=state.health+"%";
+  const inventoryPanel=document.getElementById("inventory-panel");
+  function updateInventory(){for(const key of ["water","food","medicine","parts"])document.getElementById("item-"+key).textContent=String(state.inventory[key]);}
+  updateInventory();
+  const inventoryButton=document.getElementById("inventory-button");
+  inventoryButton.addEventListener("click",()=>{inventoryPanel.hidden=!inventoryPanel.hidden;if(!inventoryPanel.hidden){state.sprint=false;touchX=0;touchY=0;reset();}});
   const endOverlay=document.getElementById("end-overlay");
   const endTitle=document.getElementById("end-title");
   const endText=document.getElementById("end-text");
@@ -176,7 +183,7 @@
   function saveProgress(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
-        health:state.health,supplies:state.supplies,yaw:state.yaw,missionComplete:state.safe,
+        health:state.health,supplies:state.supplies,inventory:state.inventory,yaw:state.yaw,missionComplete:state.safe,
         player:[player.position.x,player.position.y,player.position.z],
         vehicle:[vehicle.position.x,vehicle.position.y,vehicle.position.z],
         collected:pickups.filter(p=>p.collected).map(p=>p.phase)
@@ -224,7 +231,10 @@
       p.mesh.rotation.y+=dt*.65;p.marker.rotation.y-=dt*.8;
       if(BABYLON.Vector3.Distance(player.position,p.mesh.position)<1.65){
         p.collected=true;p.mesh.setEnabled(false);p.marker.setEnabled(false);
-        state.supplies+=1;state.health=Math.min(100,state.health+8);
+        state.supplies+=1;
+        const itemTypes=["water","food","medicine","parts"];state.inventory[itemTypes[p.phase]]+=1;
+        state.health=Math.min(100,state.health+8);
+        updateInventory();
         document.getElementById("supplies").textContent=String(state.supplies);
         document.getElementById("health").style.width=state.health+"%";
         document.getElementById("status").textContent="Supplies collected: "+state.supplies+"/4 — reach the safe zone.";showSubtitle("سپلائی مل گئی۔ محفوظ مقام کی طرف بڑھیں۔","Supply secured. Keep moving toward the safe zone.",2200);
@@ -276,7 +286,7 @@
   resumeButton.addEventListener("click",()=>setPaused(false));
   document.getElementById("retry-button").addEventListener("click",()=>{localStorage.removeItem(SAVE_KEY);window.location.reload();});
   const doJump=()=>{if(grounded&&jumpCooldown===0&&!state.safe&&state.health>0){verticalVelocity=7.2;grounded=false;jumpCooldown=.22;}};
-  window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(state.paused)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
+  window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){setPaused(!state.paused);inventoryPanel.hidden=true;return;}const key=e.key.toLowerCase();if(key==="i"){inventoryPanel.hidden=!inventoryPanel.hidden;return;}if(state.paused||!inventoryPanel.hidden)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
   window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
   window.addEventListener("blur",()=>{for(const key in keys)keys[key]=false;state.sprint=false;});
   engine.runRenderLoop(()=>{const keyX=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const keyY=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);state.moveX=touchX!==0?touchX:keyX;state.moveY=touchY!==0?touchY:keyY;scene.render();});
