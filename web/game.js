@@ -250,6 +250,8 @@
   for(const x of [-64,64]){const wall=BABYLON.MeshBuilder.CreateBox("cityBoundary",{width:.6,height:5,depth:130},scene);wall.position.set(x,2.5,0);wall.checkCollisions=true;wall.visibility=0.001;}
   for(const z of [-64,64]){const wall=BABYLON.MeshBuilder.CreateBox("cityEndBoundary",{width:130,height:5,depth:.6},scene);wall.position.set(0,2.5,z);wall.checkCollisions=true;wall.visibility=0.001;}
   const player=BABYLON.MeshBuilder.CreateCapsule("playerCollider",{height:1.9,radius:.42},scene);player.material=heroMat;player.visibility=0.001;player.position.set(0,.95,35);player.checkCollisions=true;player.ellipsoid=new BABYLON.Vector3(.42,.95,.42);camera.lockedTarget=player;
+  const shieldMaterial=new BABYLON.StandardMaterial("heroShieldMaterial",scene);shieldMaterial.diffuseColor=new BABYLON.Color3(.12,.72,.92);shieldMaterial.emissiveColor=new BABYLON.Color3(.05,.42,.68);shieldMaterial.alpha=.16;shieldMaterial.wireframe=true;shieldMaterial.backFaceCulling=false;
+  const heroShield=BABYLON.MeshBuilder.CreateSphere("heroEnergyShield",{diameter:2.75,segments:20},scene);heroShield.parent=player;heroShield.position.y=.04;heroShield.scaling.y=1.12;heroShield.material=shieldMaterial;heroShield.isPickable=false;heroShield.setEnabled(false);
   // Original modular hero blockout with articulated limbs and layered clothing.
   const heroParts=[];
   const part=(name,mesh,material,parent=player)=>{mesh.name=name;mesh.material=material;mesh.parent=parent;heroParts.push(mesh);return mesh;};
@@ -528,6 +530,15 @@
   const lightsButton=document.getElementById("vehicle-lights");
   const brakeButton=document.getElementById("vehicle-brake");
   const crouchButton=document.getElementById("crouch");
+  const shieldButton=document.getElementById("shield");
+  function activateShield(){
+    if(driving||state.paused||state.ended||state.health<=0||worldClock<state.shieldCooldownUntil)return;
+    state.shieldUntil=worldClock+4.5;state.shieldCooldownUntil=worldClock+20;
+    heroShield.setEnabled(true);playCue("shield");
+    document.getElementById("status").textContent="Energy shield active — move away from the infected!";
+    showSubtitle("توانائی کی ڈھال فعال ہے!","Energy shield active — escape while protected!",2600);
+  }
+  shieldButton.addEventListener("click",activateShield);
   crouchButton.addEventListener("click",()=>{if(driving||state.paused||state.ended)return;state.crouching=!state.crouching;crouchButton.textContent=state.crouching?"STAND":"CROUCH";playCue("tap");});
   brakeButton.addEventListener("pointerdown",()=>{if(driving&&!state.paused&&!state.ended)state.braking=true;});
   ["pointerup","pointercancel","pointerleave"].forEach(eventName=>brakeButton.addEventListener(eventName,()=>{state.braking=false;}));
@@ -732,7 +743,7 @@
   // Read-only debug surface used by the automated browser smoke test.
   window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
   let worldClock=0;
-  let heroWalkPhase=0;
+  let heroWalkPhase=0,footstepClock=0;
   let subtitleTimer=null;
   const subtitlePanel=document.getElementById("subtitles");
   function showSubtitle(urdu,translation,duration=4200){
@@ -761,6 +772,15 @@
     saveClock+=dt;if(saveClock>=5){saveClock=0;saveProgress();}
     const moving=!driving&&state.moveX*state.moveX+state.moveY*state.moveY>.025;
     const sprinting=moving&&(state.sprint||keys.shift)&&!state.crouching&&state.stamina>1;
+    const shieldActive=worldClock<state.shieldUntil;
+    heroShield.setEnabled(shieldActive&&!driving);
+    if(shieldActive)heroShield.rotation.y+=dt*1.35;
+    shieldButton.hidden=driving||state.paused||state.ended;
+    const shieldCooldown=Math.max(0,state.shieldCooldownUntil-worldClock);
+    shieldButton.disabled=!shieldActive&&shieldCooldown>0;
+    shieldButton.textContent=shieldActive?"SHIELD ON":shieldCooldown>0?"WAIT "+Math.ceil(shieldCooldown):"SHIELD";
+    if(moving){footstepClock-=dt;if(footstepClock<=0){playFootstep(sprinting);footstepClock=sprinting?.255:.39;}}
+    else footstepClock=Math.min(footstepClock,.08);
     const heroSpeed=sprinting?1.42:state.crouching?.62:1;
     heroWalkPhase+=dt*(sprinting?12.2:state.crouching?5.1:9.1);
     const heroPhase=heroWalkPhase;
@@ -777,10 +797,11 @@
       setIbrahimBone("calf_r",rightKnee+crouch*.72);
       setIbrahimBone("foot_l",moving?-leftKnee*.22:0);
       setIbrahimBone("foot_r",moving?-rightKnee*.22:0);
-      setIbrahimBone("upperarm_l",-gait*.78+(airborne?-.58:crouch*-.24));
-      setIbrahimBone("upperarm_r",gait*.78+(airborne?-.58:crouch*-.24));
-      setIbrahimBone("lowerarm_l",-.12+Math.max(0,gait)*.30);
-      setIbrahimBone("lowerarm_r",-.12+Math.max(0,-gait)*.30);
+      // Bend both elbows and keep the shoulders slightly relaxed instead of a stiff straight-arm pose.
+      setIbrahimBone("upperarm_l",-gait*.92+(airborne?-.48:crouch*-.22),0,-.17);
+      setIbrahimBone("upperarm_r",gait*.92+(airborne?-.48:crouch*-.22),0,.17);
+      setIbrahimBone("lowerarm_l",.48+Math.max(0,gait)*.30,0,-.035);
+      setIbrahimBone("lowerarm_r",.48+Math.max(0,-gait)*.30,0,.035);
       setIbrahimBone("spine_01",moving?Math.sin(heroPhase*2)*.018:0);
       setIbrahimBone("spine_02",crouch*.18+(airborne?-.06:Math.sin(worldClock*2)*.012));
       setIbrahimBone("spine_03",crouch*.08+(moving?gait*.045:Math.sin(worldClock*2)*.008));
@@ -823,7 +844,11 @@
     // On-foot input is camera-relative. The follow camera sits behind the hero
     // on the -Z side at zero yaw, so joystick UP must travel toward -Z.
     // Vehicle throttle is handled separately below and is intentionally untouched.
-    const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
+    // Read the actual camera view direction so joystick UP/LEFT/DOWN/RIGHT
+    // always match what the player sees, even after orbiting the camera.
+    const forward=camera.getForwardRay().direction.clone();forward.y=0;
+    if(forward.lengthSquared()<.0001)forward.set(Math.sin(state.yaw),0,-Math.cos(state.yaw));
+    forward.normalize();
     const right=new BABYLON.Vector3(-forward.z,0,forward.x);
     const move=forward.scale(-state.moveY).add(right.scale(state.moveX));
     if(move.lengthSquared()>1)move.normalize();
@@ -898,7 +923,13 @@
       if(state.safe||state.health<=0)return;
       const delta=player.position.subtract(z.position);delta.y=0;
       const dist=delta.length();
-      const chasing=!driving&&dist>1.25&&dist<z.metadata.detectionRange*(state.crouching?0.58:1);
+      if(shieldActive&&dist<4.7){
+        const away=z.position.subtract(player.position);away.y=0;
+        if(away.lengthSquared()<.001)away.set(index%2?1:0,0,index%2?0:1);
+        away.normalize();
+        z.moveWithCollisions(new BABYLON.Vector3(away.x*(4.7-dist)*2.6*dt,0,away.z*(4.7-dist)*2.6*dt));
+      }
+      const chasing=!shieldActive&&!driving&&dist>1.25&&dist<z.metadata.detectionRange*(state.crouching?0.58:1);
       let walkDirection=null;
       if(chasing){
         let chase=delta.normalize();
@@ -962,7 +993,8 @@
       }
       if(dist<1.7)near=true;
     });
-    if(near&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){playCue("alert");state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
+    if(near&&!shieldActive&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){playCue("alert");state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
+    else if(shieldActive)damageTimer=0;
     const nearest=nearestVehicle();
     hornButton.hidden=!driving||state.paused||state.ended;
     lightsButton.hidden=!driving||state.paused||state.ended;
@@ -1114,6 +1146,6 @@
   canvas.addEventListener("pointercancel",stopLook);
   canvas.addEventListener("lostpointercapture",stopLook);
   canvas.addEventListener("wheel",e=>{camera.radius=BABYLON.Scalar.Clamp(camera.radius+Math.sign(e.deltaY)*.7,5,12);},{passive:true});
-  document.addEventListener("visibilitychange",()=>{if(document.hidden){state.sprint=false;touchX=0;touchY=0;reset();}});
+  document.addEventListener("visibilitychange",()=>{if(document.hidden){state.sprint=false;touchX=0;touchY=0;reset();}else{const ctx=initAudio();if(ctx&&ctx.state==="suspended")ctx.resume().catch(()=>{});}});
   window.addEventListener("resize",()=>engine.resize());
 })();
