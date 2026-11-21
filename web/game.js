@@ -173,6 +173,9 @@
   const leftLeg=limb("hero-left-leg",-.17,-.3,pantsMat,.72,.14),rightLeg=limb("hero-right-leg",.17,-.3,pantsMat,.72,.14);
   const leftBoot=part("hero-left-boot",BABYLON.MeshBuilder.CreateBox("heroLeftBoot",{width:.22,height:.16,depth:.34},scene),bootMat);leftBoot.position.set(-.17,-.79,.07);
   const rightBoot=part("hero-right-boot",BABYLON.MeshBuilder.CreateBox("heroRightBoot",{width:.22,height:.16,depth:.34},scene),bootMat);rightBoot.position.set(.17,-.79,.07);
+  const chestRig=part("hero-chest-rig",BABYLON.MeshBuilder.CreateBox("heroChestRig",{width:.5,height:.25,depth:.055},scene),packMat);chestRig.position.set(0,.28,.205);
+  const radio=part("hero-radio",BABYLON.MeshBuilder.CreateBox("heroRadio",{width:.12,height:.18,depth:.08},scene),bootMat);radio.position.set(-.25,.34,-.02);
+  const radioAntenna=part("hero-radio-antenna",BABYLON.MeshBuilder.CreateCylinder("heroRadioAntenna",{height:.16,diameter:.018,tessellation:6},scene),shirtMat);radioAntenna.position.set(-.27,.49,-.02);
   const heroRig={leftArm,rightArm,leftLeg,rightLeg,heroParts};
   const safe=BABYLON.MeshBuilder.CreateCylinder("safeZone",{diameter:5,height:.12,tessellation:48},scene);safe.position.set(0,.12,-43);safe.material=safeMat;
   // Original low-poly walker characters: layered torso, head, face, articulated arms and legs.
@@ -195,9 +198,19 @@
     const chest=piece("walkerChest",BABYLON.MeshBuilder.CreateBox("walkerChest",{width:.38,height:.34,depth:.035},scene),zombieMat);chest.position.set(0,.13,.17);
     const head=piece("walkerHead",BABYLON.MeshBuilder.CreateSphere("walkerHead",{diameter:.4,segments:12},scene),zombieSkin);head.position.y=.7;
     const hair=piece("walkerHair",BABYLON.MeshBuilder.CreateSphere("walkerHair",{diameter:.41,segments:10},scene),zombieDark);hair.position.set(0,.83,-.015);hair.scaling.y=.45;
+    const glowEye=mat("walkerGlowEye"+i,"#e5a34c");glowEye.emissiveColor=new BABYLON.Color3(.55,.18,.025);
     for(const side of [-1,1]){
-      const eye=piece("walkerEye",BABYLON.MeshBuilder.CreateSphere("walkerEye",{diameter:.045,segments:8},scene),zombieDark);eye.position.set(side*.085,.72,.18);
+      const eyeSocket=piece("walkerEyeSocket",BABYLON.MeshBuilder.CreateSphere("walkerEyeSocket",{diameter:.095,segments:8},scene),zombieDark);eyeSocket.position.set(side*.085,.72,.168);
+      const eye=piece("walkerEye",BABYLON.MeshBuilder.CreateSphere("walkerEye",{diameter:.052,segments:8},scene),glowEye);eye.position.set(side*.085,.72,.205);
+      const brow=piece("walkerBrow",BABYLON.MeshBuilder.CreateBox("walkerBrow",{width:.12,height:.035,depth:.035},scene),zombieDark);brow.position.set(side*.085,.79,.18);
     }
+    const nose=piece("walkerNose",BABYLON.MeshBuilder.CreateSphere("walkerNose",{diameter:.075,segments:8},scene),zombieSkin);nose.position.set(0,.665,.205);nose.scaling.z=1.3;
+    const mouth=piece("walkerMouth",BABYLON.MeshBuilder.CreateBox("walkerMouth",{width:.19,height:.055,depth:.025},scene),zombieDark);mouth.position.set(0,.61,.19);
+    for(const side of [-1,1]){
+      const tooth=piece("walkerTooth",BABYLON.MeshBuilder.CreateBox("walkerTooth",{width:.035,height:.025,depth:.018},scene),shirtMat);tooth.position.set(side*.045,.615,.208);
+    }
+    const tornPanel=piece("walkerTornCloth",BABYLON.MeshBuilder.CreateBox("walkerTornCloth",{width:.17,height:.25,depth:.045},scene),zombieDark);tornPanel.position.set(.17,-.04,.19);tornPanel.rotation.z=-.2;
+    const shoulderPatch=piece("walkerShoulderPatch",BABYLON.MeshBuilder.CreateBox("walkerShoulderPatch",{width:.2,height:.18,depth:.36},scene),variantCloth);shoulderPatch.position.set(-.31,.35,0);
     const limb=(name,x,y,length,material)=>{
       const pivot=new BABYLON.TransformNode(name+"Pivot",scene);pivot.parent=root;pivot.position.set(x,y,0);
       const mesh=piece(name,BABYLON.MeshBuilder.CreateCylinder(name+"Mesh",{height:length,diameter:name.includes("arm")?.19:.23,tessellation:10},scene),material,pivot);mesh.position.y=-length/2;
