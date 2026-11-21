@@ -304,3 +304,9 @@ When the user says **“C virus”** in a new chat:
 - Improved idle breathing, walk/run stride, crouch posture, airborne arm pose and elbow/knee follow-through.
 - Browser/portrait CSS was not changed. Push-triggered workflows provide integration verification; no extra test suite was run.
 - This is a higher-detail procedural prototype pass, not final artist-authored/rigged production character art.
+## 2026-11-21 — Ibrahim rigged character asset integration
+- Replaced the visible procedural blockout at runtime with a game-ready, 65-bone skinned Quaternius Universal Base Characters humanoid (CC0 1.0).
+- Added a survivor field-uniform vertex-colour pass, dark face details, a torso-attached field pack and shoulder straps.
+- Added bone-driven idle, walk, sprint, crouch and jump posing while retaining the old procedural character as a load-failure fallback.
+- Added the source asset provenance and original CC0 license beside the bundled GLB. Portrait/browser CSS was not changed.
+- This is a rigged game-ready stylized character base with a custom survivor treatment, not a photoreal bespoke sculpt; further face/clothing sculpting and authored animation clips remain art-pipeline work.

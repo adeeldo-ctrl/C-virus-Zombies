@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@babylonjs/core": "^9.37.1",
-    "@capacitor/core": "^8.0.0"
+    "@capacitor/core": "^8.0.0",
+    "@babylonjs/loaders": "^9.37.1"
   },
   "devDependencies": {
     "@capacitor/android": "^8.0.0",

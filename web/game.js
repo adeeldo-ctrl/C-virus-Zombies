@@ -296,7 +296,85 @@
   }
   leftBoot.parent=lowerLegs[0];leftBoot.position.set(0,-.31,.07);
   rightBoot.parent=lowerLegs[1];rightBoot.position.set(0,-.31,.07);
+
   const heroRig={leftArm,rightArm,leftLeg,rightLeg,lowerArms,lowerLegs,heroParts};
+  // Production-ready skinned humanoid base for Ibrahim (Quaternius CC0 asset).
+  let heroModelReady=false,heroSkeleton=null,heroModelRoot=null;
+  const heroBoneNodes=new Map(),heroBoneRest=new Map();
+  function setIbrahimBone(name,pitch=0,yaw=0,roll=0){
+    const node=heroBoneNodes.get(name),rest=heroBoneRest.get(name);
+    if(!node||!rest)return;
+    const delta=BABYLON.Quaternion.RotationYawPitchRoll(yaw,pitch,roll);
+    node.rotationQuaternion=rest.multiply(delta);
+  }
+  async function loadIbrahimModel(){
+    try{
+      const loaded=await BABYLON.SceneLoader.ImportMeshAsync(null,"/assets/hero/","ibrahim.glb",scene);
+      heroModelRoot=new BABYLON.TransformNode("ibrahimSkinnedVisual",scene);
+      heroModelRoot.parent=player;heroModelRoot.position.set(0,-.95,0);heroModelRoot.scaling.setAll(1);
+      const rootMesh=loaded.meshes.find(m=>m.name==="__root__");
+      if(rootMesh)rootMesh.parent=heroModelRoot;
+      else{
+        for(const node of [...(loaded.transformNodes||[]),...(loaded.meshes||[])])
+          if(!node.parent)node.parent=heroModelRoot;
+      }
+      heroSkeleton=loaded.skeletons[0]||null;
+      if(!heroSkeleton)throw new Error("Ibrahim GLB did not contain a humanoid skeleton");
+      for(const bone of heroSkeleton.bones){
+        const node=bone.getTransformNode?.()||(loaded.transformNodes||[]).find(n=>n.name.toLowerCase()===bone.name.toLowerCase());
+        if(!node)continue;
+        const key=bone.name.toLowerCase();
+        heroBoneNodes.set(key,node);
+        heroBoneRest.set(key,node.rotationQuaternion?.clone()||BABYLON.Quaternion.RotationYawPitchRoll(node.rotation.y,node.rotation.x,node.rotation.z));
+      }
+      const bodyMesh=loaded.meshes.find(m=>/superhero_male|retopology/i.test(m.name));
+      if(bodyMesh){
+        const positions=bodyMesh.getVerticesData("position");
+        if(positions){
+          const colors=[],skin=[.49,.30,.20,1],shirt=[.24,.30,.20,1],vest=[.16,.20,.15,1],trousers=[.20,.22,.23,1],boots=[.09,.075,.06,1];
+          for(let i=0;i<positions.length;i+=3){
+            const x=positions[i],y=positions[i+1];let c;
+            if(y>1.54)c=skin;
+            else if(y>1.18)c=Math.abs(x)>.28?shirt:vest;
+            else if(y>.88)c=Math.abs(x)>.52?skin:vest;
+            else if(y>.22)c=trousers;
+            else c=boots;
+            colors.push(c[0],c[1],c[2],c[3]);
+          }
+          bodyMesh.setVerticesData("color",colors,false,4);
+          const uniform=new BABYLON.StandardMaterial("ibrahimFieldUniform",scene);
+          uniform.diffuseColor=BABYLON.Color3.White();uniform.specularColor=new BABYLON.Color3(.12,.12,.12);uniform.useVertexColor=true;
+          bodyMesh.material=uniform;
+        }
+      }
+      for(const mesh of loaded.meshes){
+        mesh.isPickable=false;mesh.receiveShadows=true;mesh.alwaysSelectAsActiveMesh=false;
+        const n=mesh.name.toLowerCase();
+        if(n.includes("eyes")||n.includes("eyebrows")){
+          const detail=new BABYLON.StandardMaterial("ibrahimFaceDetail_"+mesh.name,scene);
+          detail.diffuseColor=n.includes("eye")?new BABYLON.Color3(.055,.045,.04):new BABYLON.Color3(.12,.075,.045);
+          detail.specularColor=new BABYLON.Color3(.08,.08,.08);mesh.material=detail;
+        }
+      }
+      // Small survival pack and radio are attached to the actual torso bones.
+      const spine=heroBoneNodes.get("spine_02")||heroBoneNodes.get("spine_01");
+      if(spine){
+        const packMat=new BABYLON.StandardMaterial("ibrahimPackMaterial",scene);packMat.diffuseColor=new BABYLON.Color3(.20,.19,.14);
+        const packMesh=BABYLON.MeshBuilder.CreateBox("ibrahimFieldPack",{width:.34,height:.43,depth:.17},scene);
+        packMesh.parent=spine;packMesh.position.set(0,-.015,-.145);packMesh.material=packMat;packMesh.isPickable=false;
+        const strapMat=new BABYLON.StandardMaterial("ibrahimPackStraps",scene);strapMat.diffuseColor=new BABYLON.Color3(.10,.11,.09);
+        for(const side of [-1,1]){
+          const strap=BABYLON.MeshBuilder.CreateBox("ibrahimPackStrap",{width:.055,height:.38,depth:.035},scene);
+          strap.parent=spine;strap.position.set(side*.135,.015,.095);strap.rotation.z=side*-.16;strap.material=strapMat;strap.isPickable=false;
+        }
+      }
+      heroParts.forEach(mesh=>mesh.setEnabled(false));
+      heroModelReady=true;
+      console.info("Ibrahim skinned character loaded:",heroSkeleton.bones.length,"bones");
+    }catch(error){console.warn("Ibrahim character asset unavailable; keeping fallback model.",error);}
+  }
+  loadIbrahimModel();
+
 
   const radio=part("hero-radio",BABYLON.MeshBuilder.CreateBox("heroRadio",{width:.12,height:.18,depth:.08},scene),bootMat);radio.position.set(-.25,.34,-.02);
   const radioAntenna=part("hero-radio-antenna",BABYLON.MeshBuilder.CreateCylinder("heroRadioAntenna",{height:.16,diameter:.018,tessellation:6},scene),shirtMat);radioAntenna.position.set(-.27,.49,-.02);
@@ -664,15 +742,30 @@
     const heroPhase=performance.now()*.009*heroSpeed;
     const gait=moving?Math.sin(heroPhase)*(sprinting?.88:state.crouching?.22:.58):Math.sin(worldClock*1.8)*.035;
     const airborne=!grounded&&verticalVelocity>0;
-    heroRig.leftLeg.rotation.x=gait;heroRig.rightLeg.rotation.x=-gait;
-    heroRig.leftArm.rotation.x=-gait*.72+(airborne?-.7:state.crouching?-.28:0);
-    heroRig.rightArm.rotation.x=gait*.72+(airborne?-.7:state.crouching?-.28:0);
-    heroRig.lowerLegs[0].rotation.x=Math.max(0,-gait)*.72+(state.crouching?.55:0);
-    heroRig.lowerLegs[1].rotation.x=Math.max(0,gait)*.72+(state.crouching?.55:0);
-    heroRig.lowerArms[0].rotation.x=-.12+Math.max(0,gait)*.35;
-    heroRig.lowerArms[1].rotation.x=-.12+Math.max(0,-gait)*.35;
-    torso.position.y=.13+(moving?Math.abs(gait)*.025:Math.sin(worldClock*2)*.012);
-    head.rotation.x=airborne?-.08:state.crouching?.1:Math.sin(worldClock*1.4)*.012;
+    if(heroModelReady){
+      const crouch=state.crouching?1:0;
+      setIbrahimBone("thigh_l",gait*.78+crouch*.32);
+      setIbrahimBone("thigh_r",-gait*.78+crouch*.32);
+      setIbrahimBone("calf_l",Math.max(0,-gait)*.72+crouch*.78);
+      setIbrahimBone("calf_r",Math.max(0,gait)*.72+crouch*.78);
+      setIbrahimBone("upperarm_l",-gait*.66+(airborne?-.58:crouch*-.28));
+      setIbrahimBone("upperarm_r",gait*.66+(airborne?-.58:crouch*-.28));
+      setIbrahimBone("lowerarm_l",-.10+Math.max(0,gait)*.26);
+      setIbrahimBone("lowerarm_r",-.10+Math.max(0,-gait)*.26);
+      setIbrahimBone("spine_02",crouch*.18+(airborne?-.06:Math.sin(worldClock*2)*.012));
+      setIbrahimBone("spine_03",crouch*.08+(moving?gait*.025:Math.sin(worldClock*2)*.008));
+      setIbrahimBone("head",airborne?-.07:crouch*.08:Math.sin(worldClock*1.4)*.012);
+    }else{
+      heroRig.leftLeg.rotation.x=gait;heroRig.rightLeg.rotation.x=-gait;
+      heroRig.leftArm.rotation.x=-gait*.72+(airborne?-.7:state.crouching?-.28:0);
+      heroRig.rightArm.rotation.x=gait*.72+(airborne?-.7:state.crouching?-.28:0);
+      heroRig.lowerLegs[0].rotation.x=Math.max(0,-gait)*.72+(state.crouching?.55:0);
+      heroRig.lowerLegs[1].rotation.x=Math.max(0,gait)*.72+(state.crouching?.55:0);
+      heroRig.lowerArms[0].rotation.x=-.12+Math.max(0,gait)*.35;
+      heroRig.lowerArms[1].rotation.x=-.12+Math.max(0,-gait)*.35;
+      torso.position.y=.13+(moving?Math.abs(gait)*.025:Math.sin(worldClock*2)*.012);
+      head.rotation.x=airborne?-.08:state.crouching?.1:Math.sin(worldClock*1.4)*.012;
+    }
     torso.rotation.x=state.crouching?.16:airborne?-.06:0;
     zombies.forEach(z=>{
       const zMoving=!state.safe&&state.health>0&&BABYLON.Vector3.Distance(player.position,z.position)<z.metadata.detectionRange;
