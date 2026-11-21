@@ -284,3 +284,8 @@ When the user says **“C virus”** in a new chat:
 ## Latest zombie AI update
 - Five zombie archetypes now patrol with individual speed values when not pursuing the player, turn periodically, check for nearby obstacles, and animate a subtle walking gait. Existing detection-based pursuit remains.
 - The patrol change is committed and awaits its integrated CI run; Android device validation remains outstanding.
+
+
+## Latest player stealth control
+- Added touch CROUCH/STAND and keyboard C. Crouching reduces movement speed and zombie detection distance; entering a vehicle or pausing resets the stance.
+- The current commit awaits the integrated browser workflow; Android packaging and physical-device validation remain pending.

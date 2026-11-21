@@ -292,3 +292,8 @@ When the user says **“C virus”** in a new chat:
 - Added low-speed autonomous patrol movement for zombies outside their detection range, with timed direction changes and a short obstacle check so the city feels active before pursuit begins.
 - Reused each archetype's movement speed and added matching arm/leg gait for patrol and chase states; walkers return to idle pose when not moving.
 - Existing pursuit and collision steering remain in place. Await the integrated workflow for this change; no device test is claimed.
+
+
+## 2026-11-21 — Stealth crouch control
+- Added a toggleable CROUCH/STAND action for keyboard (C) and touchscreen play. Crouching slows the hero and reduces zombie detection range; it is automatically cleared when entering a vehicle or pausing.
+- This is a gameplay stealth/avoidance mechanic and does not change the non-graphic encounter presentation. Integrated workflow is pending; no Android device test is claimed.

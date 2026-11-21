@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, serviceOpen:false, missionIndex:1, activatedRelays:[],braking:false};
+  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, serviceOpen:false, missionIndex:1, activatedRelays:[],braking:false,crouching:false};
   // Original procedural audio: ambient survival bed and short gameplay cues.
   const audioSettings={music:0.22,effects:0.55,look:1,quality:"high",...(()=>{try{return JSON.parse(localStorage.getItem("cvirus-audio-v1")||"{}");}catch{return {};}})()};
   let audioContext=null,musicBus=null,effectsBus=null,ambientNodes=[];
@@ -405,6 +405,8 @@
   const hornButton=document.getElementById("vehicle-horn");
   const lightsButton=document.getElementById("vehicle-lights");
   const brakeButton=document.getElementById("vehicle-brake");
+  const crouchButton=document.getElementById("crouch");
+  crouchButton.addEventListener("click",()=>{if(driving||state.paused||state.ended)return;state.crouching=!state.crouching;crouchButton.textContent=state.crouching?"STAND":"CROUCH";playCue("tap");});
   brakeButton.addEventListener("pointerdown",()=>{if(driving&&!state.paused&&!state.ended)state.braking=true;});
   ["pointerup","pointercancel","pointerleave"].forEach(eventName=>brakeButton.addEventListener(eventName,()=>{state.braking=false;}));
   function setVehicleLights(on){
@@ -692,10 +694,10 @@
     }
     if(!driving)setEngineAudio(false);
     if(!driving&&!state.safe&&state.health>0){
-      const wantsSprint=(state.sprint||keys.shift)&&move.lengthSquared()>.01&&state.stamina>1;
+      const wantsSprint=!state.crouching&&(state.sprint||keys.shift)&&move.lengthSquared()>.01&&state.stamina>1;
       if(wantsSprint)state.stamina=Math.max(0,state.stamina-27*dt);
       else state.stamina=Math.min(100,state.stamina+18*dt);
-      const speed=wantsSprint?8.2:5.2;
+      const speed=state.crouching?2.45:wantsSprint?8.2:5.2;
       verticalVelocity-=19*dt;
       player.moveWithCollisions(new BABYLON.Vector3(move.x*speed*dt,verticalVelocity*dt,move.z*speed*dt));
       if(player.position.y<=.97&&verticalVelocity<=0){player.position.y=.95;verticalVelocity=0;grounded=true;}
@@ -734,7 +736,7 @@
       if(state.safe||state.health<=0)return;
       const delta=player.position.subtract(z.position);delta.y=0;
       const dist=delta.length();
-      const chasing=!driving&&dist>1.25&&dist<z.metadata.detectionRange;
+      const chasing=!driving&&dist>1.25&&dist<z.metadata.detectionRange*(state.crouching?0.58:1);
       let walkDirection=null;
       if(chasing){
         let chase=delta.normalize();
@@ -789,6 +791,8 @@
     hornButton.hidden=!driving||state.paused||state.ended;
     lightsButton.hidden=!driving||state.paused||state.ended;
     brakeButton.hidden=!driving||state.paused||state.ended;
+    crouchButton.hidden=driving||state.paused||state.ended;
+    if(driving){state.crouching=false;crouchButton.textContent="CROUCH";}
     vehiclePrompt.hidden=!driving&&nearest.distance>4.8;
     vehiclePrompt.textContent=driving?"Tap EXIT to leave "+activeVehicle.type:"Tap DRIVE to enter "+nearest.item.type;
     const serviceDistance=Math.hypot(player.position.x-serviceCenter.x,player.position.z-serviceCenter.z);
@@ -850,7 +854,7 @@
   const resumeButton=document.getElementById("resume-button");
   function setPaused(value){
     state.paused=!!value;pauseOverlay.hidden=!state.paused;
-    if(state.paused){state.sprint=false;state.braking=false;touchX=0;touchY=0;reset();saveProgress();}
+    if(state.paused){state.sprint=false;state.braking=false;state.crouching=false;crouchButton.textContent="CROUCH";touchX=0;touchY=0;reset();saveProgress();}
   }
   pauseButton.addEventListener("click",()=>setPaused(!state.paused));
   resumeButton.addEventListener("click",()=>setPaused(false));
@@ -895,7 +899,7 @@
     }else{localStorage.removeItem(SAVE_KEY);window.location.reload();}
   });
   const doJump=()=>{const canJump=grounded||(player.position.y<=1.18&&verticalVelocity<=0);if(canJump&&jumpCooldown===0&&!state.safe&&state.health>0&&!driving){verticalVelocity=7.2;grounded=false;jumpCooldown=.22;}};
-  window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="h"&&driving){playCue("horn");return;}if(e.key.toLowerCase()==="l"&&driving){setVehicleLights(!activeVehicle.lightsOn);return;}if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){if(!settingsPanel.hidden){closeSettings();return;}if(state.inventoryOpen){state.inventoryOpen=false;inventoryPanel.hidden=true;}else setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(key==="i"){inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}return;}if(state.paused||!inventoryPanel.hidden)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
+  window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="h"&&driving){playCue("horn");return;}if(e.key.toLowerCase()==="l"&&driving){setVehicleLights(!activeVehicle.lightsOn);return;}if(e.key.toLowerCase()==="c"&&!state.paused&&!driving&&!state.ended){state.crouching=!state.crouching;crouchButton.textContent=state.crouching?"STAND":"CROUCH";return;}if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){if(!settingsPanel.hidden){closeSettings();return;}if(state.inventoryOpen){state.inventoryOpen=false;inventoryPanel.hidden=true;}else setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(key==="i"){inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}return;}if(state.paused||!inventoryPanel.hidden)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
   window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
   window.addEventListener("blur",()=>{for(const key in keys)keys[key]=false;state.sprint=false;});
   engine.runRenderLoop(()=>{const keyX=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const keyY=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);state.moveX=touchX!==0?touchX:keyX;state.moveY=touchY!==0?touchY:keyY;scene.render();});
