@@ -754,7 +754,7 @@
       setIbrahimBone("lowerarm_r",-.10+Math.max(0,-gait)*.26);
       setIbrahimBone("spine_02",crouch*.18+(airborne?-.06:Math.sin(worldClock*2)*.012));
       setIbrahimBone("spine_03",crouch*.08+(moving?gait*.025:Math.sin(worldClock*2)*.008));
-      setIbrahimBone("head",airborne?-.07:crouch*.08:Math.sin(worldClock*1.4)*.012);
+      setIbrahimBone("head",airborne?-0.07:(crouch?0.08:Math.sin(worldClock*1.4)*0.012));
     }else{
       heroRig.leftLeg.rotation.x=gait;heroRig.rightLeg.rotation.x=-gait;
       heroRig.leftArm.rotation.x=-gait*.72+(airborne?-.7:state.crouching?-.28:0);
