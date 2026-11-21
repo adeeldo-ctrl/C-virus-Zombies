@@ -317,3 +317,10 @@ When the user says **“C virus”** in a new chat:
 - Moved mission subtitle notifications to the top-centre HUD area to keep the middle of the game view clear.
 - Added more layered anatomy/clothing details to the procedural zombie prototypes. Do not describe these as realistic/final: a proper authored zombie asset set and animation pipeline remain open requirements.
 - Browser and Android workflows for latest commit `db35f993` are pending. User has confirmed the previously installed APK works, but this new corrected APK has not yet been confirmed on-device.
+
+## Latest C virus Zombies checkpoint — 2026-11-21
+- Latest completed code checkpoint: articulated zombie locomotion pass. Each of the five procedural zombie prototypes now has elbow/knee pivots and improved patrol/chase gait, with an expanded browser assertion for the rig structure.
+- Commit sequence: `60463a31b044b44711fbc59d2f1af3b242ee38ea` (game), `e5e0ea03af3bb074215a8c7fac3b9164e5ccf7f1` (smoke test), followed by the development-log and continuity updates.
+- The prior checkpoint's browser smoke test and Android debug APK workflows passed, but this new animation pass still requires its own integrated workflow result. No device visual test is claimed.
+- Important limitation: the zombie meshes are still stylized procedural prototypes. Realistic production hero/zombie models and authored animation clips remain outstanding; do not mark the art phase complete.
+- Next: inspect the new browser workflow result, fix any regression, then verify the Android APK build. Continue production character asset work after this checkpoint.
