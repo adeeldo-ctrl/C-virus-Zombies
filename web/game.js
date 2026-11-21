@@ -724,6 +724,9 @@
     });
     if(near&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){playCue("alert");state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
     const nearest=nearestVehicle();
+    hornButton.hidden=!driving||state.paused||state.ended;
+    lightsButton.hidden=!driving||state.paused||state.ended;
+    brakeButton.hidden=!driving||state.paused||state.ended;
     vehiclePrompt.hidden=!driving&&nearest.distance>4.8;
     vehiclePrompt.textContent=driving?"Tap EXIT to leave "+activeVehicle.type:"Tap DRIVE to enter "+nearest.item.type;
     const serviceDistance=Math.hypot(player.position.x-serviceCenter.x,player.position.z-serviceCenter.z);
