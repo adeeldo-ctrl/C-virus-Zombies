@@ -11,3 +11,5 @@
 .pause-card button{padding:12px 22px;border:0;border-radius:8px;background:#d9b92f;color:#101820;font-weight:900;letter-spacing:1px}
 
 #end-overlay{position:absolute;inset:0;z-index:11;display:grid;place-items:center;background:#03080ddd;backdrop-filter:blur(5px)}#end-overlay[hidden]{display:none}
+
+#action-buttons #drive{border-color:#e5c44b;background:#69531bd9}
