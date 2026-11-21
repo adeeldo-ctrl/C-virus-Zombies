@@ -181,3 +181,13 @@ When the user says **“C virus”** in a new chat:
 - Commits: `4de6e33024670b432c8af7e678b1bda17c32cba4`, `361f44f56f0c1eae4fa0c6936f16c3c99a5da873`, `d89115535cd97f8dd219f0d97ec5b817057e8196`, `a82000cb4edc258fb519d768e12911862a7e2d70`.
 - Integrated GitHub workflow run `44877776879` is running; dependency installation was in progress at the last check. No pass is claimed. No APK built.
 - Remaining large requirements are still open: final rigged character assets/animations, larger multi-district world/interiors and streaming, multiple missions/boss, vehicle fuel/repair/audio, full safe-house progression/crafting, Urdu voice/music/SFX, settings/graphics controls and Android optimization/device validation.
+
+
+## 2026-11-21 — Campaign mission progression and interaction repair
+- Restored the contextual survivor RESCUE action. A previous vehicle-fleet block replacement had unintentionally dropped its event handler; the missing handler is now back, so the shopkeeper rescue objective is actionable again.
+- Added Mission 2 after Mission 1 extraction: activate three emergency radio relay stations around the city, then return to the safe zone. Relay progress, mission index and completion persist; the end screen offers NEXT MISSION and then CAMPAIGN COMPLETE / RESTART CAMPAIGN.
+- Updated the supply HUD to hide the completed supply counter during Mission 2, added Urdu/English mission subtitle prompts and expanded the debug acceptance surface for relay/safe-house state.
+- Replaced desktop-keyboard-dependent smoke checks with one Android-first integrated flow covering new game, joystick movement, vehicle enter/exit, backpack medicine, safe-house storage, real rescue action, both mission objectives, mobile joystick, camera drag and jump.
+- Diagnosed workflow `44878034035`: dependency installation failed before build because npm attempted to fetch unpublished Rollup `4.68.8`; public npm currently lists `4.68.7`. Added an npm override pinning Rollup to published `4.68.7` in commit `3337f3b960ab57084bb2dfa94ca927b02364a13d`. Workflow `44878101794` is the validation run for the dependency fix and integrated suite; its result must be checked before claiming success.
+- Relevant commits: `942db9c455fc02c1f6004e182bb872b6921d7139`, `19a411645d3f0440100b80e65eaccef5c2578ad2`, `c1a9492d940bac6cfa86593b2be5ea7f2b3eabc9`, `d82de395dfd95567d6f36340cbc191635b6e2d52`, `9ace0abde57b2dc2754fb6f1f5c77458bdc41d75`, `e2fa1760d12f4e82d8290635f1bc21f373297e76`, `3337f3b960ab57084bb2dfa94ca927b02364a13d`.
+- No APK built. Final-quality character art, city scale/streaming, boss, vehicle fuel/repair/audio, full story, crafting/upgrades, Urdu voice acting, settings, Android optimization/device QA remain unfinished.
