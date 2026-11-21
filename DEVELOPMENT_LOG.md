@@ -261,3 +261,8 @@ When the user says **“C virus”** in a new chat:
 - Removed the old always-visible front lamp meshes so the new headlight toggle controls the actual visible front lamps.
 - Added a contextual touch BRAKE control while driving; holding it stops throttle input and lights the rear brake lamps. Brake state clears on release, exit and pause.
 - No new test run is claimed in this commit.
+
+
+## 2026-11-21 — Non-graphic zombie escape move
+- Added a stamina-costing close-range PUSH action with a short cooldown. It creates distance and briefly stuns one nearby zombie so the player can escape without graphic combat or real-world weapon detail.
+- The contextual touch button only appears when a zombie is close and the player has enough stamina. No new test run is claimed in this commit.
