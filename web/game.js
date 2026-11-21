@@ -220,49 +220,80 @@
     const marker=BABYLON.MeshBuilder.CreateCylinder("supplyMarker"+i,{diameter:1.05,height:.035,tessellation:24},scene);marker.material=safeMat;marker.position.set(crate.position.x,.04,crate.position.z);
     pickups.push({mesh:crate,marker,collected:false,phase:i});
   }
-  // First drivable street car: simple original low-poly sedan with enter/exit and mobile controls.
-  const vehicle=BABYLON.MeshBuilder.CreateBox("sedanCollider",{width:1.9,height:.85,depth:3.5},scene);
-  vehicle.position.set(3.3,.58,31);vehicle.material=heroMat;vehicle.visibility=.001;vehicle.checkCollisions=true;
-  const vehicleParts=[];
-  const vehiclePart=(mesh,material,pos)=>{mesh.parent=vehicle;mesh.material=material;mesh.position.copyFrom(pos);vehicleParts.push(mesh);return mesh;};
-  vehiclePart(BABYLON.MeshBuilder.CreateBox("sedanBody",{width:1.85,height:.55,depth:3.35},scene),mat("sedanPaint","#315f78"),new BABYLON.Vector3(0,-.03,0));
-  vehiclePart(BABYLON.MeshBuilder.CreateBox("sedanCabin",{width:1.48,height:.68,depth:1.75},scene),windowMat,new BABYLON.Vector3(0,.53,-.12));
-  vehiclePart(BABYLON.MeshBuilder.CreateBox("sedanRoof",{width:1.52,height:.12,depth:1.82},scene),mat("sedanRoof","#24445a"),new BABYLON.Vector3(0,.9,-.12));
-  for(const side of [-1,1])for(const z of [-1.12,1.12]){
-    const wheel=BABYLON.MeshBuilder.CreateCylinder("sedanWheel",{diameter:.62,height:.2,tessellation:16},scene);wheel.rotation.z=Math.PI/2;
-    vehiclePart(wheel,bootMat,new BABYLON.Vector3(side*.91,-.28,z));
+  // Pakistani street transport fleet: sedan, motorcycle, auto-rickshaw, minibus and 4K-style bus.
+  function createVehicle(type,x,z,color){
+    const isBike=type==="MOTORCYCLE",isRickshaw=type==="AUTO RICKSHAW",isMini=type==="MINI BUS",isBus=type==="4K BUS";
+    const width=isBike?.9:isRickshaw?1.45:isMini?2.2:isBus?2.55:1.9;
+    const length=isBike?2.1:isRickshaw?2.35:isMini?4.2:isBus?7.2:3.5;
+    const height=isBike?.65:isRickshaw?1.7:isMini?2.5:isBus?3.1:.85;
+    const root=BABYLON.MeshBuilder.CreateBox(type+"Collider",{width,height,depth:length},scene);
+    root.position.set(x,height/2,z);root.material=heroMat;root.visibility=.001;root.checkCollisions=true;
+    const parts=[];
+    const part=(mesh,material,pos)=>{mesh.parent=root;mesh.material=material;mesh.position.copyFrom(pos);parts.push(mesh);return mesh;};
+    const paint=mat(type+"Paint",color),dark=mat(type+"Dark","#252c30");
+    if(isBike){
+      part(BABYLON.MeshBuilder.CreateBox("motorcycleFrame",{width:.34,height:.34,depth:1.2},scene),paint,new BABYLON.Vector3(0,-.02,0));
+      part(BABYLON.MeshBuilder.CreateBox("motorcycleTank",{width:.55,height:.42,depth:.55},scene),paint,new BABYLON.Vector3(0,.3,.12));
+      for(const zz of [-.78,.78]){const wheel=BABYLON.MeshBuilder.CreateCylinder("motorcycleWheel",{diameter:.66,height:.14,tessellation:16},scene);wheel.rotation.z=Math.PI/2;part(wheel,dark,new BABYLON.Vector3(0,-.08,zz));}
+      part(BABYLON.MeshBuilder.CreateBox("motorcycleSeat",{width:.42,height:.13,depth:.62},scene),bootMat,new BABYLON.Vector3(0,.42,-.35));
+      part(BABYLON.MeshBuilder.CreateCylinder("motorcycleHandle",{diameter:.06,height:1.05,tessellation:8},scene),dark,new BABYLON.Vector3(0,.58,.7));
+    }else{
+      part(BABYLON.MeshBuilder.CreateBox(type+"Body",{width:width*.94,height:height*.48,depth:length*.94},scene),paint,new BABYLON.Vector3(0,-height*.08,0));
+      const cabHeight=isRickshaw?height*.68:isMini?height*.4:isBus?height*.45:.68;
+      const cabDepth=isRickshaw?length*.5:isMini?length*.72:isBus?length*.72:1.75;
+      part(BABYLON.MeshBuilder.CreateBox(type+"Cabin",{width:width*.78,height:cabHeight,depth:cabDepth},scene),windowMat,new BABYLON.Vector3(0,height*.28,-length*.02));
+      if(isRickshaw){
+        part(BABYLON.MeshBuilder.CreateBox("rickshawRoof",{width:width*.92,height:.12,depth:length*.55},scene),dark,new BABYLON.Vector3(0,height*.55,-.1));
+        part(BABYLON.MeshBuilder.CreateBox("rickshawFront",{width:width*.7,height:.48,depth:.12},scene),paint,new BABYLON.Vector3(0,-.02,length*.43));
+      }
+      if(isMini||isBus)part(BABYLON.MeshBuilder.CreateBox("busRoof",{width:width*.82,height:.13,depth:length*.82},scene),dark,new BABYLON.Vector3(0,height*.54,-length*.02));
+      const wheelZ=isBike?.7:length*.34;
+      for(const side of [-1,1])for(const zz of (isRickshaw?[length*.31,-length*.31]:[wheelZ,-wheelZ])){
+        const wheel=BABYLON.MeshBuilder.CreateCylinder(type+"Wheel",{diameter:isBus?.9:isMini?.72:.62,height:.2,tessellation:14},scene);wheel.rotation.z=Math.PI/2;
+        part(wheel,dark,new BABYLON.Vector3(side*(width*.48),-height*.35,zz));
+      }
+      if(!isRickshaw&&!isMini&&!isBus){
+        part(BABYLON.MeshBuilder.CreateBox("sedanRoof",{width:1.52,height:.12,depth:1.82},scene),dark,new BABYLON.Vector3(0,.9,-.12));
+      }
+      for(const side of [-1,1]){
+        part(BABYLON.MeshBuilder.CreateBox("vehicleHeadlight",{width:Math.min(.42,width*.25),height:.18,depth:.06},scene),shirtMat,new BABYLON.Vector3(side*width*.27,-height*.02,length*.48));
+      }
+    }
+    return {root,type,parts};
   }
-  vehiclePart(BABYLON.MeshBuilder.CreateBox("sedanFrontLight",{width:.42,height:.18,depth:.06},scene),shirtMat,new BABYLON.Vector3(-.52,.12,1.7));
-  vehiclePart(BABYLON.MeshBuilder.CreateBox("sedanFrontLight",{width:.42,height:.18,depth:.06},scene),shirtMat,new BABYLON.Vector3(.52,.12,1.7));
-  let driving=false;
+  const fleet=[
+    createVehicle("SEDAN",3.3,31,"#315f78"),
+    createVehicle("MOTORCYCLE",-26, -24,"#b84436"),
+    createVehicle("AUTO RICKSHAW",26,24,"#d4b72d"),
+    createVehicle("MINI BUS",-26,27,"#3f8a75"),
+    createVehicle("4K BUS",26,-28,"#3466a1")
+  ];
+  const vehicle=fleet[0].root;
+  let activeVehicle=fleet[0],driving=false;
   const driveButton=document.getElementById("drive");
   const vehiclePrompt=document.getElementById("vehicle-prompt");
   const buildingPrompt=document.getElementById("building-prompt");
+  function nearestVehicle(){
+    let nearest=null,distance=Infinity;
+    for(const item of fleet){const d=BABYLON.Vector3.Distance(player.position,item.root.position);if(d<distance){distance=d;nearest=item;}}
+    return {item:nearest,distance};
+  }
   function toggleVehicle(){
     if(state.paused||state.ended)return;
-    if(!driving&&BABYLON.Vector3.Distance(player.position,vehicle.position)<4.3){
-      driving=true;player.setEnabled(false);camera.lockedTarget=vehicle;
-      document.getElementById("status").textContent="Driving sedan — use the joystick to steer and tap EXIT to leave.";
+    if(!driving){
+      const found=nearestVehicle();
+      if(!found.item||found.distance>4.8)return;
+      activeVehicle=found.item;driving=true;player.setEnabled(false);camera.lockedTarget=activeVehicle.root;
+      document.getElementById("status").textContent="Driving "+activeVehicle.type+" — use the joystick to steer and tap EXIT to leave.";
       driveButton.textContent="EXIT";
-    }else if(driving){
-      driving=false;player.position.copyFrom(vehicle.position);player.position.x+=1.45;player.position.y=.95;
-      player.rotation.y=vehicle.rotation.y;player.setEnabled(true);camera.lockedTarget=player;
-      document.getElementById("status").textContent="On foot — approach the sedan and tap DRIVE.";
+    }else{
+      driving=false;player.position.copyFrom(activeVehicle.root.position);player.position.x+=activeVehicle.type==="MOTORCYCLE"?1.1:1.6;player.position.y=.95;
+      player.rotation.y=activeVehicle.root.rotation.y;player.setEnabled(true);camera.lockedTarget=player;
+      document.getElementById("status").textContent="On foot — approach a parked vehicle and tap DRIVE.";
       driveButton.textContent="DRIVE";
     }
   }
   driveButton.addEventListener("click",toggleVehicle);
-  const rescueButton=document.getElementById("rescue");
-  rescueButton.addEventListener("click",()=>{
-    if(state.rescued||driving||state.paused||state.ended)return;
-    if(BABYLON.Vector3.Distance(player.position,survivorRoot.position)>2.7)return;
-    state.rescued=true;survivorRoot.setEnabled(false);survivorMarker.setEnabled(false);
-    rescueButton.hidden=true;
-    document.getElementById("message").textContent="Shopkeeper rescued — take the supplies to the safe zone.";
-    document.getElementById("status").textContent="Survivor rescued. Collect all 4 supplies and reach the safe zone.";
-    showSubtitle("براہ کرم مجھے یہاں سے نکالیں۔ شکریہ!","Thank you for rescuing me. Let's reach the safe zone.",4200);
-    saveProgress();
-  });
   const SAVE_KEY="cvirus-zombies-save-v1";
   let savedGame=null;
   try{savedGame=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");}catch{savedGame=null;}
@@ -276,6 +307,7 @@
   state.stamina=Number.isFinite(savedGame?.stamina)?BABYLON.Scalar.Clamp(savedGame.stamina,0,100):100;
   document.getElementById("stamina").style.width=state.stamina+"%";
   if(Array.isArray(savedGame?.vehicle)&&savedGame.vehicle.length===3&&savedGame.vehicle.every(Number.isFinite))vehicle.position.set(savedGame.vehicle[0],.58,savedGame.vehicle[2]);
+  if(Array.isArray(savedGame?.fleet))savedGame.fleet.forEach((entry,i)=>{if(i<fleet.length&&Array.isArray(entry)&&entry.length===3&&entry.every(Number.isFinite))fleet[i].root.position.set(entry[0],fleet[i].root.position.y,entry[2]);});
   if(Array.isArray(savedGame?.player)&&savedGame.player.length===3&&savedGame.player.every(Number.isFinite)){
     player.position.set(savedGame.player[0],.95,savedGame.player[2]);
     // A save made while driving stores the hero at the vehicle position.
@@ -323,7 +355,7 @@
   function saveProgress(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
-        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,
+        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,fleet:fleet.map(v=>[v.root.position.x,v.root.position.y,v.root.position.z]),
         player:[player.position.x,player.position.y,player.position.z],
         vehicle:[vehicle.position.x,vehicle.position.y,vehicle.position.z],
         collected:pickups.filter(p=>p.collected).map(p=>p.phase)
@@ -333,7 +365,7 @@
   window.addEventListener("pagehide",saveProgress);
   let saveClock=0, damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
-  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,interiorRooms,get driving(){return driving;}};
+  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,get driving(){return driving;},get activeVehicle(){return activeVehicle;}};
   let worldClock=0;
   let subtitleTimer=null;
   const subtitlePanel=document.getElementById("subtitles");
@@ -388,10 +420,14 @@
     jumpCooldown=Math.max(0,jumpCooldown-dt);
     if(move.lengthSquared()>0.001&&!state.safe&&state.health>0){move.normalize();player.rotation.y=Math.atan2(move.x,move.z);}
     if(driving){
-      const vehicleMove=forward.scale(-state.moveY).add(right.scale(state.moveX));
-      if(vehicleMove.lengthSquared()>1)vehicleMove.normalize();
-      if(vehicleMove.lengthSquared()>.001){vehicle.rotation.y=Math.atan2(vehicleMove.x,vehicleMove.z);const driveSpeed=state.sprint?10:6.2;vehicle.moveWithCollisions(vehicleMove.scale(driveSpeed*dt));}
-      player.position.copyFrom(vehicle.position);
+      const throttle=-state.moveY;
+      if(Math.abs(throttle)>.08||Math.abs(state.moveX)>.08){
+        activeVehicle.root.rotation.y+=state.moveX*1.55*dt*(throttle<0?-1:1);
+        const heading=new BABYLON.Vector3(Math.sin(activeVehicle.root.rotation.y),0,Math.cos(activeVehicle.root.rotation.y));
+        const driveSpeed=state.sprint?10:activeVehicle.type==="MOTORCYCLE"?8.5:activeVehicle.type==="4K BUS"?4.2:6.2;
+        activeVehicle.root.moveWithCollisions(heading.scale(throttle*driveSpeed*dt));
+      }
+      player.position.copyFrom(activeVehicle.root.position);
     }
     if(!driving&&!state.safe&&state.health>0){
       const wantsSprint=(state.sprint||keys.shift)&&move.lengthSquared()>.01&&state.stamina>1;
@@ -434,9 +470,9 @@
       if(dist<1.7)near=true;
     });
     if(near&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
-    const vehicleDistance=BABYLON.Vector3.Distance(player.position,vehicle.position);
-    vehiclePrompt.hidden=!driving&&vehicleDistance>4.3;
-    vehiclePrompt.textContent=driving?"Tap EXIT to leave vehicle":"Tap DRIVE to enter sedan";
+    const nearest=nearestVehicle();
+    vehiclePrompt.hidden=!driving&&nearest.distance>4.8;
+    vehiclePrompt.textContent=driving?"Tap EXIT to leave "+activeVehicle.type:"Tap DRIVE to enter "+nearest.item.type;
     let nearestRoom=null,nearestDoor=Infinity,insideRoom=null;
     if(!driving){
       for(const room of interiorRooms){
