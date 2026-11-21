@@ -159,3 +159,10 @@ When the user says **“C virus”** in a new chat:
 - Vehicle positions and headings are now saved/restored as a fleet; old sedan-only saves remain supported. Mission restore now validates that all four supplies and the survivor rescue are complete before accepting a saved mission-complete flag.
 - Commits: `3ac019a7c5f62bdb144b398913d22211aa022858`, `2dcbed513987a850f2a7e27658858138b6ab5243`, `a4b7ce6df92d744975b36d330c9a08832625ca3d`, `e5569836f4160bce9c83d8da03d57cfac8959bc8`, `33e5e738c8f931ec133659f7b52784bf92ee6fac`.
 - This is still prototype vehicle art/handling, not final realistic vehicle production. No Android device test or APK build is claimed. Next: proper production character art/animation, expanded story/missions and safe-house systems; then audio/settings and final Android optimization.
+
+
+## 2026-11-21 — Garage vehicle selection
+- Added a dedicated touchscreen garage screen reachable from the title menu. It lists the five implemented vehicle types: sedan, motorcycle, auto-rickshaw, mini bus and 4K-style bus.
+- Selecting a vehicle places the player beside that parked vehicle and starts gameplay; the player can then walk up and tap DRIVE to enter it. Back navigation returns to the title menu.
+- Commits: `b8a5a493d9c2273aacf314d73d5deb0528c84242`, `7d679e06da0fc1108b9ed72d7a92fc67b8cec5ae`, `7f9a234b8b68c00455ba2fa5d8c4426d3c6eee84`.
+- Still prototype vehicle art; no final-quality 3D assets, Android device validation or APK build claimed.
