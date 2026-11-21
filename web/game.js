@@ -56,7 +56,7 @@
       dash.position.set(x,.065,z);dash.material=mat("districtLaneMarkMat"+x+z,"#d7cfa7");
     }
   }
-  for(const z of [-36,-18,0,18,36]){
+  for(const z of [0,36]){
     const crossRoad=BABYLON.MeshBuilder.CreateGround("crossStreet",{width:130,height:5},scene);
     crossRoad.position.set(0,.04,z);crossRoad.material=road;
     for(const x of [-58,-42,-24,-8,8,24,42,58]){
