@@ -1,6 +1,6 @@
 # C virus Zombies — Development Log
 
-**Last updated:** 2026-11-21 (survival consumables and save recovery fixes)  
+**Last updated:** 2026-11-21 (walk-in city interiors and integrated coverage)  
 **Repository:** https://github.com/adeeldo-ctrl/C-virus-Zombies  
 **Branch:** `main`  
 **Active engine:** Babylon.js 9 (Vite-bundled browser-first 3D)  
@@ -21,7 +21,10 @@
 - **City, building interiors, safe house, complete audio, final menus and vehicle fleet:** not complete.
 - **Mission/save flow:** local save now persists mission completion. The safe-zone objective requires all four supply crates; reaching it early displays the remaining-supplies requirement. Mission-complete and mission-failed overlays provide a replay action that clears the local save and restarts the level.
 
-## Latest continuation work (2026-11-21 — survival usability and persistence fixes)
+## Latest continuation work (2026-11-21 — city interiors and survival usability)
+
+35. Added three walk-in interiors inside the playable street block: a clinic, general store and police post. Each has a real doorway, collidable room walls, floor-level alignment, signage and themed interior furnishings. Added proximity guidance for discovering/entering rooms. Commits: `316b2fd0e97c587f5c8fbb8c5f7348782f9d39a7`, `7a5be324c99ae7315aaf6962db5295fa0ec08c0a`, `25d0e1dd3af7acb8a9a250f305bc54832b219c0f`, `26e2962cc783d1e9358077b78c3b91a2816cb634`, `910b89257287f65fd932bf759b5231f474119819`.
+36. Expanded the existing browser smoke suite to assert the three interiors and walk through the clinic doorway from the street; no result is claimed until the integrated workflow completes. Commit: `4eaad0d4b084ce9beaa2ed84dfacf99c65ef256b`.
 
 28. Normalized two escaped newline sequences in the stylesheet that could interfere with selector parsing; preserved the existing responsive HUD and control styles. Commit: `e6cd370357b0bb9277a4d33da6f48d9296c40cf2`.
 29. Fixed save recovery when the player saved while driving: on reload, the player is restored beside the saved sedan instead of inside its collider. Commit: `f3bfd4c6f2547003eda61f6e9af717faa3c8dd2e`.
