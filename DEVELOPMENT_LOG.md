@@ -325,3 +325,12 @@ When the user says **“C virus”** in a new chat:
 - Updated patrol/chase gait with archetype-specific cadence, alternating knee lift, bent-arm follow-through, subtle torso bounce/lean and head motion; idle poses settle smoothly when movement stops.
 - Extended the browser smoke test to assert that every zombie has both elbow and knee articulation plus torso/head animation targets.
 - This improves movement only; zombie meshes remain stylized prototypes and are not being represented as final realistic character art. Integrated browser/APK verification is pending.
+
+## 2026-11-21 — Four-way controls, Ibrahim locomotion, audio and defensive shield
+- Replaced the unreliable camera-ray joystick basis with a single orbit-yaw movement vector: UP forward, LEFT left, DOWN backward, RIGHT right. Browser regression tests cover all four touch directions.
+- Fixed a mobile HUD hit-area regression: the added SHIELD action button widened the horizontal action row until it covered the left joystick in portrait layout. Portrait controls now use a compact three-column action grid; smoke test asserts the joystick hit target remains unobstructed.
+- Fixed Ibrahim GLB animation loading by exposing Babylon's `Space` enum and keeping skinned Bone objects separate from TransformNode mesh-attachment parents. Browser test confirms the expected thigh, calf, upper-arm and lower-arm bones load. Arm swing now includes relaxed shoulder roll and bent-elbow follow-through.
+- Added synthesized footstep cues, a louder ambient survival bed, repeated audio-context unlock/resume handling, and reliable engine-audio initialization.
+- Added a cyan energy shield ability: 4.5 seconds active, 20 seconds cooldown, repels nearby zombies and prevents contact damage while active. It is an escape/defence ability, not an attack.
+- Integrated verification passed on commit `3e31ab2893564f6dfa305067e74b8adac0ac4d6d`: browser desktop/mobile smoke tests and Android debug APK build. APK SHA-256: `33a27dc213622967b32fbe54ce7547f58cd25d1321863561fe610e821a7c9b5a`.
+- Device-side visual/audio testing on a physical Android phone is still pending. Do not claim the walking pose or sound mix has been personally verified on-device.
