@@ -382,13 +382,15 @@
     }
     const headlightMaterial=mat(type+"HeadlightGlow","#f6e7a0");headlightMaterial.emissiveColor=new BABYLON.Color3(.8,.72,.42);
     const tailMaterial=mat(type+"TailLightGlow","#a92720");tailMaterial.emissiveColor=new BABYLON.Color3(.35,.025,.015);
-    const frontLights=[],rearLights=[];
+    const frontLights=[],rearLights=[],headlightBeams=[];
     for(const side of [-1,1]){
       const front=BABYLON.MeshBuilder.CreateBox(type+"FrontLamp",{width:.22,height:.13,depth:.055},scene);front.parent=root;front.position.set(side*width*.31,-height*.02,length*.49);front.material=headlightMaterial;frontLights.push(front);
       const rear=BABYLON.MeshBuilder.CreateBox(type+"RearLamp",{width:.2,height:.12,depth:.055},scene);rear.parent=root;rear.position.set(side*width*.31,-height*.02,-length*.49);rear.material=tailMaterial;rearLights.push(rear);
+      const beam=new BABYLON.SpotLight(type+"HeadlightBeam"+side,BABYLON.Vector3.Zero(),new BABYLON.Vector3(0,-.08,1),.72,2.2,scene);
+      beam.parent=root;beam.position.set(side*width*.31,-height*.02,length*.46);beam.range=isBus?42:isMini?32:25;beam.intensity=isBus?1.25:1;beam.setEnabled(false);headlightBeams.push(beam);
     }
     frontLights.forEach(mesh=>{mesh.isVisible=false;});rearLights.forEach(mesh=>{mesh.isVisible=false;});
-    return {root,type,parts,fuel:100,condition:100,lastImpact:0,lightsOn:false,frontLights,rearLights};
+    return {root,type,parts,fuel:100,condition:100,lastImpact:0,lightsOn:false,frontLights,rearLights,headlightBeams};
   }
   const fleet=[
     createVehicle("SEDAN",3.3,31,"#315f78"),
@@ -408,6 +410,7 @@
   function setVehicleLights(on){
     activeVehicle.lightsOn=!!on;
     activeVehicle.frontLights.forEach(mesh=>{mesh.isVisible=activeVehicle.lightsOn;});
+    activeVehicle.headlightBeams.forEach(light=>light.setEnabled(activeVehicle.lightsOn));
     lightsButton.textContent=activeVehicle.lightsOn?"LIGHTS ON":"LIGHTS";
   }
   hornButton.addEventListener("click",()=>{if(!driving||state.paused||state.ended)return;playCue("horn");});

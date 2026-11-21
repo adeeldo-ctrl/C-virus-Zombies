@@ -276,3 +276,9 @@ When the user says **“C virus”** in a new chat:
 ## 2026-11-21 — Survivor escort animation
 - Added a simple alternating arm/leg gait while the rescued shopkeeper walks to catch up with the player, returning the limbs to idle when close enough.
 - Clarified the audio control label as ambient sound; it is generated ambience, not a recorded music track. Spoken Urdu dialogue remains pending.
+
+
+## 2026-11-21 — Functional vehicle headlight beams
+- Upgraded the vehicle LIGHTS toggle from visible lamp meshes only to actual Babylon spotlights, parented to each vehicle and aimed forward; beam range scales for cars, minibuses and the 4K bus.
+- Beams remain disabled until the driver switches lights on; the same toggle controls both visible lamp meshes and scene illumination.
+- Existing vehicle save state continues to restore the light toggle. Android/device performance still requires final validation.

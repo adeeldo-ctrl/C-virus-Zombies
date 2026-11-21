@@ -272,3 +272,8 @@ When the user says **“C virus”** in a new chat:
 ## Latest character and audio notes
 - Rescued shopkeeper now has a basic procedural walking gait while following the player; this is still a simple blockout animation, not final character rigging.
 - The sound slider is labelled ambient sound to distinguish the generated ambience from the future licensed/original music soundtrack.
+
+
+## Latest vehicle lighting implementation
+- Vehicle headlight toggle now enables/disables paired forward spotlights as well as visible lamp meshes. Beam range is longer for minibuses and 4K buses.
+- Latest integrated browser workflow before this change: run 44881954461 completed successfully. The new spotlight change is awaiting its automatically triggered workflow; no device/APK claim.
