@@ -160,6 +160,18 @@ A phase is complete only when its implementation and relevant automated/manual v
 8. Good-quality sound and music.
 9. Android APK as final delivery after development and testing.
 
+## 17A. Mandatory owner-approved implementation contract
+
+The owner explicitly reconfirmed these five systems on 2026-11-21. They are mandatory release scope, not optional ideas:
+
+1. **Professional graphics:** original realistic 3D heroes and zombies, production-quality character rigs and animations, detailed environment assets, materials, lighting and shadows. Temporary or stylised prototypes must remain labelled as prototypes until replaced.
+2. **Open-world Pakistani city:** a large explorable connected city with detailed roads, streets, markets, shops, homes and buildings; enterable interiors are required, not facade-only buildings.
+3. **Pakistani vehicles:** motorcycles, auto rickshaws, Chingchi rickshaws, mini buses and Pakistani 4K buses, with individual 3D models, enter/exit, drive controls, handling, collisions and appropriate audio. The already-approved car fleet remains included.
+4. **Advanced zombie system:** multiple visual archetypes, distinct behaviours, navigation-aware AI, patrol and pursuit, proper character animation and boss encounters. Encounters remain stylised, non-graphic and age-appropriate.
+5. **Complete survival system:** fictional game equipment/defence, backpack inventory, health, actual hunger and hydration needs, food/water/medicine collection and consumption, storage, resources and crafting/progression.
+
+**Acceptance rule:** each system must be implemented as a functioning gameplay system, integrated with save/load and mobile controls where applicable, covered by automated regression checks, and marked complete only after evidence exists. A checklist entry, menu button, placeholder mesh or non-functional visual is not implementation.
+
 ## 18. Scope discipline and continuity
 - This file is the final baseline roadmap. Preserve its requirements while implementing in phases.
 - Do not silently remove approved features or call placeholder assets final.
