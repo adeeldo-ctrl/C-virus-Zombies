@@ -306,3 +306,5 @@ When the user says **“C virus”** in a new chat:
 - Follow-up mobile ergonomics: added a landscape-specific HUD, joystick, action-button, subtitle, vehicle-status and main-menu layout for short-height Android screens. Existing portrait/browser styles remain unchanged.
 
 - UI notification improvement: gameplay notifications now appear as a compact, single-line banner at the top centre instead of covering the lower middle gameplay area. Long messages are clipped with ellipsis; landscape layout uses a slightly tighter banner.
+
+- 2026-11-21 Ibrahim hero pass: layered field clothing, cargo pockets, knee guards, gloves, lower forearms/shins and articulated elbows/knees are added. Idle, walk, sprint, crouch and jump poses are more distinct. Portrait/browser CSS remains untouched. This is still procedural prototype art, not final production character assets.

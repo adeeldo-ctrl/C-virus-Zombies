@@ -275,7 +275,29 @@
   const leftLeg=limb("hero-left-leg",-.17,-.3,pantsMat,.72,.14),rightLeg=limb("hero-right-leg",.17,-.3,pantsMat,.72,.14);
   const leftBoot=part("hero-left-boot",BABYLON.MeshBuilder.CreateBox("heroLeftBoot",{width:.22,height:.16,depth:.34},scene),bootMat);leftBoot.position.set(-.17,-.79,.07);
   const rightBoot=part("hero-right-boot",BABYLON.MeshBuilder.CreateBox("heroRightBoot",{width:.22,height:.16,depth:.34},scene),bootMat);rightBoot.position.set(.17,-.79,.07);
-  const chestRig=part("hero-chest-rig",BABYLON.MeshBuilder.CreateBox("heroChestRig",{width:.5,height:.25,depth:.055},scene),packMat);chestRig.position.set(0,.28,.205);
+
+  // Extra layered field gear and articulated lower limbs for Ibrahim.
+  const collar=part("hero-jacket-collar",BABYLON.MeshBuilder.CreateBox("heroCollar",{width:.42,height:.13,depth:.39},scene),pantsMat);collar.position.set(0,.535,.015);
+  const leftLap=part("hero-left-lapel",BABYLON.MeshBuilder.CreateBox("heroLapelL",{width:.12,height:.36,depth:.045},scene),pantsMat);leftLap.position.set(-.105,.34,.19);leftLap.rotation.z=-.22;
+  const rightLap=part("hero-right-lapel",BABYLON.MeshBuilder.CreateBox("heroLapelR",{width:.12,height:.36,depth:.045},scene),pantsMat);rightLap.position.set(.105,.34,.19);rightLap.rotation.z=.22;
+  const lowerArms=[],lowerLegs=[];
+  for(const [side,arm,leg] of [[-1,leftArm,leftLeg],[1,rightArm,rightLeg]]){
+    const pocket=part("hero-cargo-pocket",BABYLON.MeshBuilder.CreateBox("heroCargoPocket",{width:.2,height:.2,depth:.07},scene),packMat);pocket.position.set(side*.205,-.12,.19);
+    const flap=part("hero-pocket-flap",BABYLON.MeshBuilder.CreateBox("heroPocketFlap",{width:.21,height:.055,depth:.08},scene),pantsMat);flap.position.set(side*.205,-.025,.2);
+    const knee=part("hero-knee-guard",BABYLON.MeshBuilder.CreateBox("heroKneeGuard",{width:.25,height:.17,depth:.12},scene),bootMat);knee.parent=leg;knee.position.set(0,-.42,.105);
+    const elbow=new BABYLON.TransformNode("heroElbow"+side,scene);elbow.parent=arm;elbow.position.set(0,-.57,0);
+    const forearm=part("hero-forearm",BABYLON.MeshBuilder.CreateCylinder("heroForearm",{height:.38,diameterTop:.19,diameterBottom:.145,tessellation:12},scene),heroMat,elbow);forearm.position.y=-.19;
+    const cuff=part("hero-glove-cuff",BABYLON.MeshBuilder.CreateCylinder("heroGloveCuff",{height:.12,diameter:.25,tessellation:10},scene),bootMat,elbow);cuff.position.y=-.37;
+    const glove=part("hero-glove",BABYLON.MeshBuilder.CreateSphere("heroGlove",{diameter:.19,segments:12},scene),bootMat,elbow);glove.scaling.set(.82,1.12,.9);glove.position.set(0,-.46,.025);
+    lowerArms.push(elbow);
+    const kneeJoint=new BABYLON.TransformNode("heroKnee"+side,scene);kneeJoint.parent=leg;kneeJoint.position.set(0,-.62,0);
+    const shin=part("hero-shin",BABYLON.MeshBuilder.CreateCylinder("heroShin",{height:.34,diameterTop:.23,diameterBottom:.18,tessellation:12},scene),pantsMat,kneeJoint);shin.position.y=-.17;
+    lowerLegs.push(kneeJoint);
+  }
+  leftBoot.parent=lowerLegs[0];leftBoot.position.set(0,-.31,.07);
+  rightBoot.parent=lowerLegs[1];rightBoot.position.set(0,-.31,.07);
+  const heroRig={leftArm,rightArm,leftLeg,rightLeg,lowerArms,lowerLegs,heroParts};
+
   const radio=part("hero-radio",BABYLON.MeshBuilder.CreateBox("heroRadio",{width:.12,height:.18,depth:.08},scene),bootMat);radio.position.set(-.25,.34,-.02);
   const radioAntenna=part("hero-radio-antenna",BABYLON.MeshBuilder.CreateCylinder("heroRadioAntenna",{height:.16,diameter:.018,tessellation:6},scene),shirtMat);radioAntenna.position.set(-.27,.49,-.02);
   const heroRig={leftArm,rightArm,leftLeg,rightLeg,heroParts};
@@ -636,9 +658,22 @@
     scene.fogDensity=.0045+(1-daylight)*.0035;
     scene.clearColor=new BABYLON.Color4(.035+daylight*.45,.055+daylight*.60,.09+daylight*.67,1);
     saveClock+=dt;if(saveClock>=5){saveClock=0;saveProgress();}
-    const moving=state.moveX*state.moveX+state.moveY*state.moveY>.025;
-    const gait=moving?Math.sin(performance.now()*.012*(state.sprint?1.35:1)):0;
-    heroRig.leftLeg.rotation.x=gait*.62;heroRig.rightLeg.rotation.x=-gait*.62;heroRig.leftArm.rotation.x=-gait*.48;heroRig.rightArm.rotation.x=gait*.48;
+    const moving=!driving&&state.moveX*state.moveX+state.moveY*state.moveY>.025;
+    const sprinting=moving&&(state.sprint||keys.shift)&&!state.crouching&&state.stamina>1;
+    const heroSpeed=sprinting?1.42:state.crouching?.62:1;
+    const heroPhase=performance.now()*.009*heroSpeed;
+    const gait=moving?Math.sin(heroPhase)*(sprinting?.88:state.crouching?.22:.58):Math.sin(worldClock*1.8)*.035;
+    const airborne=!grounded&&verticalVelocity>0;
+    heroRig.leftLeg.rotation.x=gait;heroRig.rightLeg.rotation.x=-gait;
+    heroRig.leftArm.rotation.x=-gait*.72+(airborne?-.7:state.crouching?-.28:0);
+    heroRig.rightArm.rotation.x=gait*.72+(airborne?-.7:state.crouching?-.28:0);
+    heroRig.lowerLegs[0].rotation.x=Math.max(0,-gait)*.72+(state.crouching?.55:0);
+    heroRig.lowerLegs[1].rotation.x=Math.max(0,gait)*.72+(state.crouching?.55:0);
+    heroRig.lowerArms[0].rotation.x=-.12+Math.max(0,gait)*.35;
+    heroRig.lowerArms[1].rotation.x=-.12+Math.max(0,-gait)*.35;
+    torso.position.y=.13+(moving?Math.abs(gait)*.025:Math.sin(worldClock*2)*.012);
+    head.rotation.x=airborne?-.08:state.crouching?.1:Math.sin(worldClock*1.4)*.012;
+    torso.rotation.x=state.crouching?.16:airborne?-.06:0;
     zombies.forEach(z=>{
       const zMoving=!state.safe&&state.health>0&&BABYLON.Vector3.Distance(player.position,z.position)<z.metadata.detectionRange;
       z.rig.phase+=dt*(zMoving?5.2:1.4);

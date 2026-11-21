@@ -297,3 +297,10 @@ When the user says **“C virus”** in a new chat:
 ## 2026-11-21 — Stealth crouch control
 - Added a toggleable CROUCH/STAND action for keyboard (C) and touchscreen play. Crouching slows the hero and reduces zombie detection range; it is automatically cleared when entering a vehicle or pausing.
 - This is a gameplay stealth/avoidance mechanic and does not change the non-graphic encounter presentation. Integrated workflow is pending; no Android device test is claimed.
+
+## 2026-11-21 — Ibrahim hero model and animation pass
+- Added layered jacket collar/lapels, cargo pockets, knee guards, reinforced gloves and additional forearm/shin geometry.
+- Added elbow and knee articulation; existing boots now follow the lower-leg joints.
+- Improved idle breathing, walk/run stride, crouch posture, airborne arm pose and elbow/knee follow-through.
+- Browser/portrait CSS was not changed. Push-triggered workflows provide integration verification; no extra test suite was run.
+- This is a higher-detail procedural prototype pass, not final artist-authored/rigged production character art.
