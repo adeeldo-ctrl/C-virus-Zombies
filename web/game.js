@@ -512,6 +512,20 @@
   const continueButton=document.getElementById("continue-game");
   const newGameButton=document.getElementById("new-game");
   const mainMenuButton=document.getElementById("main-menu-button");
+  const garageOverlay=document.getElementById("garage-menu");
+  document.getElementById("open-garage").addEventListener("click",()=>{menuOverlay.hidden=true;garageOverlay.hidden=false;});
+  document.getElementById("garage-back").addEventListener("click",()=>{garageOverlay.hidden=true;menuOverlay.hidden=false;});
+  garageOverlay.querySelectorAll("[data-vehicle]").forEach(button=>button.addEventListener("click",()=>{
+    const chosen=fleet.find(v=>v.type===button.dataset.vehicle);
+    if(!chosen)return;
+    activeVehicle=chosen;
+    player.position.copyFrom(chosen.root.position);
+    player.position.x+=chosen.type==="MOTORCYCLE"?1.4:chosen.type==="4K BUS"?2.3:1.8;
+    player.position.y=.95;
+    camera.lockedTarget=player;
+    garageOverlay.hidden=true;menuOverlay.hidden=true;setPaused(false);
+    document.getElementById("status").textContent="Garage selected: "+chosen.type+". Walk to the vehicle and tap DRIVE.";
+  }));
   continueButton.disabled=!savedGame;
   continueButton.addEventListener("click",()=>{menuOverlay.hidden=true;setPaused(false);});
   newGameButton.addEventListener("click",()=>{
