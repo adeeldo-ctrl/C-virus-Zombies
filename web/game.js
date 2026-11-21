@@ -42,7 +42,7 @@
       engineOscillator.connect(engineSoundGain);engineSoundGain.connect(effectsBus);engineOscillator.start();
     }
     engineOscillator.frequency.setTargetAtTime(52+Math.abs(throttle)*95,audioContext.currentTime,.08);
-    engineSoundGain.gain.setTargetAtTime(active?.035+Math.abs(throttle)*.055:.0001,audioContext.currentTime,.12);
+    engineSoundGain.gain.setTargetAtTime(active ? 0.035+Math.abs(throttle)*0.055 : 0.0001,audioContext.currentTime,.12);
   }
   function saveAudioSettings(){try{localStorage.setItem("cvirus-audio-v1",JSON.stringify(audioSettings));}catch{}}
   const settingsPanel=document.getElementById("settings-panel");
