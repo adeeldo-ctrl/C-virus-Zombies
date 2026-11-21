@@ -277,8 +277,10 @@
   const cableBetween=(name,a,b)=>{
     const delta=b.subtract(a),length=delta.length();
     const cable=BABYLON.MeshBuilder.CreateCylinder(name,{height:length,diameter:.035,tessellation:6},scene);
-    cable.position.copyFrom(a.add(b).scale(.5));cable.rotationQuaternion=BABYLON.Quaternion.FromUnitVectorsToRef?BABYLON.Quaternion.FromUnitVectorsToRef(new BABYLON.Vector3(0,1,0),delta.normalize(),BABYLON.Quaternion.Identity()):null;
-    if(!cable.rotationQuaternion){const direction=delta.normalize();cable.rotation.x=Math.atan2(direction.z,direction.y);cable.rotation.z=-Math.atan2(direction.x,Math.sqrt(direction.y*direction.y+direction.z*direction.z));}
+    cable.position.copyFrom(a.add(b).scale(.5));
+    const direction=delta.normalize();
+    cable.rotation.x=Math.atan2(direction.z,direction.y);
+    cable.rotation.z=-Math.atan2(direction.x,Math.sqrt(direction.y*direction.y+direction.z*direction.z));
     cable.material=cableMat;
     return cable;
   };
