@@ -151,3 +151,11 @@ When the user says **“C virus”** in a new chat:
 - Added Urdu/English rescue dialogue feedback and mobile HUD styling for the rescue action.
 - Commits: `2a0ddd334f24ed3c2c926c0112a77b4d51d623d9` (mission logic), `58f7298725e9164f9206d0bc28aabc254d71bd19` (mobile HUD), `9337757c76a3a9e0136701ab890e77106e27f0a3` (touch styling).
 - Validation: latest available desktop/mobile browser workflow `44876919628` had a successful production bundle but failed its desktop keyboard-forward-movement assertion. This is not Android device evidence. The next acceptance work should be mobile-touch-first and should not spend time treating keyboard-only behaviour as the Android target. No APK is built.
+
+
+## 2026-11-21 — Main menu and Pakistani transport fleet
+- Added a mobile-first title screen with Continue (disabled when no saved campaign exists) and New Game. New Game clears the campaign and starts a fresh session; Continue restores the saved state. Pause menu can return to the title screen.
+- Added a five-vehicle drivable fleet: sedan, motorcycle, auto-rickshaw, mini bus and 4K-style bus. Vehicles have distinct low-poly silhouettes, proximity-based enter/exit, joystick steering/throttle and type-specific speed tuning.
+- Vehicle positions and headings are now saved/restored as a fleet; old sedan-only saves remain supported. Mission restore now validates that all four supplies and the survivor rescue are complete before accepting a saved mission-complete flag.
+- Commits: `3ac019a7c5f62bdb144b398913d22211aa022858`, `2dcbed513987a850f2a7e27658858138b6ab5243`, `a4b7ce6df92d744975b36d330c9a08832625ca3d`, `e5569836f4160bce9c83d8da03d57cfac8959bc8`, `33e5e738c8f931ec133659f7b52784bf92ee6fac`.
+- This is still prototype vehicle art/handling, not final realistic vehicle production. No Android device test or APK build is claimed. Next: proper production character art/animation, expanded story/missions and safe-house systems; then audio/settings and final Android optimization.
