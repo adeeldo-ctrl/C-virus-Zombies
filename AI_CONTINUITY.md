@@ -243,3 +243,8 @@ When the user says **“C virus”** in a new chat:
 ## Latest settings update
 - Settings now includes persistent Low/Medium/High graphics scaling and camera-look sensitivity in addition to separate ambient/effects volume.
 - Android performance/device validation remains pending.
+
+
+## Latest vehicle interaction update
+- Drivable fleet now has contextual horn and headlight toggles (touch controls plus H/L keyboard shortcuts), with generated horn sound and rear lamp details.
+- Vehicle lighting is visual lamp toggling; no simulated road illumination beams are claimed.

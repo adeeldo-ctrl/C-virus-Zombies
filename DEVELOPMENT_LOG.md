@@ -243,3 +243,9 @@ When the user says **“C virus”** in a new chat:
 ## 2026-11-21 — Graphics and camera settings
 - Extended Settings with Low/Medium/High rendering quality presets that adjust Babylon engine render scaling for device performance, plus an adjustable camera-look sensitivity slider.
 - Both preferences persist locally alongside audio settings. No new test run is claimed in this commit.
+
+
+## 2026-11-21 — Vehicle horn and lighting controls
+- Added synthesized horn audio and working HORN/LIGHTS contextual buttons while driving, with keyboard H/L shortcuts on desktop.
+- Added front lamp meshes with visible on/off state and rear red lamp details to the vehicle fleet. Light state is kept per selected vehicle during the current session.
+- No new test run is claimed in this commit.

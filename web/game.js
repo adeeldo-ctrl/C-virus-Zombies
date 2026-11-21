@@ -22,7 +22,7 @@
   function playCue(kind="tap"){
     const ctx=initAudio();if(!ctx)return;
     if(ctx.state==="suspended")ctx.resume();
-    const presets={tap:[520,.055,"sine"],pickup:[740,.16,"triangle"],rescue:[440,.28,"sine"],alert:[170,.2,"sawtooth"],success:[880,.32,"triangle"]};
+    const presets={tap:[520,.055,"sine"],pickup:[740,.16,"triangle"],rescue:[440,.28,"sine"],alert:[170,.2,"sawtooth"],success:[880,.32,"triangle"],horn:[220,.32,"sawtooth"]};
     const [frequency,duration,type]=presets[kind]||presets.tap;
     const osc=ctx.createOscillator(),gain=ctx.createGain();
     osc.type=type;osc.frequency.setValueAtTime(frequency,ctx.currentTime);
@@ -352,7 +352,7 @@
         part(BABYLON.MeshBuilder.CreateBox("vehicleHeadlight",{width:Math.min(.42,width*.25),height:.18,depth:.06},scene),shirtMat,new BABYLON.Vector3(side*width*.27,-height*.02,length*.48));
       }
     }
-    return {root,type,parts,fuel:100,condition:100,lastImpact:0};
+    const headlightMaterial=mat(type+"HeadlightGlow","#f6e7a0");headlightMaterial.emissiveColor=new BABYLON.Color3(.8,.72,.42);\n    const tailMaterial=mat(type+"TailLightGlow","#a92720");tailMaterial.emissiveColor=new BABYLON.Color3(.35,.025,.015);\n    const frontLights=[],rearLights=[];\n    for(const side of [-1,1]){\n      const front=BABYLON.MeshBuilder.CreateBox(type+"FrontLamp",{width:.22,height:.13,depth:.055},scene);front.parent=root;front.position.set(side*width*.31,-height*.02,length*.49);front.material=headlightMaterial;frontLights.push(front);\n      const rear=BABYLON.MeshBuilder.CreateBox(type+"RearLamp",{width:.2,height:.12,depth:.055},scene);rear.parent=root;rear.position.set(side*width*.31,-height*.02,-length*.49);rear.material=tailMaterial;rearLights.push(rear);\n    }\n    return {root,type,parts,fuel:100,condition:100,lastImpact:0,lightsOn:false,frontLights,rearLights};
   }
   const fleet=[
     createVehicle("SEDAN",3.3,31,"#315f78"),
@@ -364,6 +364,15 @@
   ];
   const vehicle=fleet[0].root;
   let activeVehicle=fleet[0],driving=false;
+  const hornButton=document.getElementById("vehicle-horn");
+  const lightsButton=document.getElementById("vehicle-lights");
+  function setVehicleLights(on){
+    activeVehicle.lightsOn=!!on;
+    activeVehicle.frontLights.forEach(mesh=>{mesh.isVisible=activeVehicle.lightsOn;});
+    lightsButton.textContent=activeVehicle.lightsOn?"LIGHTS ON":"LIGHTS";
+  }
+  hornButton.addEventListener("click",()=>{if(!driving||state.paused||state.ended)return;playCue("horn");});
+  lightsButton.addEventListener("click",()=>{if(!driving||state.paused||state.ended)return;setVehicleLights(!activeVehicle.lightsOn);playCue("tap");});
   const driveButton=document.getElementById("drive");
   const vehiclePrompt=document.getElementById("vehicle-prompt");
   const buildingPrompt=document.getElementById("building-prompt");
@@ -390,12 +399,12 @@
     if(!driving){
       const found=nearestVehicle();
       if(!found.item||found.distance>4.8)return;
-      activeVehicle=found.item;driving=true;player.setEnabled(false);camera.lockedTarget=activeVehicle.root;
+      activeVehicle=found.item;driving=true;player.setEnabled(false);camera.lockedTarget=activeVehicle.root;setVehicleLights(activeVehicle.lightsOn);
       document.getElementById("status").textContent="Driving "+activeVehicle.type+" — use the joystick to steer and tap EXIT to leave.";
       driveButton.textContent="EXIT";
     }else{
       driving=false;document.getElementById("vehicle-status").hidden=true;player.position.copyFrom(activeVehicle.root.position);player.position.x+=activeVehicle.type==="MOTORCYCLE"?1.1:activeVehicle.type==="CHINGCHI"?1.9:1.6;player.position.y=.95;
-      player.rotation.y=activeVehicle.root.rotation.y;player.setEnabled(true);camera.lockedTarget=player;
+      player.rotation.y=activeVehicle.root.rotation.y;player.setEnabled(true);camera.lockedTarget=player;hornButton.hidden=true;lightsButton.hidden=true;
       document.getElementById("status").textContent="On foot — approach a parked vehicle and tap DRIVE.";
       driveButton.textContent="DRIVE";
     }
@@ -629,7 +638,7 @@
         }
       }
       player.position.copyFrom(activeVehicle.root.position);
-      const vehicleStatus=document.getElementById("vehicle-status");
+      hornButton.hidden=!driving||state.paused||state.ended;lightsButton.hidden=!driving||state.paused||state.ended;\n      const vehicleStatus=document.getElementById("vehicle-status");
       vehicleStatus.hidden=!driving;
       document.getElementById("vehicle-fuel").style.width=activeVehicle.fuel+"%";
       document.getElementById("vehicle-condition").style.width=activeVehicle.condition+"%";
@@ -809,7 +818,7 @@
     }else{localStorage.removeItem(SAVE_KEY);window.location.reload();}
   });
   const doJump=()=>{const canJump=grounded||(player.position.y<=1.18&&verticalVelocity<=0);if(canJump&&jumpCooldown===0&&!state.safe&&state.health>0&&!driving){verticalVelocity=7.2;grounded=false;jumpCooldown=.22;}};
-  window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){if(state.inventoryOpen){state.inventoryOpen=false;inventoryPanel.hidden=true;}else setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(key==="i"){inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}return;}if(state.paused||!inventoryPanel.hidden)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
+  window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="h"&&driving){playCue("horn");return;}if(e.key.toLowerCase()==="l"&&driving){setVehicleLights(!activeVehicle.lightsOn);return;}if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){if(state.inventoryOpen){state.inventoryOpen=false;inventoryPanel.hidden=true;}else setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(key==="i"){inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}return;}if(state.paused||!inventoryPanel.hidden)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
   window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
   window.addEventListener("blur",()=>{for(const key in keys)keys[key]=false;state.sprint=false;});
   engine.runRenderLoop(()=>{const keyX=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const keyY=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);state.moveX=touchX!==0?touchX:keyX;state.moveY=touchY!==0?touchY:keyY;scene.render();});
