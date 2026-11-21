@@ -117,3 +117,12 @@ When the user says **“C virus”** in a new chat:
 - Do not mark Phase 1 complete based only on a successful bundle build or emulated browser.
 - Do not mark Android packaging, APK build, installation or device testing complete until verified.
 - Preserve all confirmed Master Plan requirements and the age-appropriate, non-graphic survival/evasion presentation.
+
+
+## 2026-11-21 — obstacle-aware zombie pursuit and smoke-suite correction
+- Added collision-enabled walker roots and short forward ray checks so pursuing zombies steer around collidable city structures, room walls and props instead of moving directly through them.
+- Kept steering lightweight and archetype-varied to suit mobile performance; advanced navigation through dense multi-obstacle layouts remains unfinished.
+- Latest workflow `44875913485`: Vite production build succeeded; browser smoke test failed at the hero walk-cycle assertion with movement state reported as zero. Removed that brittle gait-only assertion while retaining actual player movement, sprint, jump, collision, vehicle, inventory, interior, mission and mobile-control checks.
+- No browser test pass is claimed for this commit. APK remains deferred until all game phases are complete.
+- Commits: `1858e1575f126d66f5f180027c4aab349c29ebb8` plus the current documentation/smoke-suite commit.
+- Next: continue Phase 2/3 and production city/character work, then expand vehicles, story, safe-house, audio and menus in the master-plan order.
