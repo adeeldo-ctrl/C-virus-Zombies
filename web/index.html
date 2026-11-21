@@ -9,7 +9,8 @@
 </head>
 <body>
   <canvas id="game" tabindex="0" aria-label="C virus Zombies game area"></canvas>
-  <div id="main-menu"><div class="main-menu-card"><div class="menu-kicker">SURVIVAL BEGINS</div><div class="menu-title">C VIRUS <span>ZOMBIES</span></div><p class="menu-copy">Explore the city. Rescue survivors. Reach safety.</p><button id="continue-game" type="button">CONTINUE</button><button id="new-game" type="button">NEW GAME</button><div class="menu-foot">PAKISTAN • SURVIVAL STORY</div></div></div>
+  <div id="main-menu"><div class="main-menu-card"><div class="menu-kicker">SURVIVAL BEGINS</div><div class="menu-title">C VIRUS <span>ZOMBIES</span></div><p class="menu-copy">Explore the city. Rescue survivors. Reach safety.</p><button id="continue-game" type="button">CONTINUE</button><button id="new-game" type="button">NEW GAME</button><button id="open-garage" type="button">GARAGE / VEHICLES</button><div class="menu-foot">PAKISTAN • SURVIVAL STORY</div></div></div>
+  <div id="garage-menu" hidden><div class="garage-card"><div class="menu-kicker">VEHICLE SELECT</div><div class="garage-title">CITY GARAGE</div><p>Choose a vehicle to begin near it.</p><div class="garage-list"><button data-vehicle="SEDAN">SEDAN</button><button data-vehicle="MOTORCYCLE">MOTORCYCLE</button><button data-vehicle="AUTO RICKSHAW">AUTO RICKSHAW</button><button data-vehicle="MINI BUS">MINI BUS</button><button data-vehicle="4K BUS">4K BUS</button></div><button id="garage-back" class="garage-back">BACK TO MENU</button></div></div>
   <div id="hud">
     <div class="hud-title">C VIRUS ZOMBIES <span>PROTOTYPE</span></div><div id="top-actions"><button id="inventory-button" type="button">BAG</button><button id="pause-button" type="button">PAUSE</button></div>
     <div class="health-wrap"><div id="health"></div></div><div class="stamina-wrap"><span>STAMINA</span><div class="stamina-track"><div id="stamina"></div></div></div>
