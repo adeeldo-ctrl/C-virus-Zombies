@@ -128,12 +128,14 @@ const server = http.createServer((req,res) => {
     const beforeTouch=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
     await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:76,y:768,id:1}]});
     await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:76,y:728,id:1}]});
-    await mobile.waitForTimeout(450);
+    await mobile.waitForTimeout(250);
+    const activeTouch=await mobile.evaluate(()=>({touch:window.__CVIRUS_DEBUG__.touchState,moveY:window.__CVIRUS_DEBUG__.state.moveY,element:document.elementFromPoint(76,768)?.id,menuHidden:document.getElementById("main-menu").hidden}));
+    await mobile.waitForTimeout(200);
     await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
     const afterTouch=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
     if(!(afterTouch<beforeTouch)){
       const diag=await mobile.evaluate(()=>{const d=window.__CVIRUS_DEBUG__,v=d.moveVector(0,-1);return {before:d.player.position.z,moveX:d.state.moveX,moveY:d.state.moveY,yaw:d.state.yaw,paused:d.state.paused,health:d.state.health,driving:d.driving,expected:{x:v.x,z:v.z},stick:document.getElementById("stick").getBoundingClientRect().toJSON()};});
-      throw new Error("Android joystick UP must move the hero forward: "+JSON.stringify({beforeTouch,afterTouch,diag}));
+      throw new Error("Android joystick UP must move the hero forward: "+JSON.stringify({beforeTouch,afterTouch,activeTouch,diag}));
     }
     await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:76,y:768,id:4}]});
     await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:76,y:808,id:4}]});
