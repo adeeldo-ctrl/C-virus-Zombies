@@ -46,6 +46,46 @@
     const tank=BABYLON.MeshBuilder.CreateCylinder("roofWaterTank",{diameter:1.5,height:1.9,tessellation:16},scene);tank.position.set(x+streetSide*1.7,h+1.15,z+2.1);tank.material=metalMat;
   }
   for(let z=-45;z<=45;z+=18){building(-13,z,10,12,9+(Math.abs(z)%3)*2,wallA);building(13,z,10,12,11,wallB);}
+  // Extend the narrow starter street into a lightweight Pakistani city grid.
+  // Parallel streets and cross streets open up connected neighbourhood blocks.
+  for(const x of [-45,-26,26,45]){
+    const sideRoad=BABYLON.MeshBuilder.CreateGround("districtRoad",{width:7,height:115},scene);
+    sideRoad.position.set(x,.035,0);sideRoad.material=road;
+    for(let z=-50;z<=50;z+=20){
+      const dash=BABYLON.MeshBuilder.CreateBox("districtLaneMark",{width:.12,height:.025,depth:3.2},scene);
+      dash.position.set(x,.065,z);dash.material=mat("districtLaneMarkMat"+x+z,"#d7cfa7");
+    }
+  }
+  for(const z of [-36,-18,0,18,36]){
+    const crossRoad=BABYLON.MeshBuilder.CreateGround("crossStreet",{width:130,height:5},scene);
+    crossRoad.position.set(0,.04,z);crossRoad.material=road;
+    for(const x of [-58,-42,-24,-8,8,24,42,58]){
+      const dash=BABYLON.MeshBuilder.CreateBox("crossLaneMark",{width:3.1,height:.025,depth:.12},scene);
+      dash.position.set(x,.07,z);dash.material=mat("crossLaneMarkMat"+x+z,"#d7cfa7");
+    }
+  }
+  function districtBlock(x,z,variant){
+    const w=9,d=12,h=7.5+((Math.abs(x)+Math.abs(z))%4)*1.15;
+    const body=BABYLON.MeshBuilder.CreateBox("districtBuilding",{width:w,height:h,depth:d},scene);
+    body.position.set(x,h/2,z);body.material=variant?wallB:wallA;body.checkCollisions=true;
+    const facing=x<0?1:-1;
+    const frame=mat("districtFrame"+x+z,"#c8b99f");
+    for(const level of [2.1,4.8,7.5]){
+      if(level>h-1)continue;
+      for(const lane of [-1,1]){
+        const wz=z+lane*3;
+        const rim=BABYLON.MeshBuilder.CreateBox("districtWindowFrame",{width:1.45,height:1.5,depth:.14},scene);
+        rim.position.set(x+facing*(w/2+.06),level,wz);rim.rotation.y=Math.PI/2;rim.material=frame;
+        const glass=BABYLON.MeshBuilder.CreateBox("districtWindow",{width:1.2,height:1.22,depth:.1},scene);
+        glass.position.set(x+facing*(w/2+.15),level,wz);glass.rotation.y=Math.PI/2;glass.material=windowMat;
+      }
+    }
+    const roof=BABYLON.MeshBuilder.CreateBox("districtRoofRim",{width:w+.25,height:.28,depth:d+.25},scene);
+    roof.position.set(x,h+.12,z);roof.material=frame;
+  }
+  for(const x of [-55,-34.5,34.5,55]){
+    for(let z=-45,row=0;z<=45;z+=18,row++)districtBlock(x,z,(row+Math.round(Math.abs(x)))%2);
+  }
   // Walk-in interiors placed inside the playable street block. Each room has
   // a real doorway and collidable walls, with its roof omitted for clear play.
   const interiorRooms=[];
