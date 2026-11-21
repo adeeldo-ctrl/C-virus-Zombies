@@ -124,6 +124,7 @@
   // Original low-poly walker characters: layered torso, head, face, articulated arms and legs.
   function createWalker(i){
     const root=BABYLON.MeshBuilder.CreateCapsule("walkerCollider"+i,{height:1.85,radius:.4},scene);
+    root.checkCollisions=true;
     root.material=zombieMat;root.visibility=.001;root.position.set((i%2?1:-1)*(3.5+i*.45),1,-10-i*7);
     const archetypes=[
       {name:"WANDERER",speed:1.35,detect:25,scale:1,cloth:"#53634d"},
@@ -337,7 +338,33 @@
       if(staminaBar)staminaBar.style.width=state.stamina+"%";
     }
     let near=false;
-    zombies.forEach(z=>{if(state.safe||state.health<=0)return;const delta=player.position.subtract(z.position);delta.y=0;const dist=delta.length();if(!driving&&dist>1.25&&dist<z.metadata.detectionRange){delta.normalize();z.position.addInPlace(delta.scale(z.metadata.speed*dt));z.rotation.y=Math.atan2(delta.x,delta.z);}if(dist<1.7)near=true;});
+    zombies.forEach((z,index)=>{
+      if(state.safe||state.health<=0)return;
+      const delta=player.position.subtract(z.position);delta.y=0;
+      const dist=delta.length();
+      if(!driving&&dist>1.25&&dist<z.metadata.detectionRange){
+        let chase=delta.normalize();
+        // Check the path at chest height and steer around collidable buildings,
+        // room walls and props instead of walking straight through them.
+        const origin=z.position.add(new BABYLON.Vector3(0,.78,0));
+        const blocked=direction=>{
+          const ray=new BABYLON.Ray(origin,direction,2.15);
+          const hit=scene.pickWithRay(ray,mesh=>mesh!==z&&mesh.parent!==z&&mesh.checkCollisions&&mesh.name!=="ground"&&mesh.name!=="street");
+          return !!(hit&&hit.hit);
+        };
+        if(blocked(chase)){
+          const side=new BABYLON.Vector3(-chase.z,0,chase.x).scale(index%2===0?1:-1);
+          const left=chase.scale(.28).add(side.scale(.96)).normalize();
+          const right=chase.scale(.28).subtract(side.scale(.96)).normalize();
+          if(!blocked(left))chase=left;
+          else if(!blocked(right))chase=right;
+          else chase=side;
+        }
+        z.moveWithCollisions(new BABYLON.Vector3(chase.x*z.metadata.speed*dt,0,chase.z*z.metadata.speed*dt));
+        z.rotation.y=Math.atan2(chase.x,chase.z);
+      }
+      if(dist<1.7)near=true;
+    });
     if(near&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
     const vehicleDistance=BABYLON.Vector3.Distance(player.position,vehicle.position);
     vehiclePrompt.hidden=!driving&&vehicleDistance>4.3;
