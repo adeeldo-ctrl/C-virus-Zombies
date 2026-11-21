@@ -9,3 +9,5 @@
 .pause-card{width:min(330px,86vw);padding:28px 24px;border:1px solid #ffffff40;border-radius:16px;background:linear-gradient(145deg,#17283a,#09131f);box-shadow:0 18px 60px #0009;text-align:center;color:#fff}
 .pause-heading{font-size:24px;font-weight:900;letter-spacing:2px}.pause-subtitle{margin:12px 0 22px;color:#c2ced8;font-size:12px}
 .pause-card button{padding:12px 22px;border:0;border-radius:8px;background:#d9b92f;color:#101820;font-weight:900;letter-spacing:1px}
+
+#end-overlay{position:absolute;inset:0;z-index:11;display:grid;place-items:center;background:#03080ddd;backdrop-filter:blur(5px)}#end-overlay[hidden]{display:none}
