@@ -119,3 +119,6 @@
   .main-menu-card button{margin-top:7px;padding:9px}
   .menu-foot{margin-top:12px}
 }
+
+#action-buttons #water-gun{width:72px;height:52px;border:1px solid #62dcff;background:linear-gradient(145deg,#087da5ed,#124b78ed);color:#e7fbff;font-size:9px;box-shadow:0 0 13px #25bfff66;touch-action:none}#action-buttons #water-gun:disabled{opacity:.62}#action-buttons #water-gun[hidden]{display:none}
+@media screen and (orientation:portrait){#action-buttons #water-gun{width:50px;height:50px;font-size:8px;letter-spacing:-.3px}}
