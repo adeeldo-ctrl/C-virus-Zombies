@@ -52,7 +52,7 @@
   function createInterior(type,x,z){
     const width=5.2,depth=7.2,height=4.1,doorWidth=1.7,side=x<0?1:-1;
     const center=new BABYLON.Vector3(x,0,z),floorMat=mat(type+"Floor","#77756b"),insideWall=mat(type+"Inside","#b8b4a7"),trim=mat(type+"Trim","#5c6668");
-    const floor=BABYLON.MeshBuilder.CreateBox(type+"Floor",{width,height:.18,depth},scene);floor.position.set(x,.02,z);floor.material=floorMat;floor.checkCollisions=true;
+    const floor=BABYLON.MeshBuilder.CreateBox(type+"Floor",{width,height:.18,depth},scene);floor.position.set(x,-.09,z);floor.material=floorMat;floor.checkCollisions=true;
     const wall=(name,wx,wy,wz,ww,wh,wd,material=insideWall)=>{
       const m=BABYLON.MeshBuilder.CreateBox(name,{width:ww,height:wh,depth:wd},scene);m.position.set(wx,wy,wz);m.material=material;m.checkCollisions=true;return m;
     };
