@@ -131,6 +131,20 @@ const server = http.createServer((req,res) => {
     await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
     const afterDown=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
     if(!(afterDown>afterTouch))throw new Error("Android joystick DOWN must move the hero backward.");
+    const beforeLeft=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.x);
+    await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:76,y:768,id:5}]});
+    await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:36,y:768,id:5}]});
+    await mobile.waitForTimeout(350);
+    await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+    const afterLeft=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.x);
+    if(!(afterLeft<beforeLeft))throw new Error("Android joystick LEFT must move the hero left.");
+    const beforeRight=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.x);
+    await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:76,y:768,id:6}]});
+    await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:116,y:768,id:6}]});
+    await mobile.waitForTimeout(350);
+    await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+    const afterRight=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.x);
+    if(!(afterRight>beforeRight))throw new Error("Android joystick RIGHT must move the hero right.");
     const yawBefore=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.state.yaw);
     await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:330,y:500,id:2}]});
     await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:350,y:500,id:2}]});
@@ -145,6 +159,11 @@ const server = http.createServer((req,res) => {
     const jumpPeak=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.y);
     if(!(jumpPeak>jumpStart+.3))throw new Error("Android jump touch action failed.");
     if(!await mobile.locator("#stamina").count())throw new Error("Mobile stamina HUD missing.");
+    if(!await mobile.locator("#shield").isVisible())throw new Error("Mobile energy shield button missing.");
+    await mobile.locator("#shield").click();
+    const shieldState=await mobile.evaluate(()=>({until:window.__CVIRUS_DEBUG__.state.shieldUntil,visible:window.__CVIRUS_DEBUG__.shield.isEnabled(),audio:window.__CVIRUS_DEBUG__.audioState}));
+    if(!(shieldState.until>0&&shieldState.visible))throw new Error("Energy shield activation failed: "+JSON.stringify(shieldState));
+    if(shieldState.audio!=="running")throw new Error("Game audio did not unlock after touch input: "+shieldState.audio);
     if(errors.length)throw new Error("Browser errors: "+errors.join(" | "));
     console.log("PASS: title/new game, Android-style movement, six-vehicle fleet, enter/exit, backpack, safe-house storage, survivor rescue, two-mission progression, Android joystick/camera/jump and no browser errors.");
   } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
