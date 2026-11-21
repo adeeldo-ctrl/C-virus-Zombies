@@ -228,3 +228,5 @@ When the user says **“C virus”** in a new chat:
 - Driving consumes fuel. Empty tanks and fully damaged vehicles cannot accelerate; lower condition reduces speed. Vehicle collision events wear condition down with an impact cooldown.
 - Added a marked service bay beside the safe house, contextual Android SERVICE action, refuelling and repairs that consume one spare part. Driving HUD displays fuel and condition.
 - Extended the existing integrated flow to cover service interactions. Validation is pending; no browser-suite or Android-device pass is claimed.
+
+- Follow-up correction: the service smoke scenario now parks the sedan at the service bay before checking the contextual action; exiting a vehicle also immediately hides the driving-only status panel.
