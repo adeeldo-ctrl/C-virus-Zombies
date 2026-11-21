@@ -198,3 +198,11 @@ When the user says **“C virus”** in a new chat:
 - Removed the desktop mouse-surrogate movement assertion; retained the actual mobile Chromium touch-event test for joystick movement, right-side camera drag and jump. The consolidated suite still covers vehicle enter/exit, backpack medicine, safe-house storage, survivor rescue and both campaign missions.
 - Latest workflow `44878209378` has dependency installation and production bundle build successful; Chromium installation was still running at last check and the updated integrated smoke test had not yet completed. No overall pass is claimed.
 - Fix commit: `f2052db1d8d7d83d7d744db2c3094e88301373a0`.
+
+
+## 2026-11-21 — Vehicle interaction range correction
+- Fixed vehicle proximity calculations to use horizontal ground-plane distance, preventing the vertical offset between the hero collider and vehicle body from shrinking the usable interaction radius on touch devices.
+- Updated the integrated browser flow to approach the sedan clearly within range, wait for the actual contextual prompt, and assert its measured range before entering/exiting.
+- Previous workflow `44878209378` evidence: dependency installation, Vite production build and Chromium installation succeeded; the browser flow stopped at the vehicle-prompt assertion. This fix addresses the interaction-distance calculation and makes the check wait for the rendered prompt rather than relying on a fixed 100 ms delay.
+- Verification after this change is pending; no full suite pass or Android device validation is claimed. APK remains deferred until the complete game scope is implemented.
+- Next: continue replacing prototype character/vehicle/environment assets, expand story missions and survivor escort behaviour, then finish audio/settings and Android optimisation.
