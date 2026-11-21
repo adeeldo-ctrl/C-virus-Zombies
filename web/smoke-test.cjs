@@ -40,8 +40,13 @@ const server = http.createServer((req,res) => {
     const started=await desktop.evaluate(()=>({paused:window.__CVIRUS_DEBUG__.state.paused,menuHidden:document.getElementById("main-menu").hidden}));
     if(started.paused||!started.menuHidden)throw new Error("New Game did not enter active gameplay.");
     // Verify vehicle proximity, enter/exit and mobile-facing prompts.
-    await desktop.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.player.position.set(d.vehicle.position.x,.95,d.vehicle.position.z+1.4);});
-    await desktop.waitForFunction(()=>!document.getElementById("vehicle-prompt").hidden,{timeout:3000});
+    await desktop.evaluate(()=>{
+      const d=window.__CVIRUS_DEBUG__;
+      // Stand beside the sedan, outside its collision box but inside DRIVE range.
+      d.state.paused=false;
+      d.player.position.set(d.vehicle.position.x+2.3,.95,d.vehicle.position.z);
+    });
+    await desktop.waitForFunction(()=>!document.getElementById("vehicle-prompt").hidden,null,{timeout:5000});
     const vehicleRange=await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.nearestVehicle.distance);
     if(vehicleRange>4.8)throw new Error("Vehicle proximity prompt appeared outside interaction range: "+vehicleRange);
     await desktop.locator("#drive").click();
