@@ -319,3 +319,9 @@ When the user says **“C virus”** in a new chat:
 - Added Android touch smoke assertions for both forward and backward joystick directions.
 - Added layered clothing, shoulder/sleeve, belt, knee and forearm/hand details to the five procedural zombie prototypes. These remain stylized prototype characters; realistic final zombie sculpts and authored animation clips are still outstanding.
 - Browser and Android workflows are pending for commit `db35f993`; no build pass or device verification is claimed yet.
+
+## 2026-11-21 — Zombie articulated locomotion pass
+- Added independent elbow and knee pivots to each of the five zombie prototypes so forearms/hands and shins/boots follow the stride rather than remaining rigidly attached to upper limbs.
+- Updated patrol/chase gait with archetype-specific cadence, alternating knee lift, bent-arm follow-through, subtle torso bounce/lean and head motion; idle poses settle smoothly when movement stops.
+- Extended the browser smoke test to assert that every zombie has both elbow and knee articulation plus torso/head animation targets.
+- This improves movement only; zombie meshes remain stylized prototypes and are not being represented as final realistic character art. Integrated browser/APK verification is pending.
