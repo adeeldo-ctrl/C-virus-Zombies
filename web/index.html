@@ -10,12 +10,13 @@
 <body>
   <canvas id="game"></canvas>
   <div id="hud">
-    <div class="hud-title">C VIRUS ZOMBIES <span>PROTOTYPE</span></div><button id="pause-button" type="button">PAUSE</button>
+    <div class="hud-title">C VIRUS ZOMBIES <span>PROTOTYPE</span></div><div id="top-actions"><button id="inventory-button" type="button">BAG</button><button id="pause-button" type="button">PAUSE</button></div>
     <div class="health-wrap"><div id="health"></div></div><div class="stamina-wrap"><span>STAMINA</span><div class="stamina-track"><div id="stamina"></div></div></div>
     <div class="hud-meta"><div id="status">Collect supply crates and reach the green safe zone.</div><div class="supply-pill">SUPPLIES <b id="supplies">0</b><span>/4</span></div></div>
   </div>
   <div id="controls"><div id="stick"><div id="knob"></div></div><div id="look-help">Move • Drag right side to look</div><div id="action-buttons"><button id="sprint" type="button">RUN</button><button id="jump" type="button">JUMP</button><button id="drive" type="button">DRIVE</button></div></div>
   <div id="message">Collect supplies and reach the safe zone</div>
+  <div id="inventory-panel" hidden><div class="inventory-heading">BACKPACK / سامان</div><div class="inventory-row"><span>Water / پانی</span><b id="item-water">0</b></div><div class="inventory-row"><span>Food / خوراک</span><b id="item-food">0</b></div><div class="inventory-row"><span>Medicine / دوا</span><b id="item-medicine">0</b></div><div class="inventory-row"><span>Parts / پرزے</span><b id="item-parts">0</b></div><div class="inventory-note">Collected supplies are saved automatically.</div></div>
   <div id="subtitles" hidden><div id="subtitle-urdu" lang="ur" dir="rtl"></div><div id="subtitle-translation"></div></div>
   <div id="end-overlay" hidden><div class="pause-card"><div id="end-title" class="pause-heading">MISSION COMPLETE</div><div id="end-text" class="pause-subtitle">Objective secured.</div><button id="retry-button" type="button">PLAY AGAIN</button></div></div>
   <div id="pause-overlay" hidden><div class="pause-card"><div class="pause-heading">GAME PAUSED</div><div class="pause-subtitle">Your progress is saved automatically.</div><button id="resume-button" type="button">RESUME GAME</button></div></div>
