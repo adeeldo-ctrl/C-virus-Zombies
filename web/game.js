@@ -300,7 +300,7 @@
 
   const radio=part("hero-radio",BABYLON.MeshBuilder.CreateBox("heroRadio",{width:.12,height:.18,depth:.08},scene),bootMat);radio.position.set(-.25,.34,-.02);
   const radioAntenna=part("hero-radio-antenna",BABYLON.MeshBuilder.CreateCylinder("heroRadioAntenna",{height:.16,diameter:.018,tessellation:6},scene),shirtMat);radioAntenna.position.set(-.27,.49,-.02);
-  const heroRig={leftArm,rightArm,leftLeg,rightLeg,heroParts};
+
   const safe=BABYLON.MeshBuilder.CreateCylinder("safeZone",{diameter:5,height:.12,tessellation:48},scene);safe.position.set(0,.12,-43);safe.material=safeMat;
   // Original low-poly walker characters: layered torso, head, face, articulated arms and legs.
   function createWalker(i){
