@@ -166,3 +166,10 @@ When the user says **“C virus”** in a new chat:
 - Selecting a vehicle places the player beside that parked vehicle and starts gameplay; the player can then walk up and tap DRIVE to enter it. Back navigation returns to the title menu.
 - Commits: `b8a5a493d9c2273aacf314d73d5deb0528c84242`, `7d679e06da0fc1108b9ed72d7a92fc67b8cec5ae`, `7f9a234b8b68c00455ba2fa5d8c4426d3c6eee84`.
 - Still prototype vehicle art; no final-quality 3D assets, Android device validation or APK build claimed.
+
+
+## 2026-11-21 — Character blockout detail pass
+- Added field gear details to the playable hero blockout: chest harness, radio and antenna, preserving the existing layered clothing, backpack, facial features and articulated limbs.
+- Added non-graphic zombie face detail: glowing eyes, sockets/brows, nose, mouth/teeth and torn-cloth/shoulder panels. Existing five walker archetype tuning and obstacle-aware navigation remain intact.
+- Commit: `4af7d0a103abab25fd3935f617ec49002323cdbe`.
+- These are procedural prototype meshes, not final rigged realistic character assets. Production-grade rigging/animation integration is still outstanding.
