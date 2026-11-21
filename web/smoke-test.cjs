@@ -122,7 +122,13 @@ const server = http.createServer((req,res) => {
     await mobile.waitForTimeout(450);
     await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
     const afterTouch=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
-    if(!(afterTouch<beforeTouch))throw new Error("Android touch joystick did not move the player.");
+    if(!(afterTouch<beforeTouch))throw new Error("Android joystick UP must move the hero forward.");
+    await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:76,y:768,id:4}]});
+    await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:76,y:808,id:4}]});
+    await mobile.waitForTimeout(350);
+    await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
+    const afterDown=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
+    if(!(afterDown>afterTouch))throw new Error("Android joystick DOWN must move the hero backward.");
     const yawBefore=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.state.yaw);
     await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:330,y:500,id:2}]});
     await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:350,y:500,id:2}]});
