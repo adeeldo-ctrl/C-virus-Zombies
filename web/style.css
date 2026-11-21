@@ -81,6 +81,14 @@
 #action-buttons #crouch{width:68px;height:52px;border-radius:14px;border:1px solid #8bc9d7;background:#21485bed;font-size:10px}
 #shield{width:72px;height:52px;border-radius:14px;border:1px solid #54e5ff;background:linear-gradient(145deg,#126c83ed,#173a68ed);color:#d9fbff;font-weight:900;font-size:10px;box-shadow:0 0 12px #22dfff55}#shield:disabled{opacity:.48;filter:saturate(.55)}#action-buttons #shield[hidden]{display:none}#action-buttons #crouch[hidden]{display:none}
 
+/* Portrait touch layout: keep the action cluster clear of the left movement joystick. */
+@media screen and (orientation:portrait){
+  #controls{height:170px}
+  #action-buttons{display:grid;grid-template-columns:repeat(3,50px);gap:6px;right:0;bottom:0}
+  #action-buttons button{width:50px;height:50px;font-size:9px}
+  #shield{width:50px;height:50px}
+}
+
 /* Android landscape gameplay layout */
 @media screen and (orientation:landscape) and (max-height:560px){
   #hud{top:9px;left:12px;right:12px;padding-right:190px}
