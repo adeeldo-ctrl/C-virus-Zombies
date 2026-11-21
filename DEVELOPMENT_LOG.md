@@ -310,3 +310,12 @@ When the user says **“C virus”** in a new chat:
 - Added bone-driven idle, walk, sprint, crouch and jump posing while retaining the old procedural character as a load-failure fallback.
 - Added the source asset provenance and original CC0 license beside the bundled GLB. Portrait/browser CSS was not changed.
 - This is a rigged game-ready stylized character base with a custom survivor treatment, not a photoreal bespoke sculpt; further face/clothing sculpting and authored animation clips remain art-pipeline work.
+
+
+## 2026-11-21 — On-foot joystick, locomotion and notification correction
+- Corrected the on-foot camera-relative movement basis so joystick UP moves the hero forward and DOWN moves backward. Vehicle throttle/steering code was not changed.
+- Reworked Ibrahim's procedural skinned gait with alternating thigh swing, knee lift/flex, opposite arm swing, subtle torso motion and a small visual footfall bounce.
+- Moved Urdu mission subtitles from the lower-middle gameplay area to a compact top-centre stack below the HUD.
+- Added Android touch smoke assertions for both forward and backward joystick directions.
+- Added layered clothing, shoulder/sleeve, belt, knee and forearm/hand details to the five procedural zombie prototypes. These remain stylized prototype characters; realistic final zombie sculpts and authored animation clips are still outstanding.
+- Browser and Android workflows are pending for commit `db35f993`; no build pass or device verification is claimed yet.
