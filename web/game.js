@@ -147,6 +147,7 @@
   state.supplies=Number.isInteger(savedGame?.supplies)?Math.max(0,Math.min(4,savedGame.supplies)):0;
   state.safe=savedGame?.missionComplete===true;
   state.health=Number.isFinite(savedGame?.health)?BABYLON.Scalar.Clamp(savedGame.health,1,100):100;
+  if(Array.isArray(savedGame?.vehicle)&&savedGame.vehicle.length===3&&savedGame.vehicle.every(Number.isFinite))vehicle.position.set(savedGame.vehicle[0],.58,savedGame.vehicle[2]);
   if(Array.isArray(savedGame?.player)&&savedGame.player.length===3&&savedGame.player.every(Number.isFinite)){
     player.position.set(savedGame.player[0],.95,savedGame.player[2]);
   }
@@ -167,6 +168,7 @@
       localStorage.setItem(SAVE_KEY,JSON.stringify({
         health:state.health,supplies:state.supplies,yaw:state.yaw,missionComplete:state.safe,
         player:[player.position.x,player.position.y,player.position.z],
+        vehicle:[vehicle.position.x,vehicle.position.y,vehicle.position.z],
         collected:pickups.filter(p=>p.collected).map(p=>p.phase)
       }));
     }catch(error){console.warn("Save unavailable:",error);}
