@@ -352,3 +352,6 @@ When the user says **“C virus”** in a new chat:
 - Actual hunger and hydration now decrease only during active gameplay, pause during menus, persist in save data, and recover through food and water respectively. If either reaches zero, health gradually declines. This is newly implemented; wait for the integrated browser workflow before calling it verified.
 - Continue directly in this GitHub repository on `main`; do not use Codex or Godot. Preserve existing touch joystick, camera look, vehicle controls, audio unlock, shield cooldown, save compatibility and all existing mission systems.
 - Do not stop after documentation. Continue implementing complete gameplay systems in consolidated batches, run the existing integrated regression suite, and update both logs with real evidence. Physical Android device checks remain separate from browser CI.
+
+- Packaging workflow correction: `.github/workflows/build-android-apk.yml` now runs only on explicit `workflow_dispatch`; ordinary development/documentation commits no longer launch repeated APK builds. APK creation remains a deliberate release-stage action.
+- Browser validation run `44931956438` for the hunger/hydration implementation: production web bundle succeeded; Chromium installation was still in progress at the last status check, so the gameplay smoke suite has not yet run and no pass is claimed.
