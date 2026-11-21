@@ -237,9 +237,12 @@
   survivorPart("survivorBody",BABYLON.MeshBuilder.CreateCapsule("survivorBody",{height:.9,radius:.25},scene),survivorCloth,new BABYLON.Vector3(0,.88,0));
   survivorPart("survivorHead",BABYLON.MeshBuilder.CreateSphere("survivorHead",{diameter:.38,segments:14},scene),survivorSkin,new BABYLON.Vector3(0,1.52,0));
   survivorPart("survivorHair",BABYLON.MeshBuilder.CreateSphere("survivorHair",{diameter:.39,segments:12},scene),survivorDark,new BABYLON.Vector3(0,1.67,-.035)).scaling.y=.48;
+  const survivorRig={arms:[],legs:[]};
   for(const side of [-1,1]){
-    survivorPart("survivorArm",BABYLON.MeshBuilder.CreateCylinder("survivorArm",{height:.58,diameter:.13,tessellation:10},scene),survivorCloth,new BABYLON.Vector3(side*.31,.91,0)).rotation.z=side*-.12;
-    survivorPart("survivorLeg",BABYLON.MeshBuilder.CreateCylinder("survivorLeg",{height:.55,diameter:.15,tessellation:10},scene),pantsMat,new BABYLON.Vector3(side*.13,.28,0));
+    const arm=survivorPart("survivorArm",BABYLON.MeshBuilder.CreateCylinder("survivorArm",{height:.58,diameter:.13,tessellation:10},scene),survivorCloth,new BABYLON.Vector3(side*.31,.91,0));
+    arm.rotation.z=side*-.12;survivorRig.arms.push(arm);
+    const leg=survivorPart("survivorLeg",BABYLON.MeshBuilder.CreateCylinder("survivorLeg",{height:.55,diameter:.15,tessellation:10},scene),pantsMat,new BABYLON.Vector3(side*.13,.28,0));
+    survivorRig.legs.push(leg);
   }
   const survivorMarker=BABYLON.MeshBuilder.CreateCylinder("survivorMarker",{diameter:.9,height:.035,tessellation:24},scene);
   survivorMarker.position.set(4.9,.06,-14.2);survivorMarker.material=safeMat;
@@ -720,7 +723,8 @@
         survivorRoot.position.addInPlace(direction.scale(Math.min(distance-1.25,escortSpeed*dt)));
         survivorRoot.position.y=0;
         survivorRoot.rotation.y=Math.atan2(direction.x,direction.z);
-      }
+        const gait=Math.sin(performance.now()*.012)*.42;survivorRig.legs[0].rotation.x=gait;survivorRig.legs[1].rotation.x=-gait;survivorRig.arms[0].rotation.x=-gait*.55;survivorRig.arms[1].rotation.x=gait*.55;
+      }else{survivorRig.legs.forEach(limb=>{limb.rotation.x=0;});survivorRig.arms.forEach(limb=>{limb.rotation.x=0;});}
     }
     let near=false;
     zombies.forEach((z,index)=>{
