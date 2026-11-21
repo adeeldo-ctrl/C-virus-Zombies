@@ -296,9 +296,9 @@
     createVehicle("SEDAN",3.3,31,"#315f78"),
     createVehicle("MOTORCYCLE",-26, -24,"#b84436"),
     createVehicle("AUTO RICKSHAW",26,24,"#d4b72d"),
-    createVehicle("CHINGCHI",-43,-5,"#c75b3c"),
     createVehicle("MINI BUS",-26,27,"#3f8a75"),
-    createVehicle("4K BUS",26,-28,"#3466a1")
+    createVehicle("4K BUS",26,-28,"#3466a1"),
+    createVehicle("CHINGCHI",-43,-5,"#c75b3c")
   ];
   const vehicle=fleet[0].root;
   let activeVehicle=fleet[0],driving=false;
