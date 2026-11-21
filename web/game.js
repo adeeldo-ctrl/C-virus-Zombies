@@ -413,6 +413,19 @@
     }
     const tornPanel=piece("walkerTornCloth",BABYLON.MeshBuilder.CreateBox("walkerTornCloth",{width:.17,height:.25,depth:.045},scene),zombieDark);tornPanel.position.set(.17,-.04,.19);tornPanel.rotation.z=-.2;
     const shoulderPatch=piece("walkerShoulderPatch",BABYLON.MeshBuilder.CreateBox("walkerShoulderPatch",{width:.2,height:.18,depth:.36},scene),variantCloth);shoulderPatch.position.set(-.31,.35,0);
+    // Layered survivor clothing breaks up the old toy-like box silhouette.
+    const neck=piece("walkerNeck",BABYLON.MeshBuilder.CreateCylinder("walkerNeckMesh",{height:.2,diameter:.17,tessellation:10},scene),zombieSkin);neck.position.set(0,.49,0);
+    const collar=piece("walkerCollar",BABYLON.MeshBuilder.CreateBox("walkerCollarMesh",{width:.48,height:.12,depth:.37},scene),zombieDark);collar.position.set(0,.43,.015);
+    const belt=piece("walkerBelt",BABYLON.MeshBuilder.CreateBox("walkerBeltMesh",{width:.59,height:.105,depth:.34},scene),bootMat);belt.position.set(0,-.28,0);
+    const buckle=piece("walkerBuckle",BABYLON.MeshBuilder.CreateBox("walkerBuckleMesh",{width:.105,height:.085,depth:.035},scene),supplyMat);buckle.position.set(0,-.28,.185);
+    for(const side of [-1,1]){
+      const shoulder=piece("walkerShoulder",BABYLON.MeshBuilder.CreateSphere("walkerShoulderMesh",{diameter:.29,segments:10},scene),variantCloth);shoulder.position.set(side*.30,.34,0);shoulder.scaling.set(1,.86,1);
+      const sleeve=piece("walkerSleeve",BABYLON.MeshBuilder.CreateCylinder("walkerSleeveMesh",{height:.27,diameter:.22,tessellation:10},scene),variantCloth);sleeve.position.set(side*.35,.19,0);sleeve.rotation.z=side*.12;
+      const cuff=piece("walkerCuff",BABYLON.MeshBuilder.CreateCylinder("walkerCuffMesh",{height:.09,diameter:.205,tessellation:10},scene),zombieDark);cuff.position.set(side*.35,.035,0);
+      const trouserPatch=piece("walkerKneePatch",BABYLON.MeshBuilder.CreateBox("walkerKneePatchMesh",{width:.23,height:.20,depth:.055},scene),variantCloth);trouserPatch.position.set(side*.15,-.57,.13);
+      trouserPatch.rotation.z=side*.08;
+      const rag=piece("walkerClothRag",BABYLON.MeshBuilder.CreateBox("walkerClothRagMesh",{width:.12,height:.28,depth:.035},scene),zombieDark);rag.position.set(side*.23,-.19,.19);rag.rotation.z=side*.28;
+    }
     const limb=(name,x,y,length,material)=>{
       const pivot=new BABYLON.TransformNode(name+"Pivot",scene);pivot.parent=root;pivot.position.set(x,y,0);
       const mesh=piece(name,BABYLON.MeshBuilder.CreateCylinder(name+"Mesh",{height:length,diameter:name.includes("arm")?.19:.23,tessellation:10},scene),material,pivot);mesh.position.y=-length/2;
@@ -420,8 +433,12 @@
     };
     const leftArm=limb("walkerLeftArm",-.35,.37,.65,zombieSkin),rightArm=limb("walkerRightArm",.35,.37,.65,zombieSkin);
     const leftLeg=limb("walkerLeftLeg",-.15,-.29,.7,zombieDark),rightLeg=limb("walkerRightLeg",.15,-.29,.7,zombieDark);
-    for(const side of [-1,1]){
-      const boot=piece("walkerBoot",BABYLON.MeshBuilder.CreateBox("walkerBoot",{width:.22,height:.15,depth:.3},scene),zombieDark);boot.position.set(side*.15,-.78,.055);
+    for(const [side,arm,leg] of [[-1,leftArm,leftLeg],[1,rightArm,rightLeg]]){
+      const forearm=piece("walkerForearm",BABYLON.MeshBuilder.CreateCylinder("walkerForearmMesh",{height:.34,diameter:.17,tessellation:10},scene),zombieSkin,arm);forearm.position.y=-.48;forearm.rotation.z=side*-.08;
+      const hand=piece("walkerHand",BABYLON.MeshBuilder.CreateSphere("walkerHandMesh",{diameter:.19,segments:10},scene),zombieSkin,arm);hand.position.set(0,-.66,.015);hand.scaling.set(.85,1.15,.72);
+      const knee=piece("walkerKnee",BABYLON.MeshBuilder.CreateSphere("walkerKneeMesh",{diameter:.25,segments:10},scene),zombieDark,leg);knee.position.set(0,-.48,.025);knee.scaling.set(1,.8,.9);
+      const shin=piece("walkerShin",BABYLON.MeshBuilder.CreateCylinder("walkerShinMesh",{height:.36,diameterTop:.20,diameterBottom:.16,tessellation:10},scene),zombieDark,leg);shin.position.y=-.68;
+      const boot=piece("walkerBoot",BABYLON.MeshBuilder.CreateBox("walkerBoot",{width:.22,height:.15,depth:.3},scene),zombieDark,leg);boot.position.set(0,-.88,.10);
     }
     root.rig={leftArm,rightArm,leftLeg,rightLeg,phase:i*.83};
     return root;
