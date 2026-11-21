@@ -187,9 +187,27 @@
   let saveClock=0, damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
   window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,get driving(){return driving;}};
+  let worldClock=0;
+  let subtitleTimer=null;
+  const subtitlePanel=document.getElementById("subtitles");
+  function showSubtitle(urdu,translation,duration=4200){
+    document.getElementById("subtitle-urdu").textContent=urdu;
+    document.getElementById("subtitle-translation").textContent=translation;
+    subtitlePanel.hidden=false;
+    if(subtitleTimer)clearTimeout(subtitleTimer);
+    subtitleTimer=setTimeout(()=>{subtitlePanel.hidden=true;},duration);
+  }
+  showSubtitle("شہر میں وائرس پھیل چکا ہے۔ محفوظ مقام تک پہنچنا ہوگا۔","The city is infected. Reach the safe zone.",5200);
+  setTimeout(()=>showSubtitle("ریڈیو: چاروں سپلائی کریٹس جمع کریں، پھر سبز محفوظ مقام پر جائیں۔","RADIO: Collect all four supply crates, then reach the green safe zone.",5200),5600);
   scene.onBeforeRenderObservable.add(()=>{
     if(state.paused||state.ended)return;
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
+    worldClock+=dt;
+    const daylight=(Math.sin(worldClock/90*Math.PI*2-Math.PI/2)+1)/2;
+    sun.intensity=.16+daylight*.72;
+    light.intensity=.42+daylight*.52;
+    scene.fogDensity=.0045+(1-daylight)*.0035;
+    scene.clearColor=new BABYLON.Color4(.035+daylight*.45,.055+daylight*.60,.09+daylight*.67,1);
     saveClock+=dt;if(saveClock>=5){saveClock=0;saveProgress();}
     const moving=state.moveX*state.moveX+state.moveY*state.moveY>.025;
     const gait=moving?Math.sin(performance.now()*.012*(state.sprint?1.35:1)):0;
@@ -209,7 +227,7 @@
         state.supplies+=1;state.health=Math.min(100,state.health+8);
         document.getElementById("supplies").textContent=String(state.supplies);
         document.getElementById("health").style.width=state.health+"%";
-        document.getElementById("status").textContent="Supplies collected: "+state.supplies+"/4 — reach the safe zone.";
+        document.getElementById("status").textContent="Supplies collected: "+state.supplies+"/4 — reach the safe zone.";showSubtitle("سپلائی مل گئی۔ محفوظ مقام کی طرف بڑھیں۔","Supply secured. Keep moving toward the safe zone.",2200);
         saveProgress();
       }
     });
@@ -241,7 +259,7 @@
     zombies.forEach(z=>{if(state.safe||state.health<=0)return;const delta=player.position.subtract(z.position);delta.y=0;const dist=delta.length();if(!driving&&dist>1.25&&dist<z.metadata.detectionRange){delta.normalize();z.position.addInPlace(delta.scale(z.metadata.speed*dt));z.rotation.y=Math.atan2(delta.x,delta.z);}if(dist<1.7)near=true;});
     if(near&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
     const reached=BABYLON.Vector3.Distance(driving?vehicle.position:player.position,safe.position)<3;
-    if(reached&&!state.safe&&state.supplies===4){state.safe=true;document.getElementById("message").textContent="Safe zone reached — mission complete!";document.getElementById("status").textContent="Mission complete. All 4 supplies secured.";endTitle.textContent="MISSION COMPLETE";endText.textContent="You reached the safe zone with all supplies.";endOverlay.hidden=false;saveProgress();}
+    if(reached&&!state.safe&&state.supplies===4){state.safe=true;document.getElementById("message").textContent="Safe zone reached — mission complete!";document.getElementById("status").textContent="Mission complete. All 4 supplies secured.";endTitle.textContent="MISSION COMPLETE";endText.textContent="You reached the safe zone with all supplies.";endOverlay.hidden=false;showSubtitle("ہم محفوظ مقام تک پہنچ گئے! مشن مکمل۔","Safe zone reached. Mission complete.",5000);saveProgress();}
     else if(reached&&!state.safe){document.getElementById("message").textContent="Safe zone ahead — collect all 4 supplies first.";document.getElementById("status").textContent="Supplies secured: "+state.supplies+"/4. Find the remaining crates.";}
     if(state.health<=0&&!state.safe&&!state.ended){state.ended=true;document.getElementById("message").textContent="Health depleted — mission failed";document.getElementById("status").textContent="Mission failed. Retry to start again.";endTitle.textContent="MISSION FAILED";endText.textContent="Try a different route and collect the supplies.";endOverlay.hidden=false;}
   });
