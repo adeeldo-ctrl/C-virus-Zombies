@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, sprint:false, paused:false, ended:false, inventoryOpen:false};
+  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:false, ended:false, inventoryOpen:false};
   const scene = new BABYLON.Scene(engine);
   scene.collisionsEnabled = true;
   scene.clearColor = new BABYLON.Color4(0.48,0.66,0.77,1);
@@ -130,6 +130,20 @@
   createInterior("CLINIC",-4.8,18);
   createInterior("SHOP",4.8,-13);
   createInterior("POLICE",-4.8,-35);
+  // A stranded shopkeeper survivor introduces the first rescue objective.
+  const survivorRoot=new BABYLON.TransformNode("survivorShopkeeper",scene);
+  survivorRoot.position.set(4.9,0,-14.2);
+  const survivorSkin=mat("survivorSkin","#b98261"),survivorCloth=mat("survivorCloth","#b9a36a"),survivorDark=mat("survivorDark","#302a25");
+  const survivorPart=(name,mesh,material,pos)=>{mesh.name=name;mesh.parent=survivorRoot;mesh.material=material;mesh.position.copyFrom(pos);return mesh;};
+  survivorPart("survivorBody",BABYLON.MeshBuilder.CreateCapsule("survivorBody",{height:.9,radius:.25},scene),survivorCloth,new BABYLON.Vector3(0,.88,0));
+  survivorPart("survivorHead",BABYLON.MeshBuilder.CreateSphere("survivorHead",{diameter:.38,segments:14},scene),survivorSkin,new BABYLON.Vector3(0,1.52,0));
+  survivorPart("survivorHair",BABYLON.MeshBuilder.CreateSphere("survivorHair",{diameter:.39,segments:12},scene),survivorDark,new BABYLON.Vector3(0,1.67,-.035)).scaling.y=.48;
+  for(const side of [-1,1]){
+    survivorPart("survivorArm",BABYLON.MeshBuilder.CreateCylinder("survivorArm",{height:.58,diameter:.13,tessellation:10},scene),survivorCloth,new BABYLON.Vector3(side*.31,.91,0)).rotation.z=side*-.12;
+    survivorPart("survivorLeg",BABYLON.MeshBuilder.CreateCylinder("survivorLeg",{height:.55,diameter:.15,tessellation:10},scene),pantsMat,new BABYLON.Vector3(side*.13,.28,0));
+  }
+  const survivorMarker=BABYLON.MeshBuilder.CreateCylinder("survivorMarker",{diameter:.9,height:.035,tessellation:24},scene);
+  survivorMarker.position.set(4.9,.06,-14.2);survivorMarker.material=safeMat;
   // Keep the full expanded neighbourhood grid inside the world instead of trapping the player on the original starter street.
   for(const x of [-64,64]){const wall=BABYLON.MeshBuilder.CreateBox("cityBoundary",{width:.6,height:5,depth:130},scene);wall.position.set(x,2.5,0);wall.checkCollisions=true;wall.visibility=0.001;}
   for(const z of [-64,64]){const wall=BABYLON.MeshBuilder.CreateBox("cityEndBoundary",{width:130,height:5,depth:.6},scene);wall.position.set(0,2.5,z);wall.checkCollisions=true;wall.visibility=0.001;}
@@ -238,6 +252,17 @@
     }
   }
   driveButton.addEventListener("click",toggleVehicle);
+  const rescueButton=document.getElementById("rescue");
+  rescueButton.addEventListener("click",()=>{
+    if(state.rescued||driving||state.paused||state.ended)return;
+    if(BABYLON.Vector3.Distance(player.position,survivorRoot.position)>2.7)return;
+    state.rescued=true;survivorRoot.setEnabled(false);survivorMarker.setEnabled(false);
+    rescueButton.hidden=true;
+    document.getElementById("message").textContent="Shopkeeper rescued — take the supplies to the safe zone.";
+    document.getElementById("status").textContent="Survivor rescued. Collect all 4 supplies and reach the safe zone.";
+    showSubtitle("براہ کرم مجھے یہاں سے نکالیں۔ شکریہ!","Thank you for rescuing me. Let's reach the safe zone.",4200);
+    saveProgress();
+  });
   const SAVE_KEY="cvirus-zombies-save-v1";
   let savedGame=null;
   try{savedGame=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");}catch{savedGame=null;}
@@ -245,6 +270,8 @@
   state.inventory={water:0,food:0,medicine:0,parts:0,...(savedGame?.inventory||{})};
   for(const key of ["water","food","medicine","parts"])state.inventory[key]=Number.isInteger(state.inventory[key])?Math.max(0,Math.min(99,state.inventory[key])):0;
   state.safe=savedGame?.missionComplete===true;
+  state.rescued=savedGame?.survivorRescued===true;
+  if(state.rescued){survivorRoot.setEnabled(false);survivorMarker.setEnabled(false);}
   state.health=Number.isFinite(savedGame?.health)?BABYLON.Scalar.Clamp(savedGame.health,1,100):100;
   state.stamina=Number.isFinite(savedGame?.stamina)?BABYLON.Scalar.Clamp(savedGame.stamina,0,100):100;
   document.getElementById("stamina").style.width=state.stamina+"%";
@@ -295,7 +322,7 @@
   function saveProgress(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
-        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,
+        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,
         player:[player.position.x,player.position.y,player.position.z],
         vehicle:[vehicle.position.x,vehicle.position.y,vehicle.position.z],
         collected:pickups.filter(p=>p.collected).map(p=>p.phase)
@@ -419,9 +446,18 @@
     }
     buildingPrompt.hidden=driving||(!insideRoom&&(!nearestRoom||nearestDoor>3.2));
     buildingPrompt.textContent=insideRoom?insideRoom.type+" INTERIOR — EXPLORE":nearestRoom?nearestRoom.type+" — WALK INSIDE":"";
+    const survivorDistance=BABYLON.Vector3.Distance(player.position,survivorRoot.position);
+    rescueButton.hidden=state.rescued||driving||survivorDistance>2.7||state.paused||state.ended;
+    if(!state.rescued&&survivorDistance<8&&!driving)document.getElementById("message").textContent="Shopkeeper nearby — enter the general store to help.";
     const reached=BABYLON.Vector3.Distance(driving?vehicle.position:player.position,safe.position)<3;
-    if(reached&&!state.safe&&state.supplies===4){state.safe=true;document.getElementById("message").textContent="Safe zone reached — mission complete!";document.getElementById("status").textContent="Mission complete. All 4 supplies secured.";endTitle.textContent="MISSION COMPLETE";endText.textContent="You reached the safe zone with all supplies.";endOverlay.hidden=false;showSubtitle("ہم محفوظ مقام تک پہنچ گئے! مشن مکمل۔","Safe zone reached. Mission complete.",5000);saveProgress();}
-    else if(reached&&!state.safe){document.getElementById("message").textContent="Safe zone ahead — collect all 4 supplies first.";document.getElementById("status").textContent="Supplies secured: "+state.supplies+"/4. Find the remaining crates.";}
+    if(reached&&!state.safe&&state.supplies===4&&state.rescued){state.safe=true;document.getElementById("message").textContent="Survivor rescued — safe zone secured!";document.getElementById("status").textContent="Mission complete. Supplies collected and survivor rescued.";endTitle.textContent="MISSION COMPLETE";endText.textContent="You secured all supplies and escorted the shopkeeper to safety.";endOverlay.hidden=false;showSubtitle("ہم نے دکاندار کو بچا لیا، محفوظ مقام پہنچ گئے!","Survivor rescued. Safe zone reached.",5000);saveProgress();}
+    else if(reached&&!state.safe){
+      const missing=[];
+      if(state.supplies<4)missing.push((4-state.supplies)+" supplies");
+      if(!state.rescued)missing.push("rescue the shopkeeper");
+      document.getElementById("message").textContent="Safe zone locked — "+missing.join(" and ")+".";
+      document.getElementById("status").textContent="Before extraction: "+missing.join(", ")+".";
+    }
     if(state.health<=0&&!state.safe&&!state.ended){state.ended=true;document.getElementById("message").textContent="Health depleted — mission failed";document.getElementById("status").textContent="Mission failed. Retry to start again.";endTitle.textContent="MISSION FAILED";endText.textContent="Try a different route and collect the supplies.";endOverlay.hidden=false;}
   });
   // Keyboard controls
