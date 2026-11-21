@@ -130,9 +130,9 @@
   createInterior("CLINIC",-4.8,18);
   createInterior("SHOP",4.8,-13);
   createInterior("POLICE",-4.8,-35);
-  // Collision boundaries keep the player inside the playable street block.
-  for(const x of [-7.6,7.6]){const wall=BABYLON.MeshBuilder.CreateBox("streetBoundary",{width:.5,height:4,depth:120},scene);wall.position.set(x,2,0);wall.checkCollisions=true;wall.visibility=0.001;}
-  for(const z of [-58,58]){const wall=BABYLON.MeshBuilder.CreateBox("streetEndBoundary",{width:15.5,height:4,depth:.5},scene);wall.position.set(0,2,z);wall.checkCollisions=true;wall.isVisible=false;}
+  // Keep the full expanded neighbourhood grid inside the world instead of trapping the player on the original starter street.
+  for(const x of [-64,64]){const wall=BABYLON.MeshBuilder.CreateBox("cityBoundary",{width:.6,height:5,depth:130},scene);wall.position.set(x,2.5,0);wall.checkCollisions=true;wall.visibility=0.001;}
+  for(const z of [-64,64]){const wall=BABYLON.MeshBuilder.CreateBox("cityEndBoundary",{width:130,height:5,depth:.6},scene);wall.position.set(0,2.5,z);wall.checkCollisions=true;wall.visibility=0.001;}
   const player=BABYLON.MeshBuilder.CreateCapsule("playerCollider",{height:1.9,radius:.42},scene);player.material=heroMat;player.visibility=0.001;player.position.set(0,.95,35);player.checkCollisions=true;player.ellipsoid=new BABYLON.Vector3(.42,.95,.42);camera.lockedTarget=player;
   // Original modular hero blockout with articulated limbs and layered clothing.
   const heroParts=[];
@@ -228,12 +228,12 @@
     if(state.paused||state.ended)return;
     if(!driving&&BABYLON.Vector3.Distance(player.position,vehicle.position)<4.3){
       driving=true;player.setEnabled(false);camera.lockedTarget=vehicle;
-      document.getElementById("status").textContent="Driving sedan — use joystick or WASD, press E / EXIT to leave.";
+      document.getElementById("status").textContent="Driving sedan — use the joystick to steer and tap EXIT to leave.";
       driveButton.textContent="EXIT";
     }else if(driving){
       driving=false;player.position.copyFrom(vehicle.position);player.position.x+=1.45;player.position.y=.95;
       player.rotation.y=vehicle.rotation.y;player.setEnabled(true);camera.lockedTarget=player;
-      document.getElementById("status").textContent="On foot — approach the sedan and press E to drive.";
+      document.getElementById("status").textContent="On foot — approach the sedan and tap DRIVE.";
       driveButton.textContent="DRIVE";
     }
   }
@@ -408,7 +408,7 @@
     if(near&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
     const vehicleDistance=BABYLON.Vector3.Distance(player.position,vehicle.position);
     vehiclePrompt.hidden=!driving&&vehicleDistance>4.3;
-    vehiclePrompt.textContent=driving?"Press E / EXIT to leave vehicle":"Press E / DRIVE to enter sedan";
+    vehiclePrompt.textContent=driving?"Tap EXIT to leave vehicle":"Tap DRIVE to enter sedan";
     let nearestRoom=null,nearestDoor=Infinity,insideRoom=null;
     if(!driving){
       for(const room of interiorRooms){
@@ -454,10 +454,28 @@
   stick.addEventListener("pointermove",e=>{if(active)joystick(e);});
   const reset=()=>{active=false;knob.style.transform="";touchX=0;touchY=0;};
   stick.addEventListener("pointerup",reset);stick.addEventListener("pointercancel",reset);
-  // Drag on right side to rotate the follow camera.
-  let look=null;canvas.addEventListener("pointerdown",e=>{if(e.clientX>innerWidth*.42)look={x:e.clientX,y:e.clientY};});
-  canvas.addEventListener("pointermove",e=>{if(!look)return;state.yaw-=(e.clientX-look.x)*.006;camera.rotationOffset=180+state.yaw*180/Math.PI;camera.heightOffset=BABYLON.Scalar.Clamp(camera.heightOffset+(e.clientY-look.y)*.018,2.2,5.5);look={x:e.clientX,y:e.clientY};});
-  canvas.addEventListener("pointerup",()=>look=null);canvas.addEventListener("pointercancel",()=>look=null);
+  // Right-side touch drag controls the follow camera independently from the left joystick.
+  let look=null;
+  canvas.addEventListener("pointerdown",e=>{
+    if(e.clientX>innerWidth*.42&&!state.paused&&!state.inventoryOpen){
+      look={id:e.pointerId,x:e.clientX,y:e.clientY};
+      try{canvas.setPointerCapture(e.pointerId);}catch{}
+      e.preventDefault();
+    }
+  });
+  canvas.addEventListener("pointermove",e=>{
+    if(!look||e.pointerId!==look.id)return;
+    const dx=e.clientX-look.x,dy=e.clientY-look.y;
+    state.yaw-=dx*.006;
+    camera.rotationOffset=180+state.yaw*180/Math.PI;
+    camera.heightOffset=BABYLON.Scalar.Clamp(camera.heightOffset+dy*.018,2.2,5.5);
+    look={id:e.pointerId,x:e.clientX,y:e.clientY};
+    e.preventDefault();
+  });
+  const stopLook=e=>{if(look&&e.pointerId===look.id)look=null;};
+  canvas.addEventListener("pointerup",stopLook);
+  canvas.addEventListener("pointercancel",stopLook);
+  canvas.addEventListener("lostpointercapture",stopLook);
   canvas.addEventListener("wheel",e=>{camera.radius=BABYLON.Scalar.Clamp(camera.radius+Math.sign(e.deltaY)*.7,5,12);},{passive:true});
   document.addEventListener("visibilitychange",()=>{if(document.hidden){state.sprint=false;touchX=0;touchY=0;reset();}});
   window.addEventListener("resize",()=>engine.resize());
