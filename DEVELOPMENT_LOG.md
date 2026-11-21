@@ -206,3 +206,11 @@ When the user says **“C virus”** in a new chat:
 - Previous workflow `44878209378` evidence: dependency installation, Vite production build and Chromium installation succeeded; the browser flow stopped at the vehicle-prompt assertion. This fix addresses the interaction-distance calculation and makes the check wait for the rendered prompt rather than relying on a fixed 100 ms delay.
 - Verification after this change is pending; no full suite pass or Android device validation is claimed. APK remains deferred until the complete game scope is implemented.
 - Next: continue replacing prototype character/vehicle/environment assets, expand story missions and survivor escort behaviour, then finish audio/settings and Android optimisation.
+
+
+## 2026-11-21 — Survivor escort gameplay
+- Replaced the instant-hide rescue outcome with a visible shopkeeper escort. After rescue, the NPC follows the player, keeps a safe trailing distance, turns toward the travel direction and uses lightweight obstacle steering; the follower keeps pace when the player drives.
+- Save/load restores the rescued NPC near the restored player, and the NPC is hidden when Mission 2 begins.
+- Mission 1 extraction now requires the shopkeeper to reach the safe zone as well as the player, survivor rescue and all four supplies. The safe-zone prompt tells the player to wait if the escort is still catching up.
+- Extended the existing integrated flow to assert that the rescued NPC remains present for escort. Verification after the changes is pending; no browser-suite or Android-device pass is claimed.
+- APK remains deferred until all approved game features are implemented.
