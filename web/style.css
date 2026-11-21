@@ -78,7 +78,8 @@
 
 #action-buttons #vehicle-brake{width:68px;height:52px;border-radius:14px;border:1px solid #e18b7e;background:#79372fed;color:#fff;font-size:10px;touch-action:none}#action-buttons #vehicle-brake[hidden]{display:none}
 
-#action-buttons #crouch{width:68px;height:52px;border-radius:14px;border:1px solid #8bc9d7;background:#21485bed;font-size:10px}#action-buttons #crouch[hidden]{display:none}
+#action-buttons #crouch{width:68px;height:52px;border-radius:14px;border:1px solid #8bc9d7;background:#21485bed;font-size:10px}
+#shield{width:72px;height:52px;border-radius:14px;border:1px solid #54e5ff;background:linear-gradient(145deg,#126c83ed,#173a68ed);color:#d9fbff;font-weight:900;font-size:10px;box-shadow:0 0 12px #22dfff55}#shield:disabled{opacity:.48;filter:saturate(.55)}#action-buttons #shield[hidden]{display:none}#action-buttons #crouch[hidden]{display:none}
 
 /* Android landscape gameplay layout */
 @media screen and (orientation:landscape) and (max-height:560px){
