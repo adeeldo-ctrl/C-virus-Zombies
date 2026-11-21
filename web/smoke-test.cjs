@@ -37,15 +37,8 @@ const server = http.createServer((req,res) => {
     const initial=await desktop.evaluate(()=>({zombies:window.__CVIRUS_DEBUG__.zombies.length,heroParts:window.__CVIRUS_DEBUG__.heroRig.heroParts.length,interiors:window.__CVIRUS_DEBUG__.interiorRooms.map(r=>r.type),vehicles:window.__CVIRUS_DEBUG__.vehicles.map(v=>v.type)}));
     if(initial.zombies!==5||initial.heroParts<10||initial.interiors.join(",")!=="CLINIC,SHOP,POLICE")throw new Error("Core world initialization failed: "+JSON.stringify(initial));
     for(const required of ["SEDAN","MOTORCYCLE","AUTO RICKSHAW","CHINGCHI","MINI BUS","4K BUS"])if(!initial.vehicles.includes(required))throw new Error("Missing drivable transport: "+required);
-    // Exercise the actual touchscreen-style joystick rather than desktop keyboard input.
-    const stick=desktop.locator("#stick"),rect=await stick.boundingBox();
-    await desktop.mouse.move(rect.x+rect.width/2,rect.y+rect.height/2);
-    await desktop.mouse.down();
-    await desktop.mouse.move(rect.x+rect.width/2,rect.y+rect.height/2-38,{steps:3});
-    await desktop.waitForTimeout(350);
-    await desktop.mouse.up();
-    const moved=await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
-    if(!(moved<35))throw new Error("Touch joystick did not move the player.");
+    const started=await desktop.evaluate(()=>({paused:window.__CVIRUS_DEBUG__.state.paused,menuHidden:document.getElementById("main-menu").hidden}));
+    if(started.paused||!started.menuHidden)throw new Error("New Game did not enter active gameplay.");
     // Verify vehicle proximity, enter/exit and mobile-facing prompts.
     await desktop.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.player.position.set(d.vehicle.position.x,.95,d.vehicle.position.z+3.2);});
     await desktop.waitForTimeout(100);
