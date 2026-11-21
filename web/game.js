@@ -293,7 +293,7 @@
       {name:"ALPHA",speed:1.15,detect:30,scale:1.38,cloth:"#51465d"}
     ];
     const archetype=archetypes[i%archetypes.length];
-    root.scaling.setAll(archetype.scale);root.metadata={archetype:archetype.name,speed:archetype.speed,detectionRange:archetype.detect};
+    root.scaling.setAll(archetype.scale);root.metadata={archetype:archetype.name,speed:archetype.speed,detectionRange:archetype.detect,wanderTimer:Math.random()*2,wanderAngle:Math.random()*Math.PI*2,phase:i*.83};
     const variantCloth=mat("walkerCloth"+i,archetype.cloth);
     const piece=(name,mesh,material,parent=root)=>{mesh.name=name;mesh.material=material;mesh.parent=parent;return mesh;};
     const torso=piece("walkerTorso",BABYLON.MeshBuilder.CreateBox("walkerTorso",{width:.58,height:.76,depth:.32},scene),variantCloth);torso.position.y=.08;
@@ -734,7 +734,9 @@
       if(state.safe||state.health<=0)return;
       const delta=player.position.subtract(z.position);delta.y=0;
       const dist=delta.length();
-      if(!driving&&dist>1.25&&dist<z.metadata.detectionRange){
+      const chasing=!driving&&dist>1.25&&dist<z.metadata.detectionRange;
+      let walkDirection=null;
+      if(chasing){
         let chase=delta.normalize();
         // Check the path at chest height and steer around collidable buildings,
         // room walls and props instead of walking straight through them.
@@ -752,8 +754,33 @@
           else if(!blocked(right))chase=right;
           else chase=side;
         }
+        walkDirection=chase;
         z.moveWithCollisions(new BABYLON.Vector3(chase.x*z.metadata.speed*dt,0,chase.z*z.metadata.speed*dt));
-        z.rotation.y=Math.atan2(chase.x,chase.z);
+      }else if(!state.ended){
+        // Unalerted walkers patrol nearby streets instead of standing frozen.
+        z.metadata.wanderTimer-=dt;
+        if(z.metadata.wanderTimer<=0){
+          z.metadata.wanderAngle+=(Math.random()-.5)*2.2;
+          z.metadata.wanderTimer=1.8+Math.random()*2.6;
+        }
+        walkDirection=new BABYLON.Vector3(Math.sin(z.metadata.wanderAngle),0,Math.cos(z.metadata.wanderAngle));
+        const patrolOrigin=z.position.add(new BABYLON.Vector3(0,.78,0));
+        const patrolRay=new BABYLON.Ray(patrolOrigin,walkDirection,1.7);
+        const patrolHit=scene.pickWithRay(patrolRay,mesh=>mesh!==z&&mesh.parent!==z&&mesh.checkCollisions&&mesh.name!=="ground"&&mesh.name!=="street");
+        if(patrolHit&&patrolHit.hit){
+          z.metadata.wanderAngle+=Math.PI*(.55+Math.random()*.45);
+          walkDirection=new BABYLON.Vector3(Math.sin(z.metadata.wanderAngle),0,Math.cos(z.metadata.wanderAngle));
+        }
+        z.moveWithCollisions(new BABYLON.Vector3(walkDirection.x*z.metadata.speed*.24*dt,0,walkDirection.z*z.metadata.speed*.24*dt));
+      }
+      if(walkDirection){
+        z.rotation.y=Math.atan2(walkDirection.x,walkDirection.z);
+        const gait=Math.sin(performance.now()*.007+z.metadata.phase)*(chasing?.48:.18);
+        z.rig.leftLeg.rotation.x=gait;z.rig.rightLeg.rotation.x=-gait;
+        z.rig.leftArm.rotation.x=-gait*.65;z.rig.rightArm.rotation.x=gait*.65;
+      }else{
+        z.rig.leftLeg.rotation.x=0;z.rig.rightLeg.rotation.x=0;
+        z.rig.leftArm.rotation.x=0;z.rig.rightArm.rotation.x=0;
       }
       if(dist<1.7)near=true;
     });

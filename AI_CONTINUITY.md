@@ -279,3 +279,8 @@ When the user says **“C virus”** in a new chat:
 - Latest integrated browser workflow before this change: run 44881954461 completed successfully. The new spotlight change is awaiting its automatically triggered workflow; no device/APK claim.
 
 - Follow-up correction: saved headlight state now restores the actual spotlights on reload, not only the visible lamp meshes.
+
+
+## Latest zombie AI update
+- Five zombie archetypes now patrol with individual speed values when not pursuing the player, turn periodically, check for nearby obstacles, and animate a subtle walking gait. Existing detection-based pursuit remains.
+- The patrol change is committed and awaits its integrated CI run; Android device validation remains outstanding.

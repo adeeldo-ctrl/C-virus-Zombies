@@ -286,3 +286,9 @@ When the user says **“C virus”** in a new chat:
 
 ## 2026-11-21 — Persisted headlight beam restoration
 - Corrected vehicle load restoration so saved headlight state restores both front lamp meshes and forward spotlights after reloading the game.
+
+
+## 2026-11-21 — Zombie street patrol behaviour
+- Added low-speed autonomous patrol movement for zombies outside their detection range, with timed direction changes and a short obstacle check so the city feels active before pursuit begins.
+- Reused each archetype's movement speed and added matching arm/leg gait for patrol and chase states; walkers return to idle pose when not moving.
+- Existing pursuit and collision steering remain in place. Await the integrated workflow for this change; no device test is claimed.
