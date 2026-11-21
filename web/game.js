@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false};
+  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false};
   const scene = new BABYLON.Scene(engine);
   scene.collisionsEnabled = true;
   scene.clearColor = new BABYLON.Color4(0.48,0.66,0.77,1);
@@ -130,6 +130,15 @@
   createInterior("CLINIC",-4.8,18);
   createInterior("SHOP",4.8,-13);
   createInterior("POLICE",-4.8,-35);
+  // Survivor safe-house hub and persistent supply storage.
+  const safehouseCenter=new BABYLON.Vector3(8,0,-55);
+  const baseFloor=BABYLON.MeshBuilder.CreateBox("safehouseFloor",{width:7,height:.18,depth:6},scene);baseFloor.position.set(8,-.09,-55);baseFloor.material=mat("safehouseConcrete","#777a76");baseFloor.checkCollisions=true;
+  const baseRoof=BABYLON.MeshBuilder.CreateBox("safehouseRoof",{width:7.3,height:.22,depth:6.3},scene);baseRoof.position.set(8,3.15,-55);baseRoof.material=mat("safehouseRoofMat","#45515a");
+  for(const x of [4.7,11.3])for(const z of [-57.8,-52.2]){const post=BABYLON.MeshBuilder.CreateBox("safehouseSupport",{width:.18,height:3.1,depth:.18},scene);post.position.set(x,1.55,z);post.material=mat("safehouseMetal","#46565d");}
+  const baseBack=BABYLON.MeshBuilder.CreateBox("safehouseBackWall",{width:7,height:3,depth:.18},scene);baseBack.position.set(8,1.5,-58);baseBack.material=mat("safehouseWall","#9a9b8c");baseBack.checkCollisions=true;
+  const baseSign=BABYLON.MeshBuilder.CreateBox("safehouseSign",{width:2.8,height:.48,depth:.12},scene);baseSign.position.set(8,2.55,-57.86);baseSign.material=mat("safehouseSignMat","#2b7465");
+  const storageChest=BABYLON.MeshBuilder.CreateBox("safehouseStorage",{width:1.25,height:.85,depth:.85},scene);storageChest.position.set(8, .52,-56.9);storageChest.material=mat("safehouseChest","#806044");
+  const storageLid=BABYLON.MeshBuilder.CreateBox("safehouseStorageLid",{width:1.3,height:.16,depth:.9},scene);storageLid.position.set(8,1.02,-56.9);storageLid.material=mat("safehouseChestLid","#bd9959");
   // A stranded shopkeeper survivor introduces the first rescue objective.
   const survivorRoot=new BABYLON.TransformNode("survivorShopkeeper",scene);
   survivorRoot.position.set(4.9,0,-14.2);
@@ -235,10 +244,10 @@
   }
   // Pakistani street transport fleet: sedan, motorcycle, auto-rickshaw, minibus and 4K-style bus.
   function createVehicle(type,x,z,color){
-    const isBike=type==="MOTORCYCLE",isRickshaw=type==="AUTO RICKSHAW",isMini=type==="MINI BUS",isBus=type==="4K BUS";
-    const width=isBike?.9:isRickshaw?1.45:isMini?2.2:isBus?2.55:1.9;
-    const length=isBike?2.1:isRickshaw?2.35:isMini?4.2:isBus?7.2:3.5;
-    const height=isBike?.65:isRickshaw?1.7:isMini?2.5:isBus?3.1:.85;
+    const isBike=type==="MOTORCYCLE",isRickshaw=type==="AUTO RICKSHAW",isChingchi=type==="CHINGCHI",isMini=type==="MINI BUS",isBus=type==="4K BUS";
+    const width=isBike?.9:isRickshaw?1.45:isChingchi?1.8:isMini?2.2:isBus?2.55:1.9;
+    const length=isBike?2.1:isRickshaw?2.35:isChingchi?2.9:isMini?4.2:isBus?7.2:3.5;
+    const height=isBike?.65:isRickshaw?1.7:isChingchi?2.05:isMini?2.5:isBus?3.1:.85;
     const root=BABYLON.MeshBuilder.CreateBox(type+"Collider",{width,height,depth:length},scene);
     root.position.set(x,height/2,z);root.material=heroMat;root.visibility=.001;root.checkCollisions=true;
     const parts=[];
@@ -250,6 +259,15 @@
       for(const zz of [-.78,.78]){const wheel=BABYLON.MeshBuilder.CreateCylinder("motorcycleWheel",{diameter:.66,height:.14,tessellation:16},scene);wheel.rotation.z=Math.PI/2;part(wheel,dark,new BABYLON.Vector3(0,-.08,zz));}
       part(BABYLON.MeshBuilder.CreateBox("motorcycleSeat",{width:.42,height:.13,depth:.62},scene),bootMat,new BABYLON.Vector3(0,.42,-.35));
       part(BABYLON.MeshBuilder.CreateCylinder("motorcycleHandle",{diameter:.06,height:1.05,tessellation:8},scene),dark,new BABYLON.Vector3(0,.58,.7));
+    }else if(isChingchi){
+      part(BABYLON.MeshBuilder.CreateBox("chingchiDeck",{width:1.65,height:.22,depth:1.75},scene),paint,new BABYLON.Vector3(0,-.02,-.22));
+      part(BABYLON.MeshBuilder.CreateBox("chingchiPassengerCabin",{width:1.55,height:.95,depth:1.35},scene),paint,new BABYLON.Vector3(0,.48,-.48));
+      part(BABYLON.MeshBuilder.CreateBox("chingchiPassengerWindow",{width:1.58,height:.56,depth:1.18},scene),windowMat,new BABYLON.Vector3(0,.68,-.48));
+      part(BABYLON.MeshBuilder.CreateBox("chingchiRoof",{width:1.8,height:.12,depth:1.62},scene),dark,new BABYLON.Vector3(0,1.04,-.48));
+      part(BABYLON.MeshBuilder.CreateBox("chingchiFrontNose",{width:.68,height:.65,depth:.48},scene),paint,new BABYLON.Vector3(0,.22,.9));
+      part(BABYLON.MeshBuilder.CreateCylinder("chingchiHandle",{diameter:.055,height:1.05,tessellation:8},scene),dark,new BABYLON.Vector3(0,.78,1.13));
+      const frontWheel=BABYLON.MeshBuilder.CreateCylinder("chingchiFrontWheel",{diameter:.65,height:.16,tessellation:16},scene);frontWheel.rotation.z=Math.PI/2;part(frontWheel,dark,new BABYLON.Vector3(0,-.18,1.12));
+      for(const side of [-1,1]){const rear=BABYLON.MeshBuilder.CreateCylinder("chingchiRearWheel",{diameter:.72,height:.18,tessellation:16},scene);rear.rotation.z=Math.PI/2;part(rear,dark,new BABYLON.Vector3(side*.82,-.18,-.65));}
     }else{
       part(BABYLON.MeshBuilder.CreateBox(type+"Body",{width:width*.94,height:height*.48,depth:length*.94},scene),paint,new BABYLON.Vector3(0,-height*.08,0));
       const cabHeight=isRickshaw?height*.68:isMini?height*.4:isBus?height*.45:.68;
@@ -278,6 +296,7 @@
     createVehicle("SEDAN",3.3,31,"#315f78"),
     createVehicle("MOTORCYCLE",-26, -24,"#b84436"),
     createVehicle("AUTO RICKSHAW",26,24,"#d4b72d"),
+    createVehicle("CHINGCHI",-43,-5,"#c75b3c"),
     createVehicle("MINI BUS",-26,27,"#3f8a75"),
     createVehicle("4K BUS",26,-28,"#3466a1")
   ];
@@ -286,6 +305,9 @@
   const driveButton=document.getElementById("drive");
   const vehiclePrompt=document.getElementById("vehicle-prompt");
   const buildingPrompt=document.getElementById("building-prompt");
+  const storageButton=document.getElementById("storage-button");
+  const storagePanel=document.getElementById("storage-panel");
+  const storageStatus=document.getElementById("storage-status");
   function nearestVehicle(){
     let nearest=null,distance=Infinity;
     for(const item of fleet){const d=BABYLON.Vector3.Distance(player.position,item.root.position);if(d<distance){distance=d;nearest=item;}}
@@ -300,7 +322,7 @@
       document.getElementById("status").textContent="Driving "+activeVehicle.type+" — use the joystick to steer and tap EXIT to leave.";
       driveButton.textContent="EXIT";
     }else{
-      driving=false;player.position.copyFrom(activeVehicle.root.position);player.position.x+=activeVehicle.type==="MOTORCYCLE"?1.1:1.6;player.position.y=.95;
+      driving=false;player.position.copyFrom(activeVehicle.root.position);player.position.x+=activeVehicle.type==="MOTORCYCLE"?1.1:activeVehicle.type==="CHINGCHI"?1.9:1.6;player.position.y=.95;
       player.rotation.y=activeVehicle.root.rotation.y;player.setEnabled(true);camera.lockedTarget=player;
       document.getElementById("status").textContent="On foot — approach a parked vehicle and tap DRIVE.";
       driveButton.textContent="DRIVE";
@@ -312,6 +334,8 @@
   try{savedGame=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");}catch{savedGame=null;}
   state.supplies=Number.isInteger(savedGame?.supplies)?Math.max(0,Math.min(4,savedGame.supplies)):0;
   state.inventory={water:0,food:0,medicine:0,parts:0,...(savedGame?.inventory||{})};
+  state.stash={water:0,food:0,medicine:0,parts:0,...(savedGame?.stash||{})};
+  for(const key of ["water","food","medicine","parts"])state.stash[key]=Number.isInteger(state.stash[key])?Math.max(0,Math.min(999,state.stash[key])):0;
   for(const key of ["water","food","medicine","parts"])state.inventory[key]=Number.isInteger(state.inventory[key])?Math.max(0,Math.min(99,state.inventory[key])):0;
   state.rescued=savedGame?.survivorRescued===true;
   state.safe=savedGame?.missionComplete===true&&state.supplies===4&&state.rescued;
@@ -346,6 +370,30 @@
     document.getElementById("use-water").disabled=state.inventory.water<1||state.stamina>=100;
     document.getElementById("use-food").disabled=state.inventory.food<1||state.stamina>=100;
   }
+  function updateStorage(){
+    for(const key of ["water","food","medicine","parts"]){
+      document.getElementById("stash-"+key).textContent=String(state.stash[key]);
+      document.getElementById("carry-"+key).textContent=String(state.inventory[key]);
+    }
+  }
+  function closeStorage(){
+    state.storageOpen=false;storagePanel.hidden=true;state.inventoryOpen=false;setPaused(false);
+  }
+  function openStorage(){
+    if(state.paused||state.ended||driving)return;
+    state.storageOpen=true;state.inventoryOpen=true;state.sprint=false;touchX=0;touchY=0;reset();
+    storagePanel.hidden=false;setPaused(true);updateStorage();storageStatus.textContent="Supplies are stored safely at your base.";
+  }
+  document.getElementById("store-all").addEventListener("click",()=>{
+    let moved=0;for(const key of ["water","food","medicine","parts"]){moved+=state.inventory[key];state.stash[key]+=state.inventory[key];state.inventory[key]=0;}
+    updateInventory();updateStorage();saveProgress();storageStatus.textContent=moved?moved+" items stored.":"Your backpack is empty.";
+  });
+  document.getElementById("take-all").addEventListener("click",()=>{
+    let moved=0;for(const key of ["water","food","medicine","parts"]){const room=Math.max(0,99-state.inventory[key]);const amount=Math.min(room,state.stash[key]);state.inventory[key]+=amount;state.stash[key]-=amount;moved+=amount;}
+    updateInventory();updateStorage();saveProgress();storageStatus.textContent=moved?moved+" items moved to backpack.":"No stored items available or backpack is full.";
+  });
+  document.getElementById("close-storage").addEventListener("click",closeStorage);
+  storageButton.addEventListener("click",openStorage);
   function consumeSupply(item){
     if(state.inventory[item]<1)return;
     if(item==="medicine"&&state.health<100){state.inventory.medicine--;state.health=Math.min(100,state.health+30);document.getElementById("health").style.width=state.health+"%";document.getElementById("status").textContent="Medicine used — health restored.";}
@@ -358,6 +406,7 @@
   document.getElementById("use-water").addEventListener("click",()=>consumeSupply("water"));
   document.getElementById("use-food").addEventListener("click",()=>consumeSupply("food"));
   updateInventory();
+  updateStorage();
   const inventoryButton=document.getElementById("inventory-button");
   inventoryButton.addEventListener("click",()=>{inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}});
   const menuOverlay=document.getElementById("main-menu");
@@ -368,7 +417,7 @@
   function saveProgress(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
-        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,fleet:fleet.map(v=>[v.root.position.x,v.root.position.y,v.root.position.z,v.root.rotation.y]),
+        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,stash:state.stash,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,fleet:fleet.map(v=>[v.root.position.x,v.root.position.y,v.root.position.z,v.root.rotation.y]),
         player:[player.position.x,player.position.y,player.position.z],
         vehicle:[vehicle.position.x,vehicle.position.y,vehicle.position.z],
         collected:pickups.filter(p=>p.collected).map(p=>p.phase)
@@ -437,7 +486,7 @@
       if(Math.abs(throttle)>.08||Math.abs(state.moveX)>.08){
         activeVehicle.root.rotation.y+=state.moveX*1.55*dt*(throttle<0?-1:1);
         const heading=new BABYLON.Vector3(Math.sin(activeVehicle.root.rotation.y),0,Math.cos(activeVehicle.root.rotation.y));
-        const driveSpeed=state.sprint?10:activeVehicle.type==="MOTORCYCLE"?8.5:activeVehicle.type==="4K BUS"?4.2:6.2;
+        const driveSpeed=state.sprint?10:activeVehicle.type==="MOTORCYCLE"?8.5:activeVehicle.type==="CHINGCHI"?5.4:activeVehicle.type==="4K BUS"?4.2:6.2;
         activeVehicle.root.moveWithCollisions(heading.scale(throttle*driveSpeed*dt));
       }
       player.position.copyFrom(activeVehicle.root.position);
@@ -486,6 +535,8 @@
     const nearest=nearestVehicle();
     vehiclePrompt.hidden=!driving&&nearest.distance>4.8;
     vehiclePrompt.textContent=driving?"Tap EXIT to leave "+activeVehicle.type:"Tap DRIVE to enter "+nearest.item.type;
+    const baseDistance=BABYLON.Vector3.Distance(player.position,safehouseCenter);
+    storageButton.hidden=driving||baseDistance>4.2||state.paused||state.ended;
     let nearestRoom=null,nearestDoor=Infinity,insideRoom=null;
     if(!driving){
       for(const room of interiorRooms){
@@ -533,7 +584,7 @@
     if(!chosen)return;
     activeVehicle=chosen;
     player.position.copyFrom(chosen.root.position);
-    player.position.x+=chosen.type==="MOTORCYCLE"?1.4:chosen.type==="4K BUS"?2.3:1.8;
+    player.position.x+=chosen.type==="MOTORCYCLE"?1.4:chosen.type==="4K BUS"?2.3:chosen.type==="CHINGCHI"?1.9:1.8;
     player.position.y=.95;
     camera.lockedTarget=player;
     garageOverlay.hidden=true;menuOverlay.hidden=true;setPaused(false);
