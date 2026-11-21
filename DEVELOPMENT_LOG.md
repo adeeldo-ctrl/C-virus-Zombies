@@ -343,3 +343,13 @@ When the user says **“C virus”** in a new chat:
 - Added browser assertions for Ibrahim's animated limb bones, water projectile hit, airborne height, long-distance displacement, landing and recovery.
 - Integrated verification passed on commit `282a3618cc7d898e4cd8fccbef2290f82c0e7856`: desktop/mobile browser smoke workflow `44893068933` passed, and Android debug APK workflow `44893068950` passed. APK SHA-256: `327eb65c09a2c4aa60f72e00c339d63a5ce9facdb5bce5edd1510f878f7c2bb6`.
 - APK is a landscape-locked debug build. Physical-device visual/control testing remains pending. Ibrahim uses the existing bundled skinned Quaternius model; this pass improves its runtime animation but does not complete the Master Plan's final original character-art requirement.
+
+
+## 2026-11-21 — Owner-approved survival needs implementation
+- Reconfirmed the five mandatory owner-approved systems: production-quality 3D graphics, open-world Pakistani city/interiors, the full Pakistani vehicle fleet, advanced zombie archetypes/AI, and complete survival gameplay. These are release requirements, not optional future ideas.
+- Implemented actual hydration and hunger meters in the gameplay HUD. Both needs now decrease during active gameplay, pause while the game is paused or menus are open, persist in local save data, and are restored on reload.
+- Drinking water now restores hydration (plus a small stamina benefit); eating food restores hunger (plus a small stamina benefit). Consumable buttons are enabled according to the corresponding survival need. If either need reaches zero, player health gradually decreases until the need is restored.
+- Extended the existing consolidated browser smoke test to assert both needs meters and verify water/food consumption values and inventory decrement. Existing movement, vehicle, rescue, interior, mission, storage and mobile-control coverage is retained.
+- Commits: game logic `d1a28b86696e28f49a08f59daf6dc1529a579646`; HUD `d8122735e8aca2b4fc0c14bb8600708fa31fef57`; styling `01872082b38b28d952f9cc4ac8f3aca9774fc796`; regression coverage `ffc3698a2219992a32e1d46eb957ecc83fba2991`.
+- Integrated GitHub Actions verification has been triggered by the game changes; result is pending. Do not mark the new survival mechanics as tested until the workflow passes. Physical Android device validation remains outstanding.
+- Current known production gaps remain: final bespoke realistic hero/zombie art, complete city districts and interiors, obstacle-aware zombie navigation at scale, full fleet art/handling polish, campaign depth, complete inventory/crafting progression, recorded Urdu voice acting, and final release QA. Existing prototypes are not final-quality substitutes.
