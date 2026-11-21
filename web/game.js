@@ -111,12 +111,38 @@
     const marker=BABYLON.MeshBuilder.CreateCylinder("supplyMarker"+i,{diameter:1.05,height:.035,tessellation:24},scene);marker.material=safeMat;marker.position.set(crate.position.x,.04,crate.position.z);
     pickups.push({mesh:crate,marker,collected:false,phase:i});
   }
-  state.supplies=0;
-  let damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
+  const SAVE_KEY="cvirus-zombies-save-v1";
+  let savedGame=null;
+  try{savedGame=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");}catch{savedGame=null;}
+  state.supplies=Number.isInteger(savedGame?.supplies)?Math.max(0,Math.min(4,savedGame.supplies)):0;
+  state.health=Number.isFinite(savedGame?.health)?BABYLON.Scalar.Clamp(savedGame.health,1,100):100;
+  if(Array.isArray(savedGame?.player)&&savedGame.player.length===3&&savedGame.player.every(Number.isFinite)){
+    player.position.set(savedGame.player[0],.95,savedGame.player[2]);
+  }
+  if(Number.isFinite(savedGame?.yaw))state.yaw=savedGame.yaw;
+  pickups.forEach(p=>{
+    if(Array.isArray(savedGame?.collected)&&savedGame.collected.includes(p.phase)){
+      p.collected=true;p.mesh.setEnabled(false);p.marker.setEnabled(false);
+    }
+  });
+  document.getElementById("supplies").textContent=String(state.supplies);
+  document.getElementById("health").style.width=state.health+"%";
+  function saveProgress(){
+    try{
+      localStorage.setItem(SAVE_KEY,JSON.stringify({
+        health:state.health,supplies:state.supplies,yaw:state.yaw,
+        player:[player.position.x,player.position.y,player.position.z],
+        collected:pickups.filter(p=>p.collected).map(p=>p.phase)
+      }));
+    }catch(error){console.warn("Save unavailable:",error);}
+  }
+  window.addEventListener("pagehide",saveProgress);
+  let saveClock=0, damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
   window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups};
   scene.onBeforeRenderObservable.add(()=>{
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
+    saveClock+=dt;if(saveClock>=5){saveClock=0;saveProgress();}
     const moving=state.moveX*state.moveX+state.moveY*state.moveY>.025;
     const gait=moving?Math.sin(performance.now()*.012*(state.sprint?1.35:1)):0;
     heroRig.leftLeg.rotation.x=gait*.62;heroRig.rightLeg.rotation.x=-gait*.62;heroRig.leftArm.rotation.x=-gait*.48;heroRig.rightArm.rotation.x=gait*.48;
@@ -136,6 +162,7 @@
         document.getElementById("supplies").textContent=String(state.supplies);
         document.getElementById("health").style.width=state.health+"%";
         document.getElementById("status").textContent="Supplies collected: "+state.supplies+"/4 — reach the safe zone.";
+        saveProgress();
       }
     });
     const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
@@ -160,7 +187,7 @@
     zombies.forEach(z=>{if(state.safe||state.health<=0)return;const delta=player.position.subtract(z.position);delta.y=0;const dist=delta.length();if(dist>1.25&&dist<28){delta.normalize();z.position.addInPlace(delta.scale(1.45*dt));z.rotation.y=Math.atan2(delta.x,delta.z);}if(dist<1.7)near=true;});
     if(near&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
     const reached=BABYLON.Vector3.Distance(player.position,safe.position)<3;
-    if(reached){state.safe=true;document.getElementById("message").textContent="Safe zone reached — mission complete!";document.getElementById("status").textContent="Mission complete. Supplies collected: "+state.supplies+"/4.";}
+    if(reached){state.safe=true;document.getElementById("message").textContent="Safe zone reached — mission complete!";document.getElementById("status").textContent="Mission complete. Supplies collected: "+state.supplies+"/4.";saveProgress();}
     else if(state.health<=0){document.getElementById("message").textContent="Health depleted — refresh to retry";document.getElementById("status").textContent="You were caught. Refresh the page to retry.";}
   });
   // Keyboard controls
