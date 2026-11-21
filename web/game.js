@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, serviceOpen:false, missionIndex:1, activatedRelays:[],braking:false,crouching:false};
+  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, serviceOpen:false, missionIndex:1, activatedRelays:[],braking:false,crouching:false,shieldUntil:0,shieldCooldownUntil:0};
   // Original procedural audio: ambient survival bed and short gameplay cues.
   const audioSettings={music:0.22,effects:0.55,look:1,quality:"high",...(()=>{try{return JSON.parse(localStorage.getItem("cvirus-audio-v1")||"{}");}catch{return {};}})()};
   let audioContext=null,musicBus=null,effectsBus=null,ambientNodes=[];
@@ -16,15 +16,15 @@
     effectsBus=audioContext.createGain();effectsBus.gain.value=audioSettings.effects;effectsBus.connect(audioContext.destination);
     const low=audioContext.createOscillator(),high=audioContext.createOscillator(),filter=audioContext.createBiquadFilter(),bed=audioContext.createGain();
     low.type="sine";low.frequency.value=55;high.type="triangle";high.frequency.value=110;
-    filter.type="lowpass";filter.frequency.value=260;bed.gain.value=.12;
+    filter.type="lowpass";filter.frequency.value=420;bed.gain.value=.24;
     low.connect(filter);high.connect(filter);filter.connect(bed);bed.connect(musicBus);
     low.start();high.start();ambientNodes=[low,high,filter,bed];
     return audioContext;
   }
   function playCue(kind="tap"){
     const ctx=initAudio();if(!ctx)return;
-    if(ctx.state==="suspended")ctx.resume();
-    const presets={tap:[520,.055,"sine"],pickup:[740,.16,"triangle"],rescue:[440,.28,"sine"],alert:[170,.2,"sawtooth"],success:[880,.32,"triangle"],horn:[220,.32,"sawtooth"]};
+    if(ctx.state==="suspended")ctx.resume().catch(()=>{});
+    const presets={tap:[520,.055,"sine"],pickup:[740,.16,"triangle"],rescue:[440,.28,"sine"],alert:[170,.2,"sawtooth"],success:[880,.32,"triangle"],horn:[220,.32,"sawtooth"],shield:[330,.42,"sine"]};
     const [frequency,duration,type]=presets[kind]||presets.tap;
     const osc=ctx.createOscillator(),gain=ctx.createGain();
     osc.type=type;osc.frequency.setValueAtTime(frequency,ctx.currentTime);
@@ -32,12 +32,23 @@
     gain.gain.setValueAtTime(.0001,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.18,ctx.currentTime+.018);gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+duration);
     osc.connect(gain);gain.connect(effectsBus);osc.start();osc.stop(ctx.currentTime+duration+.025);
   }
+  function playFootstep(sprinting=false){
+    const ctx=initAudio();if(!ctx)return;
+    if(ctx.state==="suspended")ctx.resume().catch(()=>{});
+    const osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.type="triangle";osc.frequency.setValueAtTime(sprinting?112:86,ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(42,ctx.currentTime+.085);
+    gain.gain.setValueAtTime(.0001,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(sprinting?.075:.052,ctx.currentTime+.009);
+    gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.095);
+    osc.connect(gain);gain.connect(effectsBus);osc.start();osc.stop(ctx.currentTime+.11);
+  }
   let engineOscillator=null,engineSoundGain=null,engineAudioActive=null,engineThrottle=0;
   function setEngineAudio(active,throttle=0){
-    if(!audioContext)return;
+    const ctx=initAudio();if(!ctx)return;
     if(active===engineAudioActive&&Math.abs(throttle-engineThrottle)<.05)return;
     engineAudioActive=active;engineThrottle=throttle;
-    if(audioContext.state==="suspended")audioContext.resume();
+    if(ctx.state==="suspended")ctx.resume().catch(()=>{});
     if(!engineOscillator){
       engineOscillator=audioContext.createOscillator();engineSoundGain=audioContext.createGain();
       engineOscillator.type="sawtooth";engineOscillator.frequency.value=52;engineSoundGain.gain.value=.0001;
@@ -68,7 +79,9 @@
     document.getElementById(key+"-value").textContent=Math.round(audioSettings[key]*100)+"%";
     slider.addEventListener("input",()=>{audioSettings[key]=Number(slider.value);document.getElementById(key+"-value").textContent=Math.round(audioSettings[key]*100)+"%";if(key==="music"&&musicBus)musicBus.gain.value=audioSettings.music;if(key==="effects"&&effectsBus)effectsBus.gain.value=audioSettings.effects;saveAudioSettings();});
   }
-  document.addEventListener("pointerdown",()=>{const ctx=initAudio();if(ctx&&ctx.state==="suspended")ctx.resume();},{once:true});
+  const unlockGameAudio=()=>{const ctx=initAudio();if(ctx&&ctx.state==="suspended")ctx.resume().catch(()=>{});};
+  document.addEventListener("pointerdown",unlockGameAudio);
+  document.addEventListener("keydown",unlockGameAudio);
   const qualitySelect=document.getElementById("graphics-quality");
   qualitySelect.value=audioSettings.quality;
   qualitySelect.addEventListener("change",()=>{audioSettings.quality=qualitySelect.value;applyGraphicsQuality();saveAudioSettings();});
@@ -304,10 +317,13 @@
   let heroModelReady=false,heroSkeleton=null,heroModelRoot=null;
   const heroBoneNodes=new Map(),heroBoneRest=new Map();
   function setIbrahimBone(name,pitch=0,yaw=0,roll=0){
-    const node=heroBoneNodes.get(name),rest=heroBoneRest.get(name);
-    if(!node||!rest)return;
+    const bone=heroBoneNodes.get(name),rest=heroBoneRest.get(name);
+    if(!bone||!rest)return;
     const delta=BABYLON.Quaternion.RotationYawPitchRoll(yaw,pitch,roll);
-    node.rotationQuaternion=rest.multiply(delta);
+    const rotation=rest.multiply(delta);
+    if(typeof bone.setRotationQuaternion==="function")bone.setRotationQuaternion(rotation,BABYLON.Space.LOCAL);
+    else if(bone.rotationQuaternion)bone.rotationQuaternion=rotation;
+    else if(bone.rotation)bone.rotation.copyFrom(rotation.toEulerAngles());
   }
   async function loadIbrahimModel(){
     try{
@@ -323,11 +339,14 @@
       heroSkeleton=loaded.skeletons[0]||null;
       if(!heroSkeleton)throw new Error("Ibrahim GLB did not contain a humanoid skeleton");
       for(const bone of heroSkeleton.bones){
-        const node=bone.getTransformNode?.()||(loaded.transformNodes||[]).find(n=>n.name.toLowerCase()===bone.name.toLowerCase());
-        if(!node)continue;
         const key=bone.name.toLowerCase();
-        heroBoneNodes.set(key,node);
-        heroBoneRest.set(key,node.rotationQuaternion?.clone()||BABYLON.Quaternion.RotationYawPitchRoll(node.rotation.y,node.rotation.x,node.rotation.z));
+        const rest=bone.getRotationQuaternion?.(BABYLON.Space.LOCAL);
+        if(rest){heroBoneNodes.set(key,bone);heroBoneRest.set(key,rest.clone());continue;}
+        const node=bone.getTransformNode?.()||(loaded.transformNodes||[]).find(n=>n.name.toLowerCase()===key);
+        if(node){
+          heroBoneNodes.set(key,node);
+          heroBoneRest.set(key,node.rotationQuaternion?.clone()||BABYLON.Quaternion.RotationYawPitchRoll(node.rotation.y,node.rotation.x,node.rotation.z));
+        }
       }
       const bodyMesh=loaded.meshes.find(m=>/superhero_male|retopology/i.test(m.name));
       if(bodyMesh){
@@ -741,7 +760,7 @@
   }));
   let saveClock=0, damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
-  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
+  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,get heroModelReady(){return heroModelReady;},get heroBoneNames(){return [...heroBoneNodes.keys()];},get audioState(){return audioContext?.state||"uninitialized";},get shield(){return heroShield;},moveVector:(x,y)=>{const f=camera.getForwardRay().direction.clone();f.y=0;if(f.lengthSquared()<.0001)f.set(Math.sin(state.yaw),0,-Math.cos(state.yaw));f.normalize();const r=new BABYLON.Vector3(-f.z,0,f.x);return f.scale(-y).add(r.scale(x));},get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
   let worldClock=0;
   let heroWalkPhase=0,footstepClock=0;
   let subtitleTimer=null;
