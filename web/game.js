@@ -315,7 +315,7 @@
   const heroRig={leftArm,rightArm,leftLeg,rightLeg,lowerArms,lowerLegs,heroParts};
   // Production-ready skinned humanoid base for Ibrahim (Quaternius CC0 asset).
   let heroModelReady=false,heroSkeleton=null,heroModelRoot=null,heroModelError=null;
-  const heroBoneNodes=new Map(),heroBoneRest=new Map();
+  const heroBoneNodes=new Map(),heroBoneRest=new Map(),heroBoneParents=new Map();
   function setIbrahimBone(name,pitch=0,yaw=0,roll=0){
     const bone=heroBoneNodes.get(name),rest=heroBoneRest.get(name);
     if(!bone||!rest)return;
@@ -340,10 +340,11 @@
       if(!heroSkeleton)throw new Error("Ibrahim GLB did not contain a humanoid skeleton");
       for(const bone of heroSkeleton.bones){
         const key=bone.name.toLowerCase();
-        const rest=bone.getRotationQuaternion?.(BABYLON.Space.LOCAL);
-        if(rest){heroBoneNodes.set(key,bone);heroBoneRest.set(key,rest.clone());continue;}
         const node=bone.getTransformNode?.()||(loaded.transformNodes||[]).find(n=>n.name.toLowerCase()===key);
-        if(node){
+        if(node)heroBoneParents.set(key,node);
+        const rest=bone.getRotationQuaternion?.(BABYLON.Space.LOCAL);
+        if(rest){heroBoneNodes.set(key,bone);heroBoneRest.set(key,rest.clone());}
+        else if(node){
           heroBoneNodes.set(key,node);
           heroBoneRest.set(key,node.rotationQuaternion?.clone()||BABYLON.Quaternion.RotationYawPitchRoll(node.rotation.y,node.rotation.x,node.rotation.z));
         }
@@ -378,7 +379,7 @@
         }
       }
       // Small survival pack and radio are attached to the actual torso bones.
-      const spine=heroBoneNodes.get("spine_02")||heroBoneNodes.get("spine_01");
+      const spine=heroBoneParents.get("spine_02")||heroBoneParents.get("spine_01");
       if(spine){
         const packMat=new BABYLON.StandardMaterial("ibrahimPackMaterial",scene);packMat.diffuseColor=new BABYLON.Color3(.20,.19,.14);
         const packMesh=BABYLON.MeshBuilder.CreateBox("ibrahimFieldPack",{width:.34,height:.43,depth:.17},scene);
