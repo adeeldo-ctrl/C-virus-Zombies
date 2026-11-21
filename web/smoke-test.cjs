@@ -73,8 +73,9 @@ const server = http.createServer((req,res) => {
     await desktop.waitForTimeout(100);
     if(!await desktop.locator("#rescue").isVisible())throw new Error("Survivor rescue action did not appear.");
     await desktop.locator("#rescue").click();
-    if(!await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.state.rescued))throw new Error("Survivor rescue action failed.");
-    await desktop.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.pickups.forEach(p=>{p.collected=true;p.mesh.setEnabled(false);p.marker.setEnabled(false);});d.state.supplies=4;document.getElementById("supplies").textContent="4";d.player.position.copyFrom(d.safe.position);});
+    const escortStarted=await desktop.evaluate(()=>({rescued:window.__CVIRUS_DEBUG__.state.rescued,visible:window.__CVIRUS_DEBUG__.survivorRoot.isEnabled()}));
+    if(!escortStarted.rescued||!escortStarted.visible)throw new Error("Rescued shopkeeper did not remain in the world for escort.");
+    await desktop.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.pickups.forEach(p=>{p.collected=true;p.mesh.setEnabled(false);p.marker.setEnabled(false);});d.state.supplies=4;document.getElementById("supplies").textContent="4";d.survivorRoot.position.copyFrom(d.safe.position);d.player.position.copyFrom(d.safe.position);});
     await desktop.waitForFunction(()=>window.__CVIRUS_DEBUG__.state.safe,{timeout:5000});
     if(!(await desktop.locator("#message").innerText()).includes("safe zone reached"))throw new Error("Mission one extraction did not complete.");
     await desktop.locator("#retry-button").click();
