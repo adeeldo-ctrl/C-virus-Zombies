@@ -54,7 +54,7 @@ const server = http.createServer((req,res) => {
     await desktop.locator("#drive").click();
     if(await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.driving))throw new Error("Vehicle exit interaction failed.");
     // Vehicle service bay: refuel is free, repairs consume one spare part.
-    await desktop.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.player.position.set(d.serviceCenter.x+2.3,.95,d.serviceCenter.z);d.vehicles[0].fuel=12;d.vehicles[0].condition=42;d.state.inventory.parts=1;});
+    await desktop.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.vehicles[0].root.position.set(d.serviceCenter.x,.425,d.serviceCenter.z);d.player.position.set(d.serviceCenter.x+2.3,.95,d.serviceCenter.z);d.vehicles[0].fuel=12;d.vehicles[0].condition=42;d.state.inventory.parts=1;});
     await desktop.waitForFunction(()=>!document.getElementById("service-button").hidden,null,{timeout:5000});
     await desktop.locator("#service-button").click();
     await desktop.locator("#refuel-vehicle").click();
