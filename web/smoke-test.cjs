@@ -31,8 +31,9 @@ const server = http.createServer((req,res) => {
     if(heroParts<10)throw new Error("Original modular hero character parts are missing.");
     const interiors=await page.evaluate(()=>window.__CVIRUS_DEBUG__.interiorRooms.map(r=>r.type));
     if(interiors.join(",")!=="CLINIC,SHOP,POLICE")throw new Error("Walk-in city interiors are missing: "+interiors.join(","));
+    await page.locator("#game").focus();
     await page.keyboard.down("w");
-    await page.waitForFunction(()=>window.__CVIRUS_DEBUG__.state.moveY!==0,null,{timeout:3000});
+    await page.waitForFunction(()=>window.__CVIRUS_DEBUG__.keys.w===true,null,{timeout:3000});
     // Measure the gait while movement input is still held; after keyup the
     // idle pose correctly resets both leg angles to zero.
     let maxLegMotion=0;
