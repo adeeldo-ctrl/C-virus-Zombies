@@ -142,3 +142,12 @@ When the user says **“C virus”** in a new chat:
 - Added canvas touch-action suppression and safe-area-aware mobile control placement for Android screen insets.
 - Commits: `882fc1a4236294edee92dbc22e33f913913c2f46` (world boundary + touch camera + prompts), `1f5faf105b44c12830234a105e44b1dd36148ca8` (mobile safe-area CSS).
 - No new build or device result is claimed yet. Android touchscreen behaviour is the target; desktop keyboard smoke assertions are not a substitute for Android touch validation.
+
+
+## 2026-11-21 — First survivor rescue mission and Android-first controls
+- Added a stranded shopkeeper NPC inside the General Store with an original low-poly human model and a visible safe-zone marker.
+- Added a contextual RESCUE touchscreen action. The action only appears when the player is close enough, and rescue progress is persisted in the existing local save.
+- Updated mission completion: the player must rescue the shopkeeper, collect all four supplies and reach the safe zone. Missing requirements are shown when approaching extraction.
+- Added Urdu/English rescue dialogue feedback and mobile HUD styling for the rescue action.
+- Commits: `2a0ddd334f24ed3c2c926c0112a77b4d51d623d9` (mission logic), `58f7298725e9164f9206d0bc28aabc254d71bd19` (mobile HUD), `9337757c76a3a9e0136701ab890e77106e27f0a3` (touch styling).
+- Validation: latest available desktop/mobile browser workflow `44876919628` had a successful production bundle but failed its desktop keyboard-forward-movement assertion. This is not Android device evidence. The next acceptance work should be mobile-touch-first and should not spend time treating keyboard-only behaviour as the Android target. No APK is built.
