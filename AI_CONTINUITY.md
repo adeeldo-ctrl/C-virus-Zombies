@@ -25,7 +25,7 @@ Whenever the owner starts a chat with **“C virus”**:
 ## Current verified project direction
 The approved plan describes a third-person 3D zombie-survival adventure in an explorable Pakistani city. Preserve the requirements in `MASTER_PLAN.md`, including original detailed heroes/zombies, enterable buildings, Pakistani transport and drivable vehicles, a yellow hero health bar, Urdu dialogue/voice/subtitles, sound/music, mobile controls, survival systems, missions and Android APK delivery.
 
-## Last recorded development checkpoint (2026-11-21)
+## Last recorded development checkpoint (2026-11-21, mission-flow update)
 Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has explicitly instructed: complete the entire game first, fix genuine errors as encountered, do not build the APK until the game work is complete, and avoid unnecessary/repeated testing. Keep only essential build/integration/regression checks. Summary:
 - Phase 1 (technical foundation): still in progress; Vite production build passed in GitHub Actions run `44814206896`, but the desktop/mobile Chromium smoke test was still running when the log was written. Check its final conclusion before claiming success.
 - Phase 2 (player foundation): in progress; third-person camera/controller, collision movement, sprint/stamina, jump, joystick, touch actions and camera look are implemented but not signed off.
@@ -33,7 +33,14 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Real Android device/browser validation has not been performed.
 - Capacitor config exists, but the native `android/` project has not yet been generated in an Android SDK environment.
 - No APK has been built.
-- Zombie models, full city, vehicles, story, Urdu voice acting, full audio, inventory, saving and final menus remain unfinished.
+- Current mission now requires all four supplies before safe-zone completion; early arrival reports the remaining crate count. Mission-complete state is persisted; end overlays offer a replay action that clears the local save.
+- Zombie models, full city, vehicles, story, Urdu voice acting, full audio, inventory and final menus remain unfinished.
+
+## Latest implementation update (2026-11-21)
+- Fixed the safe-zone objective gate so the mission completes only after all four supply crates are collected.
+- Saved/restored the mission-complete flag and added mission complete/fail overlays with Play Again reset.
+- Commits: `63d7771aa9090b01891d5cb15f58133f8fc3ca08`, `739ee0d4a0cad0d679233da0cba7d8155a2c6f12`, `95a390b99cc91fc3e51215630abb8c9b70ecc2e8`.
+- No additional browser/device tests were run for this small continuation; do not claim the latest code is verified by CI.
 
 ## Important source locations
 - `web/index.html` — game HUD (health, stamina, supplies), pause overlay and touch UI
