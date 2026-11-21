@@ -29,3 +29,16 @@
 #building-prompt{position:absolute;left:50%;bottom:245px;transform:translateX(-50%);padding:8px 12px;border:1px solid #75d7b899;border-radius:8px;background:#071d1be8;color:#a8f1d5;font-size:11px;font-weight:900;letter-spacing:.5px;white-space:nowrap;pointer-events:none;box-shadow:0 4px 16px #0008}#building-prompt[hidden]{display:none}
 
 #action-buttons #rescue{border-color:#79e1ae;background:#176b4cdd;width:74px;border-radius:22px}#action-buttons #rescue[hidden]{display:none}
+
+#main-menu{position:absolute;inset:0;z-index:20;display:grid;place-items:center;padding:24px;background:linear-gradient(145deg,#07131deF,#091a2bE8),radial-gradient(ellipse at 50% 15%,#426a79,#07131d);color:#fff}
+#main-menu[hidden]{display:none}
+.main-menu-card{width:min(390px,90vw);padding:34px 28px;border:1px solid #d8c15c66;border-radius:18px;background:linear-gradient(155deg,#172d40f5,#08131df7);box-shadow:0 22px 80px #000b;text-align:center}
+.menu-kicker{font-size:10px;letter-spacing:4px;color:#e8ce53;font-weight:900}
+.menu-title{margin-top:12px;font-size:34px;line-height:1;font-weight:1000;letter-spacing:2px}
+.menu-title span{display:block;color:#e8ce53;font-size:25px;margin-top:6px}
+.menu-copy{margin:20px 0 26px;color:#c2d0d8;font-size:13px}
+.main-menu-card button{display:block;width:100%;margin-top:11px;padding:14px;border:1px solid #d9bf51;border-radius:9px;background:#d9bf51;color:#111c25;font-size:12px;font-weight:900;letter-spacing:1.4px}
+.main-menu-card #continue-game{background:#25445a;border-color:#7c9bab;color:#fff}
+.main-menu-card #continue-game:disabled{opacity:.4}
+.menu-foot{margin-top:24px;color:#8fa4b0;font-size:9px;letter-spacing:2px}
+#pause-overlay .pause-card button+button{margin:10px 0 0 8px;background:#29465b;color:#fff}
