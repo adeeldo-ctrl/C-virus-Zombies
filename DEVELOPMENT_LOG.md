@@ -239,3 +239,7 @@ When the user says **“C virus”** in a new chat:
 - Also registered Babylon ray/picking support and exposed `Ray` to the game runtime, which is required by zombie and survivor obstacle-steering code that calls `scene.pickWithRay`.
 - Source guidance confirms collision coordinator and ray registration are required when using Babylon's modular imports. The integrated browser workflow must verify this fix; no pass is claimed yet.
 \n\n## 2026-11-21 — Procedural audio and settings\n- Added original generated ambient audio and synthesised gameplay cues for supply pickups, rescues, relay activation and damage; audio starts after a user gesture for browser/mobile compatibility.\n- Added an in-game Settings panel with separate ambient music and sound-effects volume sliders. Levels persist locally. Dialogue voice acting is explicitly still pending; this change does not claim recorded Urdu voices.\n- No new test run is claimed in this commit.\n
+
+## 2026-11-21 — Graphics and camera settings
+- Extended Settings with Low/Medium/High rendering quality presets that adjust Babylon engine render scaling for device performance, plus an adjustable camera-look sensitivity slider.
+- Both preferences persist locally alongside audio settings. No new test run is claimed in this commit.

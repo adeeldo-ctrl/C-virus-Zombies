@@ -3,8 +3,8 @@
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
   const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, serviceOpen:false, missionIndex:1, activatedRelays:[]};
   // Original procedural audio: ambient survival bed and short gameplay cues.
-  const audioSettings={music:0.22,effects:0.55,...(()=>{try{return JSON.parse(localStorage.getItem("cvirus-audio-v1")||"{}");}catch{return {};}})()};
-  let audioContext=null,musicBus=null,effectsBus=null,ambientNodes=[];
+  const audioSettings={music:0.22,effects:0.55,look:1,quality:"high",...(()=>{try{return JSON.parse(localStorage.getItem("cvirus-audio-v1")||"{}");}catch{return {};}})()};
+  let audioContext=null,musicBus=null,effectsBus=null,ambientNodes=[];\n  const applyGraphicsQuality=()=>engine.setHardwareScalingLevel(audioSettings.quality==="low"?1.6:audioSettings.quality==="medium"?1.25:1);\n  applyGraphicsQuality();
   function initAudio(){
     if(audioContext)return audioContext;
     const AudioCtx=window.AudioContext||window.webkitAudioContext;
@@ -41,6 +41,14 @@
     slider.addEventListener("input",()=>{audioSettings[key]=Number(slider.value);document.getElementById(key+"-value").textContent=Math.round(audioSettings[key]*100)+"%";if(key==="music"&&musicBus)musicBus.gain.value=audioSettings.music;if(key==="effects"&&effectsBus)effectsBus.gain.value=audioSettings.effects;saveAudioSettings();});
   }
   document.addEventListener("pointerdown",()=>{const ctx=initAudio();if(ctx&&ctx.state==="suspended")ctx.resume();},{once:true});
+  const qualitySelect=document.getElementById("graphics-quality");
+  qualitySelect.value=audioSettings.quality;
+  qualitySelect.addEventListener("change",()=>{audioSettings.quality=qualitySelect.value;applyGraphicsQuality();saveAudioSettings();});
+  const lookSlider=document.getElementById("look-volume");
+  lookSlider.value=audioSettings.look;
+  document.getElementById("look-value").textContent=Math.round(audioSettings.look*100)+"%";
+  lookSlider.addEventListener("input",()=>{audioSettings.look=Number(lookSlider.value);document.getElementById("look-value").textContent=Math.round(audioSettings.look*100)+"%";saveAudioSettings();});
+
   const scene = new BABYLON.Scene(engine);
   scene.collisionsEnabled = true;
   scene.clearColor = new BABYLON.Color4(0.48,0.66,0.77,1);
@@ -831,7 +839,7 @@
     const dx=e.clientX-look.x,dy=e.clientY-look.y;
     state.yaw-=dx*.006;
     camera.rotationOffset=180+state.yaw*180/Math.PI;
-    camera.heightOffset=BABYLON.Scalar.Clamp(camera.heightOffset+dy*.018,2.2,5.5);
+    camera.heightOffset=BABYLON.Scalar.Clamp(camera.heightOffset+dy*.018*audioSettings.look,2.2,5.5);
     look={id:e.pointerId,x:e.clientX,y:e.clientY};
     e.preventDefault();
   });
