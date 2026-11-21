@@ -1,6 +1,6 @@
 # C virus Zombies — Development Log
 
-**Last updated:** 2026-11-21 (continuation resumed)  
+**Last updated:** 2026-11-21 (mission-flow update)  
 **Repository:** https://github.com/adeeldo-ctrl/C-virus-Zombies  
 **Branch:** `main`  
 **Active engine:** Babylon.js 9 (Vite-bundled browser-first 3D)  
@@ -14,7 +14,14 @@
 - **Real Android device/browser test:** not performed.
 - **Android native project:** Capacitor config and scripts exist; `android/` has not yet been generated in an Android SDK environment.
 - **APK:** not built.
-- **Zombie art, city, vehicles, story, Urdu voice acting, complete sound, inventory, saving and final menus:** not complete. Existing five walker capsules remain placeholders.
+- **Zombie art, city, vehicles, story, Urdu voice acting, complete sound, inventory and final menus:** not complete. Existing five articulated walkers remain prototype models.
+- **Mission/save flow:** local save now persists mission completion. The safe-zone objective requires all four supply crates; reaching it early displays the remaining-supplies requirement. Mission-complete and mission-failed overlays provide a replay action that clears the local save and restarts the level.
+
+## Latest continuation work (2026-11-21)
+
+17. Corrected the objective gate: entering the safe zone no longer completes the mission unless all four supplies have been collected. Reaching it early displays the remaining supply count and allows the player to return for missing crates.
+18. Persisted mission-complete state in the local save and restored the completed state on reload. Added clear mission-complete / mission-failed result overlays and a Play Again action that clears this save before restarting.
+19. Commits: `63d7771aa9090b01891d5cb15f58133f8fc3ca08` (game logic), `739ee0d4a0cad0d679233da0cba7d8155a2c6f12` (result UI), `95a390b99cc91fc3e51215630abb8c9b70ecc2e8` (result overlay styling).
 
 ## Work recorded in this development session
 
@@ -37,6 +44,7 @@
 9. Updated GitHub Actions to install dependencies, build the production bundle, install Chromium and run desktop plus emulated-mobile gameplay checks. Added concurrency cancellation so obsolete runs are cancelled.
 
 ## Verification evidence
+- The latest mission/save changes were reviewed against the source flow, but no new browser/device test was run in this continuation. The earlier GitHub Actions status remains unverified after the animation-sampling fix. Do not claim these changes or the latest full project as tested.
 - Previous source-only validation workflow passed (run `44811652296`), but it predates the Vite production build.
 - Run `44814206896` completed with failure: dependency installation, Vite production build and Chromium installation passed; browser smoke test failed only at the single-frame walk-cycle assertion. Job log confirmed: `Hero walk-cycle animation did not respond to movement.` The assertion was changed to sample multiple frames in commit `2b14723a0e19f1ec1ce44f3184f128294b9c6973`. Subsequent gameplay/HUD commits also triggered the workflow; the GitHub connector does not expose push-run listing in this session, and combined commit status returned no status entries. Do not claim the latest workflow passed until a completed run is visible.
 - Earlier browser-test attempts exposed real issues (test newline escaping, missing modular hero rig, and diagnostic visibility). Those were corrected in later commits; the current run is the authoritative verification attempt.
@@ -55,7 +63,7 @@
 - `.github/workflows/validate-prototype.yml` — build and browser-test workflow.
 
 ## Remaining work — ordered
-1. Finish Phase 1: verify the workflow triggered by commit `2b14723a0e19f1ec1ce44f3184f128294b9c6973`; resolve any genuine remaining failure; later perform the one required Android browser/device validation and confirm Capacitor Android project generation with Android Studio/SDK.
+1. Continue Phase 1/2 only as needed: resolve the outstanding CI/browser foundation issue with one focused check when the workflow result is available; refine player/mobile controls and preserve Android compatibility.
 2. Finish Phase 2: refine controller/camera/collisions and mobile touch ergonomics; pass browser checks.
 3. Finish Phase 3: replace blockout with detailed original hero asset, rig and polished animations.
 4. Phase 4: original non-graphic zombie models, animation, navigation and fair evasion/survival AI.
