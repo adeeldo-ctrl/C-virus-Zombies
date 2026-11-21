@@ -496,7 +496,7 @@
   state.stamina=Number.isFinite(savedGame?.stamina)?BABYLON.Scalar.Clamp(savedGame.stamina,0,100):100;
   document.getElementById("stamina").style.width=state.stamina+"%";
   if(Array.isArray(savedGame?.vehicle)&&savedGame.vehicle.length===3&&savedGame.vehicle.every(Number.isFinite))vehicle.position.set(savedGame.vehicle[0],.58,savedGame.vehicle[2]);
-  if(Array.isArray(savedGame?.fleet))savedGame.fleet.forEach((entry,i)=>{if(i<fleet.length&&Array.isArray(entry)&&entry.length>=4&&entry.slice(0,4).every(Number.isFinite)){fleet[i].root.position.set(entry[0],fleet[i].root.position.y,entry[2]);fleet[i].root.rotation.y=entry[3];if(Number.isFinite(entry[4]))fleet[i].fuel=BABYLON.Scalar.Clamp(entry[4],0,100);if(Number.isFinite(entry[5]))fleet[i].condition=BABYLON.Scalar.Clamp(entry[5],0,100);}});
+  if(Array.isArray(savedGame?.fleet))savedGame.fleet.forEach((entry,i)=>{if(i<fleet.length&&Array.isArray(entry)&&entry.length>=4&&entry.slice(0,4).every(Number.isFinite)){fleet[i].root.position.set(entry[0],fleet[i].root.position.y,entry[2]);fleet[i].root.rotation.y=entry[3];if(Number.isFinite(entry[4]))fleet[i].fuel=BABYLON.Scalar.Clamp(entry[4],0,100);if(Number.isFinite(entry[5]))fleet[i].condition=BABYLON.Scalar.Clamp(entry[5],0,100);if(entry[6]===0||entry[6]===1){fleet[i].lightsOn=entry[6]===1;fleet[i].frontLights.forEach(mesh=>{mesh.isVisible=fleet[i].lightsOn;});}}});
   if(Array.isArray(savedGame?.player)&&savedGame.player.length===3&&savedGame.player.every(Number.isFinite)){
     player.position.set(savedGame.player[0],.95,savedGame.player[2]);
     // A save made while driving stores the hero at the vehicle position.
@@ -572,7 +572,7 @@
   function saveProgress(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
-        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,stash:state.stash,missionIndex:state.missionIndex,activatedRelays:state.activatedRelays,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,fleet:fleet.map(v=>[v.root.position.x,v.root.position.y,v.root.position.z,v.root.rotation.y,v.fuel,v.condition]),
+        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,stash:state.stash,missionIndex:state.missionIndex,activatedRelays:state.activatedRelays,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,fleet:fleet.map(v=>[v.root.position.x,v.root.position.y,v.root.position.z,v.root.rotation.y,v.fuel,v.condition,v.lightsOn?1:0]),
         player:[player.position.x,player.position.y,player.position.z],
         vehicle:[vehicle.position.x,vehicle.position.y,vehicle.position.z],
         collected:pickups.filter(p=>p.collected).map(p=>p.phase)
