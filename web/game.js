@@ -447,7 +447,7 @@
   const endOverlay=document.getElementById("end-overlay");
   const endTitle=document.getElementById("end-title");
   const endText=document.getElementById("end-text");
-  if(state.safe){state.ended=true;endOverlay.hidden=false;endTitle.textContent="MISSION COMPLETE";endText.textContent="You reached the safe zone with all supplies.";document.getElementById("message").textContent="Mission complete — supplies secured!";document.getElementById("status").textContent="Safe zone secured. All supplies collected.";} 
+  if(state.safe){state.ended=true;endOverlay.hidden=false;endTitle.textContent=state.missionIndex===2?"CAMPAIGN COMPLETE":"MISSION 1 COMPLETE";endText.textContent=state.missionIndex===2?"The emergency network is online. The city can call for help.":"The shopkeeper and all supplies reached safety.";document.getElementById("retry-button").textContent=state.missionIndex===1?"NEXT MISSION":"RESTART CAMPAIGN";document.getElementById("message").textContent="Mission complete — safe zone secured!";document.getElementById("status").textContent="Safe zone secured. Progress saved."; }
   function saveProgress(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
