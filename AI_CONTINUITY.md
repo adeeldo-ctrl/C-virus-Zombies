@@ -37,6 +37,7 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - One low-poly sedan is now enterable/drivable with keyboard and mobile controls, and its position is saved. The remaining Pakistani vehicle categories are unfinished.
 - Five procedural walker archetypes have distinct size/detection/speed tuning; final art and obstacle-aware navigation remain unfinished.
 - Urdu subtitle intro/objective feedback and a basic day/night lighting/fog cycle are implemented; spoken Urdu voice acting and full audio remain unfinished.
+- A backpack panel now tracks water, food, medicine and parts from collected crates and persists them; a full equipment system and safe-house storage remain unfinished.
 - Full city/interiors, complete vehicle fleet, story progression, inventory, safe house and final menus remain unfinished.
 
 ## Latest implementation update (2026-11-21)
