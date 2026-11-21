@@ -29,8 +29,20 @@
   const part=(name,mesh,material,parent=player)=>{mesh.name=name;mesh.material=material;mesh.parent=parent;heroParts.push(mesh);return mesh;};
   const torso=part("hero-jacket",BABYLON.MeshBuilder.CreateBox("heroJacket",{width:.62,height:.82,depth:.34},scene),heroMat);torso.position.set(0,.13,0);
   const shirt=part("hero-shirt",BABYLON.MeshBuilder.CreateBox("heroShirt",{width:.3,height:.48,depth:.035},scene),shirtMat);shirt.position.set(0,.13,.183);
-  const head=part("hero-head",BABYLON.MeshBuilder.CreateSphere("heroHead",{diameter:.43,segments:16},scene),skin);head.position.set(0,.78,0);
-  const hair=part("hero-hair",BABYLON.MeshBuilder.CreateSphere("heroHair",{diameter:.44,segments:12},scene),hairMat);hair.position.set(0,.91,-.015);hair.scaling.y=.55;
+  const head=part("hero-head",BABYLON.MeshBuilder.CreateSphere("heroHead",{diameter:.43,segments:20},scene),skin);head.position.set(0,.78,0);
+  const hair=part("hero-hair",BABYLON.MeshBuilder.CreateSphere("heroHair",{diameter:.445,segments:16},scene),hairMat);hair.position.set(0,.91,-.015);hair.scaling.y=.55;
+  // Facial features and layered field clothing make the hero silhouette readable at gameplay distance.
+  for(const side of [-1,1]){
+    const ear=part("hero-ear",BABYLON.MeshBuilder.CreateSphere("heroEar",{diameter:.105,segments:10},scene),skin);ear.position.set(side*.205,.78,0);
+    const eyeWhite=part("hero-eye",BABYLON.MeshBuilder.CreateSphere("heroEye",{diameter:.075,segments:10},scene),shirtMat);eyeWhite.position.set(side*.083,.81,.183);
+    const pupil=part("hero-pupil",BABYLON.MeshBuilder.CreateSphere("heroPupil",{diameter:.032,segments:8},scene),hairMat);pupil.position.set(side*.083,.81,.216);
+    const brow=part("hero-brow",BABYLON.MeshBuilder.CreateBox("heroBrow",{width:.105,height:.025,depth:.025},scene),hairMat);brow.position.set(side*.083,.865,.18);
+    const shoulder=part("hero-shoulder-pad",BABYLON.MeshBuilder.CreateBox("heroShoulder",{width:.22,height:.16,depth:.38},scene),pantsMat);shoulder.position.set(side*.34,.42,0);
+    const strap=part("hero-backpack-strap",BABYLON.MeshBuilder.CreateBox("heroStrap",{width:.065,height:.58,depth:.045},scene),packMat);strap.position.set(side*.19,.2,.19);strap.rotation.z=side*-.16;
+  }
+  const nose=part("hero-nose",BABYLON.MeshBuilder.CreateSphere("heroNose",{diameter:.075,segments:8},scene),skin);nose.position.set(0,.765,.205);nose.scaling.z=1.35;
+  const belt=part("hero-utility-belt",BABYLON.MeshBuilder.CreateBox("heroBelt",{width:.64,height:.1,depth:.36},scene),bootMat);belt.position.set(0,-.24,0);
+  const buckle=part("hero-buckle",BABYLON.MeshBuilder.CreateBox("heroBuckle",{width:.12,height:.09,depth:.035},scene),supplyMat);buckle.position.set(0,-.24,.19);
   const pack=part("hero-backpack",BABYLON.MeshBuilder.CreateBox("heroPack",{width:.4,height:.52,depth:.19},scene),packMat);pack.position.set(0,.18,-.25);
   const limb=(name,x,y,material,length,radius)=>{const pivot=new BABYLON.TransformNode(name+"Pivot",scene);pivot.parent=player;pivot.position.set(x,y,0);const mesh=part(name,BABYLON.MeshBuilder.CreateCylinder(name+"Mesh",{height:length,diameter:radius*2,tessellation:10},scene),material,pivot);mesh.position.y=-length/2;return pivot;};
   const leftArm=limb("hero-left-arm",-.39,.42,heroMat,.67,.115),rightArm=limb("hero-right-arm",.39,.42,heroMat,.67,.115);
