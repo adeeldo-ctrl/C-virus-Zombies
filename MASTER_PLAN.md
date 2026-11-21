@@ -1,6 +1,6 @@
 # C virus Zombies — Final Master Plan
 
-**Version:** 2.0 — Final development baseline  
+**Version:** 2.1 — Owner-confirmed mandatory scope  
 **Status:** Approved roadmap; development is active  
 **Game target:** Android APK  
 **Current prototype path:** Babylon.js browser-first 3D build  
@@ -167,3 +167,54 @@ A phase is complete only when its implementation and relevant automated/manual v
 - Update `DEVELOPMENT_LOG.md` after each meaningful development session with completed work, test evidence, known limitations, commit and exact next checkpoint.
 - When the owner starts a new chat with **“C virus”**, read this plan and the latest development log and resume from the recorded checkpoint without asking them to repeat known requirements.
 - Never claim a feature, test, phase or APK is complete unless verified.
+
+## 19. Owner-confirmed mandatory scope — reaffirmed 2026-11-21
+The owner explicitly reconfirmed the following five systems as mandatory final-game requirements. They are not optional ideas, stretch goals or features that may be silently dropped:
+
+### 19.1 Professional graphics
+- Original realistic 3D heroes and zombies.
+- High-quality character models, rigging and professional animations.
+- Detailed environments, materials, textures, lighting and shadows.
+- Placeholder/procedural blockouts must be clearly tracked as incomplete until replaced or approved as final art.
+
+### 19.2 Open-world Pakistani city
+- A large, explorable Pakistani city with connected roads, streets and markets.
+- Shops, houses and other buildings must be enterable and have proper interiors.
+- The world must support meaningful exploration, not just a small isolated demo street.
+- City districts, interiors, navigation, loading and mobile performance must be developed as a coherent world system.
+
+### 19.3 Pakistani vehicle fleet
+Mandatory vehicle categories:
+- Motorcycles.
+- Auto rickshaws.
+- Chingchi rickshaws.
+- Mini buses.
+- Pakistani 4K buses.
+
+Every category must have a suitable 3D vehicle, enter/exit interaction, functional driving, steering/braking, collision handling and appropriate audio. A single sedan or placeholder fleet does not satisfy this requirement.
+
+### 19.4 Advanced zombie system
+- Multiple visually distinct zombie types.
+- Intelligent AI with different behaviours, detection, pursuit and obstacle-aware navigation.
+- Proper character rigs and animations for idle, patrol, pursuit and gameplay reactions.
+- Boss zombies and designed boss encounters.
+- Spawning and difficulty progression.
+
+### 19.5 Complete survival system
+- A fictional, age-appropriate game equipment/weapon system.
+- Expandable inventory and item management.
+- Player health and recovery.
+- Food and water survival needs, not only collectible counters.
+- Item collection, storage and resource use.
+- Survival resources, crafting and progression.
+
+### 19.6 Mandatory acceptance rule
+These five systems must appear in implementation tasks, phase tracking and final release acceptance. A feature is complete only when it is implemented, integrated with the rest of the game and verified. Visual placeholders, non-functional buttons, isolated mock-ups and documentation-only changes do not count as completion.
+
+## 20. Development ownership and workflow
+- The assistant is expected to work directly in the linked GitHub repository using the connected GitHub tools; do not substitute Codex prompts or ask the owner to repeat repository details.
+- Inspect the latest repository state, existing code, Master Plan, development log and CI evidence before changing files.
+- Implement real code and assets in coherent development batches, preserve existing working features, and commit the changes to the repository.
+- Run the available integrated build/browser tests and inspect failures; update the development log with actual results and the exact next checkpoint.
+- Do not stop after merely rewriting documentation. Continue implementation from the latest unfinished development checkpoint.
+- Keep the approved game scope visible across sessions; never forget or silently downgrade the five mandatory systems above.
