@@ -145,3 +145,9 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Added a mobile garage selection screen accessible from the title menu. Player can select one of the five parked transport types and begin beside it, then use the normal proximity DRIVE interaction.
 - Commits: `b8a5a493d9c2273aacf314d73d5deb0528c84242`, `7d679e06da0fc1108b9ed72d7a92fc67b8cec5ae`, `7f9a234b8b68c00455ba2fa5d8c4426d3c6eee84`.
 - Vehicle assets remain low-poly prototype models.
+
+
+## Latest character detail pass (2026-11-21)
+- Hero blockout gained a chest harness, radio and antenna. Zombie walker prototypes gained non-graphic face details (glowing eyes, sockets, brows, nose, mouth/teeth) and torn clothing panels.
+- Commit: `4af7d0a103abab25fd3935f617ec49002323cdbe`.
+- Still procedural prototype art; final rigged models/animations and Android device validation are outstanding.
