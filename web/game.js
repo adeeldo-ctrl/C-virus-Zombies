@@ -347,7 +347,7 @@
       document.getElementById("status").textContent="Driving "+activeVehicle.type+" — use the joystick to steer and tap EXIT to leave.";
       driveButton.textContent="EXIT";
     }else{
-      driving=false;player.position.copyFrom(activeVehicle.root.position);player.position.x+=activeVehicle.type==="MOTORCYCLE"?1.1:activeVehicle.type==="CHINGCHI"?1.9:1.6;player.position.y=.95;
+      driving=false;document.getElementById("vehicle-status").hidden=true;player.position.copyFrom(activeVehicle.root.position);player.position.x+=activeVehicle.type==="MOTORCYCLE"?1.1:activeVehicle.type==="CHINGCHI"?1.9:1.6;player.position.y=.95;
       player.rotation.y=activeVehicle.root.rotation.y;player.setEnabled(true);camera.lockedTarget=player;
       document.getElementById("status").textContent="On foot — approach a parked vehicle and tap DRIVE.";
       driveButton.textContent="DRIVE";
