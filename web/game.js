@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, sprint:false, paused:false, ended:false};
+  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, sprint:false, paused:false, ended:false, inventoryOpen:false};
   const scene = new BABYLON.Scene(engine);
   scene.collisionsEnabled = true;
   scene.clearColor = new BABYLON.Color4(0.48,0.66,0.77,1);
@@ -175,7 +175,7 @@
   function updateInventory(){for(const key of ["water","food","medicine","parts"])document.getElementById("item-"+key).textContent=String(state.inventory[key]);}
   updateInventory();
   const inventoryButton=document.getElementById("inventory-button");
-  inventoryButton.addEventListener("click",()=>{inventoryPanel.hidden=!inventoryPanel.hidden;if(!inventoryPanel.hidden){state.sprint=false;touchX=0;touchY=0;reset();}});
+  inventoryButton.addEventListener("click",()=>{inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}});
   const endOverlay=document.getElementById("end-overlay");
   const endTitle=document.getElementById("end-title");
   const endText=document.getElementById("end-text");
@@ -207,7 +207,7 @@
   showSubtitle("شہر میں وائرس پھیل چکا ہے۔ محفوظ مقام تک پہنچنا ہوگا۔","The city is infected. Reach the safe zone.",5200);
   setTimeout(()=>showSubtitle("ریڈیو: چاروں سپلائی کریٹس جمع کریں، پھر سبز محفوظ مقام پر جائیں۔","RADIO: Collect all four supply crates, then reach the green safe zone.",5200),5600);
   scene.onBeforeRenderObservable.add(()=>{
-    if(state.paused||state.ended)return;
+    if(state.paused||state.ended||state.inventoryOpen)return;
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
     worldClock+=dt;
     const daylight=(Math.sin(worldClock/90*Math.PI*2-Math.PI/2)+1)/2;
@@ -286,7 +286,7 @@
   resumeButton.addEventListener("click",()=>setPaused(false));
   document.getElementById("retry-button").addEventListener("click",()=>{localStorage.removeItem(SAVE_KEY);window.location.reload();});
   const doJump=()=>{if(grounded&&jumpCooldown===0&&!state.safe&&state.health>0){verticalVelocity=7.2;grounded=false;jumpCooldown=.22;}};
-  window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){setPaused(!state.paused);inventoryPanel.hidden=true;return;}const key=e.key.toLowerCase();if(key==="i"){inventoryPanel.hidden=!inventoryPanel.hidden;return;}if(state.paused||!inventoryPanel.hidden)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
+  window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){if(state.inventoryOpen){state.inventoryOpen=false;inventoryPanel.hidden=true;}else setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(key==="i"){inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}return;}if(state.paused||!inventoryPanel.hidden)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
   window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
   window.addEventListener("blur",()=>{for(const key in keys)keys[key]=false;state.sprint=false;});
   engine.runRenderLoop(()=>{const keyX=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const keyY=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);state.moveX=touchX!==0?touchX:keyX;state.moveY=touchY!==0?touchY:keyY;scene.render();});
