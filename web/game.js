@@ -314,7 +314,7 @@
 
   const heroRig={leftArm,rightArm,leftLeg,rightLeg,lowerArms,lowerLegs,heroParts};
   // Production-ready skinned humanoid base for Ibrahim (Quaternius CC0 asset).
-  let heroModelReady=false,heroSkeleton=null,heroModelRoot=null;
+  let heroModelReady=false,heroSkeleton=null,heroModelRoot=null,heroModelError=null;
   const heroBoneNodes=new Map(),heroBoneRest=new Map();
   function setIbrahimBone(name,pitch=0,yaw=0,roll=0){
     const bone=heroBoneNodes.get(name),rest=heroBoneRest.get(name);
@@ -392,7 +392,7 @@
       heroParts.forEach(mesh=>mesh.setEnabled(false));
       heroModelReady=true;
       console.info("Ibrahim skinned character loaded:",heroSkeleton.bones.length,"bones");
-    }catch(error){console.warn("Ibrahim character asset unavailable; keeping fallback model.",error);}
+    }catch(error){heroModelError=String(error?.message||error);console.warn("Ibrahim character asset unavailable; keeping fallback model.",error);}
   }
   loadIbrahimModel();
 
@@ -760,7 +760,7 @@
   }));
   let saveClock=0, damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
-  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,get heroModelReady(){return heroModelReady;},get heroBoneNames(){return [...heroBoneNodes.keys()];},get audioState(){return audioContext?.state||"uninitialized";},get shield(){return heroShield;},moveVector:(x,y)=>{const f=camera.getForwardRay().direction.clone();f.y=0;if(f.lengthSquared()<.0001)f.set(Math.sin(state.yaw),0,-Math.cos(state.yaw));f.normalize();const r=new BABYLON.Vector3(-f.z,0,f.x);return f.scale(-y).add(r.scale(x));},get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
+  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,get heroModelReady(){return heroModelReady;},get heroModelError(){return heroModelError;},get heroBoneNames(){return [...heroBoneNodes.keys()];},get audioState(){return audioContext?.state||"uninitialized";},get shield(){return heroShield;},moveVector:(x,y)=>{const f=camera.getForwardRay().direction.clone();f.y=0;if(f.lengthSquared()<.0001)f.set(Math.sin(state.yaw),0,-Math.cos(state.yaw));f.normalize();const r=new BABYLON.Vector3(-f.z,0,f.x);return f.scale(-y).add(r.scale(x));},get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
   let worldClock=0;
   let heroWalkPhase=0,footstepClock=0;
   let subtitleTimer=null;
