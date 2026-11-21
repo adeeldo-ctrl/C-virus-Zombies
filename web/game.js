@@ -81,8 +81,18 @@
   function createWalker(i){
     const root=BABYLON.MeshBuilder.CreateCapsule("walkerCollider"+i,{height:1.85,radius:.4},scene);
     root.material=zombieMat;root.visibility=.001;root.position.set((i%2?1:-1)*(3.5+i*.45),1,-10-i*7);
+    const archetypes=[
+      {name:"WANDERER",speed:1.35,detect:25,scale:1,cloth:"#53634d"},
+      {name:"SPRINTER",speed:2.55,detect:31,scale:.92,cloth:"#6b5946"},
+      {name:"GUARDIAN",speed:.92,detect:22,scale:1.22,cloth:"#394d5a"},
+      {name:"SCOUT",speed:1.8,detect:34,scale:.88,cloth:"#625c43"},
+      {name:"ALPHA",speed:1.15,detect:30,scale:1.38,cloth:"#51465d"}
+    ];
+    const archetype=archetypes[i%archetypes.length];
+    root.scaling.setAll(archetype.scale);root.metadata={archetype:archetype.name,speed:archetype.speed,detectionRange:archetype.detect};
+    const variantCloth=mat("walkerCloth"+i,archetype.cloth);
     const piece=(name,mesh,material,parent=root)=>{mesh.name=name;mesh.material=material;mesh.parent=parent;return mesh;};
-    const torso=piece("walkerTorso",BABYLON.MeshBuilder.CreateBox("walkerTorso",{width:.58,height:.76,depth:.32},scene),zombieCloth);torso.position.y=.08;
+    const torso=piece("walkerTorso",BABYLON.MeshBuilder.CreateBox("walkerTorso",{width:.58,height:.76,depth:.32},scene),variantCloth);torso.position.y=.08;
     const chest=piece("walkerChest",BABYLON.MeshBuilder.CreateBox("walkerChest",{width:.38,height:.34,depth:.035},scene),zombieMat);chest.position.set(0,.13,.17);
     const head=piece("walkerHead",BABYLON.MeshBuilder.CreateSphere("walkerHead",{diameter:.4,segments:12},scene),zombieSkin);head.position.y=.7;
     const hair=piece("walkerHair",BABYLON.MeshBuilder.CreateSphere("walkerHair",{diameter:.41,segments:10},scene),zombieDark);hair.position.set(0,.83,-.015);hair.scaling.y=.45;
@@ -185,7 +195,7 @@
     const gait=moving?Math.sin(performance.now()*.012*(state.sprint?1.35:1)):0;
     heroRig.leftLeg.rotation.x=gait*.62;heroRig.rightLeg.rotation.x=-gait*.62;heroRig.leftArm.rotation.x=-gait*.48;heroRig.rightArm.rotation.x=gait*.48;
     zombies.forEach(z=>{
-      const zMoving=!state.safe&&state.health>0&&BABYLON.Vector3.Distance(player.position,z.position)<28;
+      const zMoving=!state.safe&&state.health>0&&BABYLON.Vector3.Distance(player.position,z.position)<z.metadata.detectionRange;
       z.rig.phase+=dt*(zMoving?5.2:1.4);
       const walk=Math.sin(z.rig.phase)*.48;
       z.rig.leftLeg.rotation.x=walk;z.rig.rightLeg.rotation.x=-walk;
@@ -228,7 +238,7 @@
       if(staminaBar)staminaBar.style.width=state.stamina+"%";
     }
     let near=false;
-    zombies.forEach(z=>{if(state.safe||state.health<=0)return;const delta=player.position.subtract(z.position);delta.y=0;const dist=delta.length();if(dist>1.25&&dist<28){delta.normalize();z.position.addInPlace(delta.scale(1.45*dt));z.rotation.y=Math.atan2(delta.x,delta.z);}if(dist<1.7)near=true;});
+    zombies.forEach(z=>{if(state.safe||state.health<=0)return;const delta=player.position.subtract(z.position);delta.y=0;const dist=delta.length();if(!driving&&dist>1.25&&dist<z.metadata.detectionRange){delta.normalize();z.position.addInPlace(delta.scale(z.metadata.speed*dt));z.rotation.y=Math.atan2(delta.x,delta.z);}if(dist<1.7)near=true;});
     if(near&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
     const reached=BABYLON.Vector3.Distance(driving?vehicle.position:player.position,safe.position)<3;
     if(reached&&!state.safe&&state.supplies===4){state.safe=true;document.getElementById("message").textContent="Safe zone reached — mission complete!";document.getElementById("status").textContent="Mission complete. All 4 supplies secured.";endTitle.textContent="MISSION COMPLETE";endText.textContent="You reached the safe zone with all supplies.";endOverlay.hidden=false;saveProgress();}
