@@ -259,6 +259,73 @@
   }
   const survivorMarker=BABYLON.MeshBuilder.CreateCylinder("survivorMarker",{diameter:.9,height:.035,tessellation:24},scene);
   survivorMarker.position.set(4.9,.06,-14.2);survivorMarker.material=safeMat;
+  // Street-level dressing: utility poles, overhead cables, lamps and roadside market kiosks.
+  const cityMetal=mat("cityUtilityMetal","#3d474b"),cableMat=mat("cityCable","#252c30"),lampMat=mat("streetLampGlass","#f6d98a"),stallPaint=mat("marketStallPaint","#a64e36"),stallCanvas=mat("marketStallCanvas","#e0c36b"),stallWood=mat("marketStallWood","#654b35");
+  const utilityPoles=[];
+  for(const x of [-22,22]){
+    for(const z of [-48,-24,0,24,48]){
+      const pole=BABYLON.MeshBuilder.CreateCylinder("cityUtilityPole",{height:7.8,diameter:.22,tessellation:8},scene);
+      pole.position.set(x,3.9,z);pole.material=cityMetal;utilityPoles.push(pole);
+      const crossbar=BABYLON.MeshBuilder.CreateBox("utilityCrossbar",{width:2.15,height:.13,depth:.16},scene);
+      crossbar.position.set(x,7.15,z);crossbar.material=cityMetal;
+      for(const side of [-1,0,1]){
+        const insulator=BABYLON.MeshBuilder.CreateCylinder("utilityInsulator",{height:.34,diameter:.09,tessellation:8},scene);
+        insulator.position.set(x+side*.78,7.36,z);insulator.material=lampMat;
+      }
+    }
+  }
+  const cableBetween=(name,a,b)=>{
+    const delta=b.subtract(a),length=delta.length();
+    const cable=BABYLON.MeshBuilder.CreateCylinder(name,{height:length,diameter:.035,tessellation:6},scene);
+    cable.position.copyFrom(a.add(b).scale(.5));cable.rotationQuaternion=BABYLON.Quaternion.FromUnitVectorsToRef?BABYLON.Quaternion.FromUnitVectorsToRef(new BABYLON.Vector3(0,1,0),delta.normalize(),BABYLON.Quaternion.Identity()):null;
+    if(!cable.rotationQuaternion){const direction=delta.normalize();cable.rotation.x=Math.atan2(direction.z,direction.y);cable.rotation.z=-Math.atan2(direction.x,Math.sqrt(direction.y*direction.y+direction.z*direction.z));}
+    cable.material=cableMat;
+    return cable;
+  };
+  for(const x of [-22,22]){
+    for(let i=0;i<4;i++)cableBetween("overheadPowerCable",new BABYLON.Vector3(x,7.1,-48+i*24),new BABYLON.Vector3(x,7.1,-24+i*24));
+  }
+  // Warm street lamps make the neighbourhood readable after sunset.
+  for(const side of [-1,1]){
+    for(const z of [-42,-22,-2,18,38]){
+      const x=side*9.1;
+      const pole=BABYLON.MeshBuilder.CreateCylinder("streetLampPole",{height:5.2,diameter:.13,tessellation:10},scene);
+      pole.position.set(x,2.6,z);pole.material=cityMetal;
+      const arm=BABYLON.MeshBuilder.CreateCylinder("streetLampArm",{height:1.15,diameter:.09,tessellation:8},scene);
+      arm.position.set(x-side*.48,5.05,z);arm.rotation.z=side*.45;arm.material=cityMetal;
+      const head=BABYLON.MeshBuilder.CreateBox("streetLampHead",{width:.52,height:.16,depth:.34},scene);
+      head.position.set(x-side*.92,4.98,z);head.material=lampMat;
+      const glow=BABYLON.MeshBuilder.CreateSphere("streetLampGlow",{diameter:.18,segments:8},scene);
+      glow.position.set(x-side*.92,4.86,z);glow.material=lampMat;
+    }
+  }
+  // Small roadside stalls and handcarts establish a recognisable Pakistani market street.
+  for(const side of [-1,1]){
+    for(const z of [-34,-10,14,38]){
+      const x=side*18.3;
+      const counter=BABYLON.MeshBuilder.CreateBox("marketCartCounter",{width:2.5,height:.92,depth:1.25},scene);
+      counter.position.set(x,.52,z);counter.material=stallWood;
+      const canopy=BABYLON.MeshBuilder.CreateBox("marketCartCanopy",{width:2.9,height:.14,depth:1.65},scene);
+      canopy.position.set(x,2.12,z);canopy.material=stallCanvas;
+      for(const dx of [-1.12,1.12])for(const dz of [-.55,.55]){
+        const post=BABYLON.MeshBuilder.CreateCylinder("marketCartPost",{height:1.3,diameter:.075,tessellation:8},scene);
+        post.position.set(x+dx,1.42,z+dz);post.material=stallPaint;
+      }
+      const front=BABYLON.MeshBuilder.CreateBox("marketCartFront",{width:2.48,height:.18,depth:.06},scene);
+      front.position.set(x,.88,z-.66);front.material=stallPaint;
+      for(let item=0;item<4;item++){
+        const produce=BABYLON.MeshBuilder.CreateSphere("marketProduce",{diameter:.23,segments:8},scene);
+        produce.position.set(x-.78+item*.52,1.08,z-.2);produce.material=item%2?stallCanvas:safeMat;
+      }
+    }
+  }
+  // Roadside direction boards provide landmarks and a stronger local identity.
+  for(const [x,z,labelColor] of [[-8.9,-48,"#276b57"],[8.9,42,"#9a4936"],[-8.9,28,"#315e83"]]){
+    const board=BABYLON.MeshBuilder.CreateBox("pakistanStreetSign",{width:2.2,height:.72,depth:.12},scene);
+    board.position.set(x,3.15,z);board.material=mat("streetSignMat"+x+z,labelColor);
+    const post=BABYLON.MeshBuilder.CreateCylinder("streetSignPost",{height:3.2,diameter:.09,tessellation:8},scene);
+    post.position.set(x,1.6,z);post.material=cityMetal;
+  }
   // Keep the full expanded neighbourhood grid inside the world instead of trapping the player on the original starter street.
   for(const x of [-64,64]){const wall=BABYLON.MeshBuilder.CreateBox("cityBoundary",{width:.6,height:5,depth:130},scene);wall.position.set(x,2.5,0);wall.checkCollisions=true;wall.visibility=0.001;}
   for(const z of [-64,64]){const wall=BABYLON.MeshBuilder.CreateBox("cityEndBoundary",{width:130,height:5,depth:.6},scene);wall.position.set(0,2.5,z);wall.checkCollisions=true;wall.visibility=0.001;}
@@ -407,7 +474,7 @@
   function createWalker(i){
     const root=BABYLON.MeshBuilder.CreateCapsule("walkerCollider"+i,{height:1.85,radius:.4},scene);
     root.checkCollisions=true;
-    root.material=zombieMat;root.visibility=.001;root.position.set((i%2?1:-1)*(3.5+i*.45),1,-10-i*7);
+    root.material=zombieMat;root.visibility=.001;const spawnPoints=[[-4,-10],[4,-18],[-19,-27],[19,-30],[-39,-42],[39,-40],[-39,5],[39,12],[-20,42],[20,45],[-5,53],[6,-48]];const spawn=spawnPoints[i%spawnPoints.length];root.position.set(spawn[0],1,spawn[1]);
     const archetypes=[
       {name:"WANDERER",speed:1.35,detect:25,scale:1,cloth:"#53634d"},
       {name:"SPRINTER",speed:2.55,detect:31,scale:.92,cloth:"#6b5946"},
@@ -471,7 +538,7 @@
     root.rig={leftArm,rightArm,leftLeg,rightLeg,lowerArms,lowerLegs,torso,head,phase:i*.83};
     return root;
   }
-  const zombies=Array.from({length:5},(_,i)=>createWalker(i));
+  const zombies=Array.from({length:12},(_,i)=>createWalker(i));
   // Super Water Gun: playful, non-damaging cartoon splash knockback.
   const waterShotMaterial=new BABYLON.StandardMaterial("superWaterShotMaterial",scene);
   waterShotMaterial.diffuseColor=new BABYLON.Color3(.12,.72,1);
