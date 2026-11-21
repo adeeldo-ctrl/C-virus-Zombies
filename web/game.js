@@ -32,9 +32,11 @@
     gain.gain.setValueAtTime(.0001,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.18,ctx.currentTime+.018);gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+duration);
     osc.connect(gain);gain.connect(effectsBus);osc.start();osc.stop(ctx.currentTime+duration+.025);
   }
-  let engineOscillator=null,engineSoundGain=null;
+  let engineOscillator=null,engineSoundGain=null,engineAudioActive=null,engineThrottle=0;
   function setEngineAudio(active,throttle=0){
     if(!audioContext)return;
+    if(active===engineAudioActive&&Math.abs(throttle-engineThrottle)<.05)return;
+    engineAudioActive=active;engineThrottle=throttle;
     if(audioContext.state==="suspended")audioContext.resume();
     if(!engineOscillator){
       engineOscillator=audioContext.createOscillator();engineSoundGain=audioContext.createGain();
