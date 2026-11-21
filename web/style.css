@@ -27,3 +27,5 @@
 #vehicle-prompt{position:absolute;left:50%;bottom:205px;transform:translateX(-50%);padding:8px 12px;border:1px solid #e5c44b99;border-radius:8px;background:#101d2be8;color:#ffe58a;font-size:11px;font-weight:800;letter-spacing:.35px;white-space:nowrap;pointer-events:none;box-shadow:0 4px 16px #0008}#vehicle-prompt[hidden]{display:none}
 
 #building-prompt{position:absolute;left:50%;bottom:245px;transform:translateX(-50%);padding:8px 12px;border:1px solid #75d7b899;border-radius:8px;background:#071d1be8;color:#a8f1d5;font-size:11px;font-weight:900;letter-spacing:.5px;white-space:nowrap;pointer-events:none;box-shadow:0 4px 16px #0008}#building-prompt[hidden]{display:none}
+
+#action-buttons #rescue{border-color:#79e1ae;background:#176b4cdd;width:74px;border-radius:22px}#action-buttons #rescue[hidden]{display:none}
