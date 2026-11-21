@@ -359,6 +359,7 @@
   });
   // Keyboard controls
   const keys={};
+  window.__CVIRUS_DEBUG__.keys=keys;
   const pauseOverlay=document.getElementById("pause-overlay");
   const pauseButton=document.getElementById("pause-button");
   const resumeButton=document.getElementById("resume-button");
