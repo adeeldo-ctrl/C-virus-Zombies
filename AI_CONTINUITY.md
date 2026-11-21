@@ -158,3 +158,12 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Added a safe-house hub with a persistent storage chest for water, food, medicine and parts. Contextual STORE action opens a paused storage panel; Store All and Take All respect the backpack's 99-per-item limit. Stash persists with campaign save.
 - Commits: `4de6e33024670b432c8af7e678b1bda17c32cba4`, `361f44f56f0c1eae4fa0c6936f16c3c99a5da873`, `d89115535cd97f8dd219f0d97ec5b817057e8196`, `a82000cb4edc258fb519d768e12911862a7e2d70`.
 - Workflow `44877776879` was still running at last inspection; do not claim pass until completed. No Android device validation or APK build.
+
+
+## Latest implementation update — two-mission campaign (2026-11-21)
+- Restored the missing contextual survivor rescue handler (it had been accidentally dropped when the original vehicle block was replaced).
+- Added a second campaign mission: activate three emergency radio relays, then return to the safe zone. Mission index, relay activation and completion save/load; Mission 1 completion advances to Mission 2; Mission 2 completion offers campaign restart.
+- Updated the integrated smoke suite to test touchscreen joystick rather than desktop keyboard, and to cover garage fleet, driving, backpack, safe-house stash, rescue, both missions and mobile touch camera/jump.
+- Workflow `44878034035` failed before build at dependency installation because npm requested unavailable Rollup `4.68.8`. Pinned the published `4.68.7` release using an npm override (commit `3337f3b960ab57084bb2dfa94ca927b02364a13d`). New workflow `44878101794` is pending/needs result check.
+- Commits: `942db9c455fc02c1f6004e182bb872b6921d7139`, `19a411645d3f0440100b80e65eaccef5c2578ad2`, `c1a9492d940bac6cfa86593b2be5ea7f2b3eabc9`, `d82de395dfd95567d6f36340cbc191635b6e2d52`, `9ace0abde57b2dc2754fb6f1f5c77458bdc41d75`, `e2fa1760d12f4e82d8290635f1bc21f373297e76`, `3337f3b960ab57084bb2dfa94ca927b02364a13d`.
+- No APK/device validation claimed.
