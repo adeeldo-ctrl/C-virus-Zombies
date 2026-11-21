@@ -162,6 +162,12 @@
   if(Array.isArray(savedGame?.vehicle)&&savedGame.vehicle.length===3&&savedGame.vehicle.every(Number.isFinite))vehicle.position.set(savedGame.vehicle[0],.58,savedGame.vehicle[2]);
   if(Array.isArray(savedGame?.player)&&savedGame.player.length===3&&savedGame.player.every(Number.isFinite)){
     player.position.set(savedGame.player[0],.95,savedGame.player[2]);
+    // A save made while driving stores the hero at the vehicle position.
+    // Restore the hero beside the sedan so the player is not trapped inside it.
+    if(BABYLON.Vector3.Distance(player.position,vehicle.position)<2.1){
+      player.position.x=vehicle.position.x+2.2;
+      player.position.z=vehicle.position.z;
+    }
   }
   if(Number.isFinite(savedGame?.yaw))state.yaw=savedGame.yaw;
   pickups.forEach(p=>{
