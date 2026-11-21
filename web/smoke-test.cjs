@@ -105,6 +105,12 @@ const server = http.createServer((req,res) => {
     await desktop.locator("#use-medicine").click();
     const medicine=await desktop.evaluate(()=>({health:window.__CVIRUS_DEBUG__.state.health,count:window.__CVIRUS_DEBUG__.state.inventory.medicine}));
     if(medicine.health!==80||medicine.count!==0)throw new Error("Backpack medicine interaction failed.");
+    await desktop.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.state.thirst=30;d.state.hunger=20;d.state.inventory.water=1;d.state.inventory.food=1;document.getElementById("use-water").disabled=false;document.getElementById("use-food").disabled=false;});
+    await desktop.locator("#use-water").click();
+    await desktop.locator("#use-food").click();
+    const needs=await desktop.evaluate(()=>({thirst:window.__CVIRUS_DEBUG__.state.thirst,hunger:window.__CVIRUS_DEBUG__.state.hunger,water:window.__CVIRUS_DEBUG__.state.inventory.water,food:window.__CVIRUS_DEBUG__.state.inventory.food}));
+    if(needs.thirst!==78||needs.hunger!==62||needs.water!==0||needs.food!==0)throw new Error("Water/food survival consumption failed: "+JSON.stringify(needs));
+    if(!await desktop.locator("#thirst").count()||!await desktop.locator("#hunger").count())throw new Error("Survival needs HUD meters missing.");
     await desktop.locator("#inventory-button").click();
     // Verify persistent safe-house storage transfer.
     await desktop.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.player.position.set(d.safehouseCenter.x,.95,d.safehouseCenter.z+1.5);d.state.inventory.water=2;d.state.inventory.parts=1;});
