@@ -133,3 +133,12 @@ When the user says **“C virus”** in a new chat:
 - Preserved the clinic, shop and police-post interior access by moving the cross-street set away from their entrances.
 - The new district is still low-poly prototype environment art; final-quality city assets, world streaming, richer streetscape props and expanded enterable buildings remain outstanding.
 - Commits: `98bff694a894197436eea825f586878d448e6939`, `5a20a39861f5b06ead1edfcce0582daa9897192f`.
+
+
+## 2026-11-21 — Android touch controls and expanded-world access
+- Corrected the city perimeter collision walls: the original narrow-street boundaries at x = +/-7.6 blocked access to the newly added side roads and neighbourhood buildings. The playable perimeter now follows the 130 x 130 world bounds.
+- Improved right-side touchscreen camera dragging with pointer capture, pointer-ID tracking, cancel/lost-capture cleanup and prevention of unwanted page gestures. Left joystick remains independently usable for simultaneous movement/look.
+- Updated vehicle interaction prompts/status text to describe joystick steering and tapping DRIVE/EXIT rather than presenting keyboard instructions as the primary Android controls. Keyboard support remains optional.
+- Added canvas touch-action suppression and safe-area-aware mobile control placement for Android screen insets.
+- Commits: `882fc1a4236294edee92dbc22e33f913913c2f46` (world boundary + touch camera + prompts), `1f5faf105b44c12830234a105e44b1dd36148ca8` (mobile safe-area CSS).
+- No new build or device result is claimed yet. Android touchscreen behaviour is the target; desktop keyboard smoke assertions are not a substitute for Android touch validation.
