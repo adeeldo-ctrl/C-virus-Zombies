@@ -351,9 +351,9 @@
     if(state.paused||state.ended||driving)return;
     if(state.missionIndex===1){
       if(state.rescued||BABYLON.Vector3.Distance(player.position,survivorRoot.position)>2.7)return;
-      state.rescued=true;survivorRoot.setEnabled(false);survivorMarker.setEnabled(false);
-      document.getElementById("message").textContent="Shopkeeper rescued — collect all supplies and reach the safe zone.";
-      document.getElementById("status").textContent="Survivor rescued. Collect all 4 supplies and reach extraction.";
+      state.rescued=true;survivorRoot.setEnabled(true);survivorMarker.setEnabled(false);
+      document.getElementById("message").textContent="Shopkeeper rescued — stay close and escort him to the safe zone.";
+      document.getElementById("status").textContent="The shopkeeper is following you. Collect all 4 supplies and bring him to extraction.";
       showSubtitle("براہ کرم مجھے یہاں سے نکالیں۔ شکریہ!","Thank you for rescuing me. Let's reach the safe zone.",4200);
       saveProgress();
     }else{
@@ -380,7 +380,8 @@
   for(const key of ["water","food","medicine","parts"])state.inventory[key]=Number.isInteger(state.inventory[key])?Math.max(0,Math.min(99,state.inventory[key])):0;
   state.rescued=savedGame?.survivorRescued===true;
   state.safe=savedGame?.missionComplete===true&&(state.missionIndex===1?state.supplies===4&&state.rescued:state.activatedRelays.length===3);
-  if(state.rescued){survivorRoot.setEnabled(false);survivorMarker.setEnabled(false);}
+  survivorRoot.setEnabled(state.rescued&&state.missionIndex===1);
+  if(state.rescued)survivorMarker.setEnabled(false);
   state.health=Number.isFinite(savedGame?.health)?BABYLON.Scalar.Clamp(savedGame.health,1,100):100;
   state.stamina=Number.isFinite(savedGame?.stamina)?BABYLON.Scalar.Clamp(savedGame.stamina,0,100):100;
   document.getElementById("stamina").style.width=state.stamina+"%";
@@ -394,6 +395,9 @@
       player.position.x=vehicle.position.x+2.2;
       player.position.z=vehicle.position.z;
     }
+  }
+  if(state.rescued&&state.missionIndex===1){
+    survivorRoot.position.set(player.position.x,0,player.position.z+2.2);
   }
   if(Number.isFinite(savedGame?.yaw)){state.yaw=savedGame.yaw;camera.rotationOffset=180+state.yaw*180/Math.PI;}
   if(Number.isFinite(savedGame?.vehicleYaw))vehicle.rotation.y=savedGame.vehicleYaw;
@@ -549,6 +553,31 @@
       const staminaBar=document.getElementById("stamina");
       if(staminaBar)staminaBar.style.width=state.stamina+"%";
     }
+    // Rescued shopkeeper follows on foot and keeps up with the selected vehicle.
+    // A small separation avoids overlap with the player while preserving the escort.
+    if(state.rescued&&state.missionIndex===1&&survivorRoot.isEnabled()&&!state.safe){
+      const carrier=driving?activeVehicle.root:player;
+      const forward=new BABYLON.Vector3(Math.sin(carrier.rotation.y),0,Math.cos(carrier.rotation.y));
+      const target=carrier.position.subtract(forward.scale(1.65));
+      const delta=target.subtract(survivorRoot.position);delta.y=0;
+      const distance=delta.length();
+      if(distance>1.25){
+        let direction=delta.normalize();
+        const rayOrigin=survivorRoot.position.add(new BABYLON.Vector3(0,.8,0));
+        const blocked=scene.pickWithRay(new BABYLON.Ray(rayOrigin,direction,1.8),mesh=>mesh!==survivorRoot&&mesh.checkCollisions&&mesh.name!=="ground"&&mesh.name!=="street");
+        if(blocked&&blocked.hit){
+          const side=new BABYLON.Vector3(-direction.z,0,direction.x);
+          const left=direction.scale(.25).add(side.scale(.97)).normalize();
+          const sideRay=new BABYLON.Ray(rayOrigin,left,1.8);
+          const sideHit=scene.pickWithRay(sideRay,mesh=>mesh.checkCollisions&&mesh.name!=="ground"&&mesh.name!=="street");
+          direction=sideHit&&sideHit.hit?new BABYLON.Vector3(-side.z,0,side.x):left;
+        }
+        const escortSpeed=driving?9.2:3.6;
+        survivorRoot.position.addInPlace(direction.scale(Math.min(distance-1.25,escortSpeed*dt)));
+        survivorRoot.position.y=0;
+        survivorRoot.rotation.y=Math.atan2(direction.x,direction.z);
+      }
+    }
     let near=false;
     zombies.forEach((z,index)=>{
       if(state.safe||state.health<=0)return;
@@ -608,7 +637,8 @@
     }
     rescueButton.hidden=!actionVisible||driving||state.paused||state.ended;
     const reached=BABYLON.Vector3.Distance(driving?activeVehicle.root.position:player.position,safe.position)<3;
-    const objectiveComplete=state.missionIndex===1?state.supplies===4&&state.rescued:state.activatedRelays.length===3;
+    const survivorAtSafe=state.missionIndex!==1||!state.rescued||Math.hypot(survivorRoot.position.x-safe.position.x,survivorRoot.position.z-safe.position.z)<6.5;
+    const objectiveComplete=state.missionIndex===1?state.supplies===4&&state.rescued&&survivorAtSafe:state.activatedRelays.length===3;
     if(reached&&!state.safe&&objectiveComplete){
       state.safe=true;state.ended=true;
       document.getElementById("message").textContent="Mission objective secured — safe zone reached!";
@@ -622,7 +652,7 @@
       saveProgress();
     }else if(reached&&!state.safe){
       const missing=[];
-      if(state.missionIndex===1){if(state.supplies<4)missing.push((4-state.supplies)+" supplies");if(!state.rescued)missing.push("rescue the shopkeeper");}
+      if(state.missionIndex===1){if(state.supplies<4)missing.push((4-state.supplies)+" supplies");if(!state.rescued)missing.push("rescue the shopkeeper");else if(!survivorAtSafe)missing.push("wait for the shopkeeper to reach you");}
       else if(state.activatedRelays.length<3)missing.push((3-state.activatedRelays.length)+" radio relays");
       document.getElementById("message").textContent="Safe zone locked — "+missing.join(" and ")+".";
       document.getElementById("status").textContent="Before extraction: "+missing.join(", ")+".";
@@ -673,7 +703,7 @@
   else{state.paused=true;menuOverlay.hidden=false;pauseOverlay.hidden=true;}
   document.getElementById("retry-button").addEventListener("click",()=>{
     if(state.safe&&state.missionIndex===1){
-      state.missionIndex=2;state.safe=false;state.ended=false;state.activatedRelays=[];document.getElementById("supply-pill").hidden=true;
+      state.missionIndex=2;state.safe=false;state.ended=false;state.activatedRelays=[];survivorRoot.setEnabled(false);document.getElementById("supply-pill").hidden=true;
       relayStations.forEach(item=>{item.active=false;item.root.setEnabled(true);});
       endOverlay.hidden=true;document.getElementById("message").textContent="Mission 2: Restore the emergency radio network.";
       document.getElementById("status").textContent="Activate all 3 radio relays across the city, then return to the safe zone.";
