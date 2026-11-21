@@ -295,3 +295,10 @@ When the user says **“C virus”** in a new chat:
 - Investigated the latest failed integrated browser run `44882334006`: dependency installation, production bundle and Chromium setup passed, but the scene never became ready during startup.
 - Traced the startup failure to the vehicle headlight implementation: `game.js` constructs `BABYLON.SpotLight`, but the modular Babylon bootstrap did not import or expose `SpotLight`. Added the missing Babylon spotlight import and exported it on the runtime namespace so the vehicle fleet can initialize.
 - This is a source-level root-cause fix; the next integrated browser workflow must pass before claiming the game startup is repaired. No Android device test or APK is claimed.
+
+
+## 2026-11-21 — Android landscape lock and next development checkpoint
+- Confirmed the Android debug APK workflow completed successfully (run 44883408234) and uploaded artifact `C-virus-Zombies-debug-APK`.
+- Owner confirmed the basic APK runs well and requested forced landscape orientation before continuing game development.
+- Updated Android packaging workflow to set the generated Capacitor `MainActivity` to `android:screenOrientation="landscape"` before Gradle packaging. This locks the Android app to landscape; browser preview remains responsive and is not forcibly rotated.
+- Next implementation checkpoint: continue the Master Plan in order, prioritising Phase 2 mobile controller/camera ergonomics and Phase 3 hero production improvements. Keep work consolidated and avoid unnecessary test runs.
