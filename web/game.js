@@ -18,7 +18,33 @@
   const ground=BABYLON.MeshBuilder.CreateGround("ground",{width:130,height:130},scene); ground.material=pavement; ground.checkCollisions=true;
   const street=BABYLON.MeshBuilder.CreateGround("street",{width:15,height:115},scene); street.position.y=.025; street.material=road;
   for(let i=-5;i<=5;i++){const line=BABYLON.MeshBuilder.CreateBox("lane",{width:.12,height:.025,depth:4},scene);line.position.set(0,.06,i*10);line.material=mat("lane"+i,"#d7cfa7");}
-  function building(x,z,w,d,h,material){const b=BABYLON.MeshBuilder.CreateBox("building",{width:w,height:h,depth:d},scene);b.position.set(x,h/2,z);b.material=material;b.checkCollisions=true;for(let y=2;y<h-1;y+=3)for(let side=-1;side<=1;side+=2){const win=BABYLON.MeshBuilder.CreateBox("window",{width:1.1,height:1.25,depth:.08},scene);win.position.set(x+side*(w/2+.045),y,z-d/2-.02);win.material=windowMat;}}
+  function building(x,z,w,d,h,material){
+    const b=BABYLON.MeshBuilder.CreateBox("building",{width:w,height:h,depth:d},scene);b.position.set(x,h/2,z);b.material=material;b.checkCollisions=true;
+    const streetSide=x<0?1:-1,faceX=x+streetSide*(w/2+.055),faceRotation=Math.PI/2;
+    const frameMat=mat("facadeFrame"+x+z,"#d2c6ad"),doorMat=mat("shopDoor"+x+z,"#4b4035"),awningMat=mat("awning"+x+z,x<0?"#a94f3e":"#326b70"),metalMat=mat("facadeMetal"+x+z,"#4b5357");
+    // Street-facing windows with frames, sills and occasional shallow balconies.
+    for(let y=2.25;y<h-1;y+=3){
+      for(let lane=-1;lane<=1;lane++){
+        const wz=z+lane*3.1;
+        const frame=BABYLON.MeshBuilder.CreateBox("windowFrame",{width:1.34,height:1.48,depth:.13},scene);frame.position.set(faceX,y,wz);frame.rotation.y=faceRotation;frame.material=frameMat;
+        const win=BABYLON.MeshBuilder.CreateBox("windowGlass",{width:1.12,height:1.24,depth:.09},scene);win.position.set(faceX+streetSide*.075,y,wz);win.rotation.y=faceRotation;win.material=windowMat;
+        const sill=BABYLON.MeshBuilder.CreateBox("windowSill",{width:1.48,height:.09,depth:.25},scene);sill.position.set(faceX+streetSide*.16,y-.77,wz);sill.rotation.y=faceRotation;sill.material=frameMat;
+        if(y>3.5&&lane===0){
+          const balcony=BABYLON.MeshBuilder.CreateBox("balconySlab",{width:2.05,height:.12,depth:1.55},scene);balcony.position.set(faceX+streetSide*.58,y-.92,wz);balcony.material=metalMat;
+          const rail=BABYLON.MeshBuilder.CreateBox("balconyRail",{width:1.95,height:.48,depth:.07},scene);rail.position.set(faceX+streetSide*1.22,y-.66,wz);rail.rotation.y=faceRotation;rail.material=frameMat;
+          for(let post=-2;post<=2;post++){const bar=BABYLON.MeshBuilder.CreateBox("balconyBar",{width:.045,height:.46,depth:.07},scene);bar.position.set(faceX+streetSide*1.22,y-.66,wz+post*.38);bar.material=metalMat;}
+        }
+      }
+    }
+    // Shopfront entrance, sign panel and canopy at street level.
+    const door=BABYLON.MeshBuilder.CreateBox("shopDoor",{width:1.25,height:2.25,depth:.16},scene);door.position.set(faceX+streetSide*.11,1.13,z-2.35);door.rotation.y=faceRotation;door.material=doorMat;
+    const sign=BABYLON.MeshBuilder.CreateBox("shopSign",{width:3.8,height:.55,depth:.18},scene);sign.position.set(faceX+streetSide*.14,3.05,z);sign.rotation.y=faceRotation;sign.material=awningMat;
+    const canopy=BABYLON.MeshBuilder.CreateBox("shopCanopy",{width:4.2,height:.13,depth:1.15},scene);canopy.position.set(faceX+streetSide*.62,2.65,z);canopy.material=awningMat;
+    for(let post=-1;post<=1;post+=2){const support=BABYLON.MeshBuilder.CreateBox("canopySupport",{width:.09,height:1.15,depth:.09},scene);support.position.set(faceX+streetSide*1.05,2.05,z+post*1.9);support.material=metalMat;}
+    // Rooftop parapet and water tank details typical of the neighbourhood skyline.
+    const parapet=BABYLON.MeshBuilder.CreateBox("roofParapet",{width:w+.35,height:.55,depth:d+.35},scene);parapet.position.set(x,h+.18,z);parapet.material=frameMat;
+    const tank=BABYLON.MeshBuilder.CreateCylinder("roofWaterTank",{diameter:1.5,height:1.9,tessellation:16},scene);tank.position.set(x+streetSide*1.7,h+1.15,z+2.1);tank.material=metalMat;
+  }
   for(let z=-45;z<=45;z+=18){building(-13,z,10,12,9+(Math.abs(z)%3)*2,wallA);building(13,z,10,12,11,wallB);}
   // Collision boundaries keep the player inside the playable street block.
   for(const x of [-7.6,7.6]){const wall=BABYLON.MeshBuilder.CreateBox("streetBoundary",{width:.5,height:4,depth:120},scene);wall.position.set(x,2,0);wall.checkCollisions=true;wall.visibility=0.001;}
