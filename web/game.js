@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, missionIndex:1, activatedRelays:[]};
+  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, serviceOpen:false, missionIndex:1, activatedRelays:[]};
   const scene = new BABYLON.Scene(engine);
   scene.collisionsEnabled = true;
   scene.clearColor = new BABYLON.Color4(0.48,0.66,0.77,1);
@@ -132,6 +132,11 @@
   createInterior("POLICE",-4.8,-35);
   // Survivor safe-house hub and persistent supply storage.
   const safehouseCenter=new BABYLON.Vector3(8,0,-55);
+  const serviceCenter=new BABYLON.Vector3(18,0,-55);
+  const servicePad=BABYLON.MeshBuilder.CreateCylinder("vehicleServicePad",{diameter:7.2,height:.12,tessellation:32},scene);servicePad.position.set(serviceCenter.x,.06,serviceCenter.z);servicePad.material=mat("servicePadMat","#3d625a");
+  const pumpBase=BABYLON.MeshBuilder.CreateBox("fuelPumpBase",{width:.8,height:1.1,depth:.65},scene);pumpBase.position.set(19.6,.62,-55);pumpBase.material=mat("fuelPumpPaint","#d5bd4c");
+  const pumpScreen=BABYLON.MeshBuilder.CreateBox("fuelPumpScreen",{width:.48,height:.26,depth:.035},scene);pumpScreen.position.set(19.6,.88,-54.66);pumpScreen.material=mat("fuelPumpScreenMat","#183b3b");
+  const serviceSign=BABYLON.MeshBuilder.CreateBox("serviceSign",{width:3.2,height:.7,depth:.12},scene);serviceSign.position.set(18,2.5,-58.3);serviceSign.material=mat("serviceSignMat","#245c50");
   const baseFloor=BABYLON.MeshBuilder.CreateBox("safehouseFloor",{width:7,height:.18,depth:6},scene);baseFloor.position.set(8,-.09,-55);baseFloor.material=mat("safehouseConcrete","#777a76");baseFloor.checkCollisions=true;
   const baseRoof=BABYLON.MeshBuilder.CreateBox("safehouseRoof",{width:7.3,height:.22,depth:6.3},scene);baseRoof.position.set(8,3.15,-55);baseRoof.material=mat("safehouseRoofMat","#45515a");
   for(const x of [4.7,11.3])for(const z of [-57.8,-52.2]){const post=BABYLON.MeshBuilder.CreateBox("safehouseSupport",{width:.18,height:3.1,depth:.18},scene);post.position.set(x,1.55,z);post.material=mat("safehouseMetal","#46565d");}
@@ -300,7 +305,7 @@
         part(BABYLON.MeshBuilder.CreateBox("vehicleHeadlight",{width:Math.min(.42,width*.25),height:.18,depth:.06},scene),shirtMat,new BABYLON.Vector3(side*width*.27,-height*.02,length*.48));
       }
     }
-    return {root,type,parts};
+    return {root,type,parts,fuel:100,condition:100,lastImpact:0};
   }
   const fleet=[
     createVehicle("SEDAN",3.3,31,"#315f78"),
@@ -319,6 +324,8 @@
   const storagePanel=document.getElementById("storage-panel");
   const storageStatus=document.getElementById("storage-status");
   const rescueButton=document.getElementById("rescue");
+  const serviceButton=document.getElementById("service-button");
+  const servicePanel=document.getElementById("service-panel");
   function nearestVehicle(){
     // Interaction range is measured on the ground plane; character/vehicle
     // collider heights must not reduce the usable touchscreen approach radius.
@@ -347,6 +354,31 @@
     }
   }
   driveButton.addEventListener("click",toggleVehicle);
+  const updateServicePanel=()=>{
+    const selected=nearestVehicle().item||activeVehicle;
+    document.getElementById("service-vehicle-name").textContent=selected.type;
+    document.getElementById("service-fuel-value").textContent=Math.round(selected.fuel)+"%";
+    document.getElementById("service-condition-value").textContent=Math.round(selected.condition)+"%";
+    document.getElementById("refuel-vehicle").disabled=selected.fuel>=99;
+    document.getElementById("repair-vehicle").disabled=selected.condition>=99||state.inventory.parts<1;
+    servicePanel.dataset.vehicle=selected.type;
+  };
+  serviceButton.addEventListener("click",()=>{
+    if(state.paused||state.ended||driving)return;
+    updateServicePanel();state.serviceOpen=true;state.moveX=0;state.moveY=0;state.sprint=false;servicePanel.hidden=false;
+  });
+  document.getElementById("close-service").addEventListener("click",()=>{state.serviceOpen=false;servicePanel.hidden=true;});
+  document.getElementById("refuel-vehicle").addEventListener("click",()=>{
+    const selected=fleet.find(v=>v.type===servicePanel.dataset.vehicle)||activeVehicle;
+    selected.fuel=100;updateServicePanel();saveProgress();
+    document.getElementById("service-feedback").textContent="Fuel tank refilled. Ready to drive.";
+  });
+  document.getElementById("repair-vehicle").addEventListener("click",()=>{
+    const selected=fleet.find(v=>v.type===servicePanel.dataset.vehicle)||activeVehicle;
+    if(state.inventory.parts<1){document.getElementById("service-feedback").textContent="You need one spare part to repair this vehicle.";return;}
+    state.inventory.parts--;selected.condition=100;updateInventory();updateServicePanel();saveProgress();
+    document.getElementById("service-feedback").textContent="Vehicle repaired. One spare part used.";
+  });
   rescueButton.addEventListener("click",()=>{
     if(state.paused||state.ended||driving)return;
     if(state.missionIndex===1){
@@ -386,7 +418,7 @@
   state.stamina=Number.isFinite(savedGame?.stamina)?BABYLON.Scalar.Clamp(savedGame.stamina,0,100):100;
   document.getElementById("stamina").style.width=state.stamina+"%";
   if(Array.isArray(savedGame?.vehicle)&&savedGame.vehicle.length===3&&savedGame.vehicle.every(Number.isFinite))vehicle.position.set(savedGame.vehicle[0],.58,savedGame.vehicle[2]);
-  if(Array.isArray(savedGame?.fleet))savedGame.fleet.forEach((entry,i)=>{if(i<fleet.length&&Array.isArray(entry)&&entry.length===4&&entry.every(Number.isFinite)){fleet[i].root.position.set(entry[0],fleet[i].root.position.y,entry[2]);fleet[i].root.rotation.y=entry[3];}});
+  if(Array.isArray(savedGame?.fleet))savedGame.fleet.forEach((entry,i)=>{if(i<fleet.length&&Array.isArray(entry)&&entry.length>=4&&entry.slice(0,4).every(Number.isFinite)){fleet[i].root.position.set(entry[0],fleet[i].root.position.y,entry[2]);fleet[i].root.rotation.y=entry[3];if(Number.isFinite(entry[4]))fleet[i].fuel=BABYLON.Scalar.Clamp(entry[4],0,100);if(Number.isFinite(entry[5]))fleet[i].condition=BABYLON.Scalar.Clamp(entry[5],0,100);}});
   if(Array.isArray(savedGame?.player)&&savedGame.player.length===3&&savedGame.player.every(Number.isFinite)){
     player.position.set(savedGame.player[0],.95,savedGame.player[2]);
     // A save made while driving stores the hero at the vehicle position.
@@ -462,7 +494,7 @@
   function saveProgress(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
-        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,stash:state.stash,missionIndex:state.missionIndex,activatedRelays:state.activatedRelays,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,fleet:fleet.map(v=>[v.root.position.x,v.root.position.y,v.root.position.z,v.root.rotation.y]),
+        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,stash:state.stash,missionIndex:state.missionIndex,activatedRelays:state.activatedRelays,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,fleet:fleet.map(v=>[v.root.position.x,v.root.position.y,v.root.position.z,v.root.rotation.y,v.fuel,v.condition]),
         player:[player.position.x,player.position.y,player.position.z],
         vehicle:[vehicle.position.x,vehicle.position.y,vehicle.position.z],
         collected:pickups.filter(p=>p.collected).map(p=>p.phase)
@@ -470,9 +502,13 @@
     }catch(error){console.warn("Save unavailable:",error);}
   }
   window.addEventListener("pagehide",saveProgress);
+  fleet.forEach(item=>item.root.onCollideObservable.add(()=>{
+    const now=performance.now();
+    if(now-item.lastImpact>1100){item.lastImpact=now;item.condition=Math.max(0,item.condition-4);}
+  }));
   let saveClock=0, damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
-  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
+  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
   let worldClock=0;
   let subtitleTimer=null;
   const subtitlePanel=document.getElementById("subtitles");
@@ -491,7 +527,7 @@
     showSubtitle("ہمیں ایمرجنسی ریڈیو نیٹ ورک بحال کرنا ہے۔","Restore the emergency radio network.",5200);
   }
   scene.onBeforeRenderObservable.add(()=>{
-    if(state.paused||state.ended||state.inventoryOpen)return;
+    if(state.paused||state.ended||state.inventoryOpen||state.serviceOpen)return;
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
     worldClock+=dt;
     const daylight=(Math.sin(worldClock/90*Math.PI*2-Math.PI/2)+1)/2;
@@ -534,12 +570,24 @@
     if(driving){
       const throttle=-state.moveY;
       if(Math.abs(throttle)>.08||Math.abs(state.moveX)>.08){
-        activeVehicle.root.rotation.y+=state.moveX*1.55*dt*(throttle<0?-1:1);
-        const heading=new BABYLON.Vector3(Math.sin(activeVehicle.root.rotation.y),0,Math.cos(activeVehicle.root.rotation.y));
-        const driveSpeed=state.sprint?10:activeVehicle.type==="MOTORCYCLE"?8.5:activeVehicle.type==="CHINGCHI"?5.4:activeVehicle.type==="4K BUS"?4.2:6.2;
-        activeVehicle.root.moveWithCollisions(heading.scale(throttle*driveSpeed*dt));
+        if(activeVehicle.fuel<=0||activeVehicle.condition<=0){
+          document.getElementById("status").textContent=activeVehicle.fuel<=0?"Out of fuel — visit the safe-house service bay.":"Vehicle needs repairs — visit the safe-house service bay.";
+        }else{
+          activeVehicle.fuel=Math.max(0,activeVehicle.fuel-dt*(Math.abs(throttle)>.08?1.35:.35));
+          activeVehicle.root.rotation.y+=state.moveX*1.55*dt*(throttle<0?-1:1);
+          const heading=new BABYLON.Vector3(Math.sin(activeVehicle.root.rotation.y),0,Math.cos(activeVehicle.root.rotation.y));
+          const baseSpeed=state.sprint?10:activeVehicle.type==="MOTORCYCLE"?8.5:activeVehicle.type==="CHINGCHI"?5.4:activeVehicle.type==="4K BUS"?4.2:6.2;
+          const driveSpeed=baseSpeed*(.35+.65*activeVehicle.condition/100);
+          activeVehicle.root.moveWithCollisions(heading.scale(throttle*driveSpeed*dt));
+        }
       }
       player.position.copyFrom(activeVehicle.root.position);
+      const vehicleStatus=document.getElementById("vehicle-status");
+      vehicleStatus.hidden=!driving;
+      document.getElementById("vehicle-fuel").style.width=activeVehicle.fuel+"%";
+      document.getElementById("vehicle-condition").style.width=activeVehicle.condition+"%";
+      document.getElementById("vehicle-fuel-label").textContent=Math.round(activeVehicle.fuel)+"%";
+      document.getElementById("vehicle-condition-label").textContent=Math.round(activeVehicle.condition)+"%";
     }
     if(!driving&&!state.safe&&state.health>0){
       const wantsSprint=(state.sprint||keys.shift)&&move.lengthSquared()>.01&&state.stamina>1;
@@ -610,6 +658,8 @@
     const nearest=nearestVehicle();
     vehiclePrompt.hidden=!driving&&nearest.distance>4.8;
     vehiclePrompt.textContent=driving?"Tap EXIT to leave "+activeVehicle.type:"Tap DRIVE to enter "+nearest.item.type;
+    const serviceDistance=Math.hypot(player.position.x-serviceCenter.x,player.position.z-serviceCenter.z);
+    serviceButton.hidden=driving||serviceDistance>5.2||nearest.distance>8||state.paused||state.ended;
     const baseDistance=BABYLON.Vector3.Distance(player.position,safehouseCenter);
     storageButton.hidden=driving||baseDistance>4.2||state.paused||state.ended;
     let nearestRoom=null,nearestDoor=Infinity,insideRoom=null;
