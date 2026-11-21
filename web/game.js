@@ -47,6 +47,7 @@
   function saveAudioSettings(){try{localStorage.setItem("cvirus-audio-v1",JSON.stringify(audioSettings));}catch{}}
   const settingsPanel=document.getElementById("settings-panel");
   document.getElementById("settings-button").addEventListener("click",()=>{initAudio();settingsPanel.hidden=false;playCue("tap");});
+  document.getElementById("menu-settings-button").addEventListener("click",()=>{initAudio();settingsPanel.hidden=false;playCue("tap");});
   document.getElementById("close-settings").addEventListener("click",()=>{settingsPanel.hidden=true;playCue("tap");});
   for(const key of ["music","effects"]){
     const slider=document.getElementById(key+"-volume");

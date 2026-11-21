@@ -68,7 +68,7 @@
 @media(max-width:420px){#vehicle-status{top:108px;width:128px;font-size:8px}#action-buttons{gap:6px}#action-buttons button{width:58px;height:58px;font-size:10px}}
 
 #top-actions #settings-button{position:static}
-#settings-panel{position:absolute;z-index:14;left:50%;top:50%;transform:translate(-50%,-50%);width:min(370px,90vw);padding:18px;border:1px solid #8bb8d588;border-radius:14px;background:#071a1bf5;color:#fff;box-shadow:0 18px 55px #000c;pointer-events:auto}
+#settings-panel{position:absolute;z-index:25;left:50%;top:50%;transform:translate(-50%,-50%);width:min(370px,90vw);padding:18px;border:1px solid #8bb8d588;border-radius:14px;background:#071a1bf5;color:#fff;box-shadow:0 18px 55px #000c;pointer-events:auto}
 #settings-panel[hidden]{display:none}
 .volume-row{padding:10px 2px;border-bottom:1px solid #ffffff20}.volume-row label{display:flex;justify-content:space-between;font-size:11px;font-weight:800;letter-spacing:.5px}.volume-row label b{color:#f2d65a}.volume-row input{width:100%;margin:12px 0 3px;accent-color:#e5c84c}
 
