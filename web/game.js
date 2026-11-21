@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:false, ended:false, inventoryOpen:false};
+  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false};
   const scene = new BABYLON.Scene(engine);
   scene.collisionsEnabled = true;
   scene.clearColor = new BABYLON.Color4(0.48,0.66,0.77,1);
@@ -315,6 +315,7 @@
   updateInventory();
   const inventoryButton=document.getElementById("inventory-button");
   inventoryButton.addEventListener("click",()=>{inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}});
+  const menuOverlay=document.getElementById("main-menu");
   const endOverlay=document.getElementById("end-overlay");
   const endTitle=document.getElementById("end-title");
   const endText=document.getElementById("end-text");
@@ -472,6 +473,22 @@
   }
   pauseButton.addEventListener("click",()=>setPaused(!state.paused));
   resumeButton.addEventListener("click",()=>setPaused(false));
+  const continueButton=document.getElementById("continue-game");
+  const newGameButton=document.getElementById("new-game");
+  const mainMenuButton=document.getElementById("main-menu-button");
+  continueButton.disabled=!savedGame;
+  continueButton.addEventListener("click",()=>{menuOverlay.hidden=true;setPaused(false);});
+  newGameButton.addEventListener("click",()=>{
+    try{localStorage.removeItem(SAVE_KEY);sessionStorage.setItem("cvirus-start-new","1");}catch{}
+    window.location.reload();
+  });
+  mainMenuButton.addEventListener("click",()=>{
+    saveProgress();setPaused(true);pauseOverlay.hidden=true;menuOverlay.hidden=false;
+  });
+  let startNewGame=false;
+  try{startNewGame=sessionStorage.getItem("cvirus-start-new")==="1";if(startNewGame)sessionStorage.removeItem("cvirus-start-new");}catch{}
+  if(startNewGame){menuOverlay.hidden=true;setPaused(false);}
+  else{state.paused=true;menuOverlay.hidden=false;pauseOverlay.hidden=true;}
   document.getElementById("retry-button").addEventListener("click",()=>{localStorage.removeItem(SAVE_KEY);window.location.reload();});
   const doJump=()=>{if(grounded&&jumpCooldown===0&&!state.safe&&state.health>0){verticalVelocity=7.2;grounded=false;jumpCooldown=.22;}};
   window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){if(state.inventoryOpen){state.inventoryOpen=false;inventoryPanel.hidden=true;}else setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(key==="i"){inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}return;}if(state.paused||!inventoryPanel.hidden)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
