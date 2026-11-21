@@ -267,3 +267,8 @@ When the user says **“C virus”** in a new chat:
 ## Android packaging readiness
 - A manual GitHub Actions workflow now exists at `.github/workflows/build-android-apk.yml`. It builds and uploads a Capacitor debug APK artifact using Java 21 and Android SDK 36 when dispatched.
 - It has not yet been run. No Android project or APK artifact is currently generated in the repository; final build remains pending.
+
+
+## Latest character and audio notes
+- Rescued shopkeeper now has a basic procedural walking gait while following the player; this is still a simple blockout animation, not final character rigging.
+- The sound slider is labelled ambient sound to distinguish the generated ambience from the future licensed/original music soundtrack.

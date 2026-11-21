@@ -271,3 +271,8 @@ When the user says **“C virus”** in a new chat:
 ## 2026-11-21 — Android APK build pipeline prepared
 - Added a manual GitHub Actions workflow that installs Java 21 and Android SDK 36, builds the Vite game, generates/syncs the Capacitor Android project and uploads an installable debug APK artifact.
 - Workflow is intentionally manual and has not been run; no APK is claimed as built. Final APK creation remains for the release stage after game development is complete.
+
+
+## 2026-11-21 — Survivor escort animation
+- Added a simple alternating arm/leg gait while the rescued shopkeeper walks to catch up with the player, returning the limbs to idle when close enough.
+- Clarified the audio control label as ambient sound; it is generated ambience, not a recorded music track. Spoken Urdu dialogue remains pending.
