@@ -334,3 +334,12 @@ When the user says **“C virus”** in a new chat:
 - Added a cyan energy shield ability: 4.5 seconds active, 20 seconds cooldown, repels nearby zombies and prevents contact damage while active. It is an escape/defence ability, not an attack.
 - Integrated verification passed on commit `3e31ab2893564f6dfa305067e74b8adac0ac4d6d`: browser desktop/mobile smoke tests and Android debug APK build. APK SHA-256: `33a27dc213622967b32fbe54ce7547f58cd25d1321863561fe610e821a7c9b5a`.
 - Device-side visual/audio testing on a physical Android phone is still pending. Do not claim the walking pose or sound mix has been personally verified on-device.
+
+
+## 2026-11-21 — Ibrahim gait, responsive on-foot joystick and Super Water Gun
+- Refined Ibrahim's skinned locomotion: alternating thigh stride, knee flex, opposite upper-arm swing, bent elbow follow-through, hand/shoulder response and subtle torso twist/bounce. The browser test now checks that the walking pose actually drives the expected limb bones while the player is moving.
+- Added frame-rate-smoothed on-foot joystick input with a short response curve for more controlled starts/stops. Vehicle input remains direct and its existing steering/throttle logic was not changed.
+- Added the Super Water Gun as a mobile HUD action. It fires a visible blue water projectile with a short cooldown and no damage. A hit sends the zombie a long distance through a stylised airborne arc, spin, ground landing and recovery pose.
+- Added browser assertions for Ibrahim's animated limb bones, water projectile hit, airborne height, long-distance displacement, landing and recovery.
+- Integrated verification passed on commit `282a3618cc7d898e4cd8fccbef2290f82c0e7856`: desktop/mobile browser smoke workflow `44893068933` passed, and Android debug APK workflow `44893068950` passed. APK SHA-256: `327eb65c09a2c4aa60f72e00c339d63a5ce9facdb5bce5edd1510f878f7c2bb6`.
+- APK is a landscape-locked debug build. Physical-device visual/control testing remains pending. Ibrahim uses the existing bundled skinned Quaternius model; this pass improves its runtime animation but does not complete the Master Plan's final original character-art requirement.
