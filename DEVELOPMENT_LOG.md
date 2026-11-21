@@ -18,6 +18,10 @@
 
 ## Work recorded in this development session
 
+11. Added five articulated low-poly walker models (torso, head/face, arms, legs and boots) with independent walk-cycle motion while preserving the existing pursuit/contact-damage gameplay.
+12. Added four collectible supply crates along the street route. Collecting one increments the HUD supply counter and restores a small amount of health; reaching the safe zone now completes the supply-and-escape objective.
+13. Added a responsive supply counter to the HUD and updated the mission prompt. Changes are committed in `9b24f0258265f6ee6627dab004f9e2b75e08cf1c`, `faa135e1c6ce45a5e54c7d9318a6f56bc9211066` and `f704c31336361e702efbc99f8765caeccfdb1b85`.
+
 10. Diagnosed the previous CI failure from the actual GitHub Actions job log: the app bundle built successfully; only the walk-cycle assertion failed because it inspected a single animation phase. Updated `web/smoke-test.cjs` to sample eight frames over time. Commit: `2b14723a0e19f1ec1ce44f3184f128294b9c6973`. This is a test-stability correction, not a claim that the new run has passed.
 1. Re-read this file and `MASTER_PLAN.md` before resuming.
 2. Fixed player controller implementation: normalized diagonal movement, collision-aware movement, sprint stamina drain/recovery, jump cooldown, blur/visibility input reset, camera vertical look and desktop zoom.
@@ -31,7 +35,7 @@
 
 ## Verification evidence
 - Previous source-only validation workflow passed (run `44811652296`), but it predates the Vite production build.
-- Run `44814206896` completed with failure: dependency installation, Vite production build and Chromium installation passed; browser smoke test failed only at the single-frame walk-cycle assertion. Job log confirmed: `Hero walk-cycle animation did not respond to movement.` The assertion was changed to sample multiple frames in commit `2b14723a0e19f1ec1ce44f3184f128294b9c6973`; result of the new workflow run is not yet verified.
+- Run `44814206896` completed with failure: dependency installation, Vite production build and Chromium installation passed; browser smoke test failed only at the single-frame walk-cycle assertion. Job log confirmed: `Hero walk-cycle animation did not respond to movement.` The assertion was changed to sample multiple frames in commit `2b14723a0e19f1ec1ce44f3184f128294b9c6973`. Subsequent gameplay/HUD commits also triggered the workflow; their final result has not yet been retrieved.
 - Earlier browser-test attempts exposed real issues (test newline escaping, missing modular hero rig, and diagnostic visibility). Those were corrected in later commits; the current run is the authoritative verification attempt.
 - Do not report the latest desktop/mobile smoke test as passed until run `44814206896` has a completed `success` conclusion.
 - Browser emulation does not replace a real Android device check.
