@@ -766,7 +766,7 @@
     const right=new BABYLON.Vector3(-forward.z,0,forward.x);
     return forward.scale(-y).add(right.scale(x));
   }
-  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,get heroModelReady(){return heroModelReady;},get heroModelError(){return heroModelError;},get heroBoneNames(){return [...heroBoneNodes.keys()];},get audioState(){return audioContext?.state||"uninitialized";},get shield(){return heroShield;},moveVector:getMovementVector,get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
+  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,get heroModelReady(){return heroModelReady;},get heroModelError(){return heroModelError;},get heroBoneNames(){return [...heroBoneNodes.keys()];},get audioState(){return audioContext?.state||"uninitialized";},get touchState(){return {x:touchX,y:touchY,active};},get shield(){return heroShield;},moveVector:getMovementVector,get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
   let worldClock=0;
   let heroWalkPhase=0,footstepClock=0;
   let subtitleTimer=null;
