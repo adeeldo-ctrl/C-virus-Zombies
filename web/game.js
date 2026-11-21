@@ -4,7 +4,9 @@
   const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, serviceOpen:false, missionIndex:1, activatedRelays:[]};
   // Original procedural audio: ambient survival bed and short gameplay cues.
   const audioSettings={music:0.22,effects:0.55,look:1,quality:"high",...(()=>{try{return JSON.parse(localStorage.getItem("cvirus-audio-v1")||"{}");}catch{return {};}})()};
-  let audioContext=null,musicBus=null,effectsBus=null,ambientNodes=[];\n  const applyGraphicsQuality=()=>engine.setHardwareScalingLevel(audioSettings.quality==="low"?1.6:audioSettings.quality==="medium"?1.25:1);\n  applyGraphicsQuality();
+  let audioContext=null,musicBus=null,effectsBus=null,ambientNodes=[];
+  const applyGraphicsQuality=()=>engine.setHardwareScalingLevel(audioSettings.quality==="low"?1.6:audioSettings.quality==="medium"?1.25:1);
+  applyGraphicsQuality();
   function initAudio(){
     if(audioContext)return audioContext;
     const AudioCtx=window.AudioContext||window.webkitAudioContext;
@@ -352,7 +354,15 @@
         part(BABYLON.MeshBuilder.CreateBox("vehicleHeadlight",{width:Math.min(.42,width*.25),height:.18,depth:.06},scene),shirtMat,new BABYLON.Vector3(side*width*.27,-height*.02,length*.48));
       }
     }
-    const headlightMaterial=mat(type+"HeadlightGlow","#f6e7a0");headlightMaterial.emissiveColor=new BABYLON.Color3(.8,.72,.42);\n    const tailMaterial=mat(type+"TailLightGlow","#a92720");tailMaterial.emissiveColor=new BABYLON.Color3(.35,.025,.015);\n    const frontLights=[],rearLights=[];\n    for(const side of [-1,1]){\n      const front=BABYLON.MeshBuilder.CreateBox(type+"FrontLamp",{width:.22,height:.13,depth:.055},scene);front.parent=root;front.position.set(side*width*.31,-height*.02,length*.49);front.material=headlightMaterial;frontLights.push(front);\n      const rear=BABYLON.MeshBuilder.CreateBox(type+"RearLamp",{width:.2,height:.12,depth:.055},scene);rear.parent=root;rear.position.set(side*width*.31,-height*.02,-length*.49);rear.material=tailMaterial;rearLights.push(rear);\n    }\n    return {root,type,parts,fuel:100,condition:100,lastImpact:0,lightsOn:false,frontLights,rearLights};
+    const headlightMaterial=mat(type+"HeadlightGlow","#f6e7a0");headlightMaterial.emissiveColor=new BABYLON.Color3(.8,.72,.42);
+    const tailMaterial=mat(type+"TailLightGlow","#a92720");tailMaterial.emissiveColor=new BABYLON.Color3(.35,.025,.015);
+    const frontLights=[],rearLights=[];
+    for(const side of [-1,1]){
+      const front=BABYLON.MeshBuilder.CreateBox(type+"FrontLamp",{width:.22,height:.13,depth:.055},scene);front.parent=root;front.position.set(side*width*.31,-height*.02,length*.49);front.material=headlightMaterial;frontLights.push(front);
+      const rear=BABYLON.MeshBuilder.CreateBox(type+"RearLamp",{width:.2,height:.12,depth:.055},scene);rear.parent=root;rear.position.set(side*width*.31,-height*.02,-length*.49);rear.material=tailMaterial;rearLights.push(rear);
+    }
+    frontLights.forEach(mesh=>{mesh.isVisible=false;});
+    return {root,type,parts,fuel:100,condition:100,lastImpact:0,lightsOn:false,frontLights,rearLights};
   }
   const fleet=[
     createVehicle("SEDAN",3.3,31,"#315f78"),
@@ -638,7 +648,8 @@
         }
       }
       player.position.copyFrom(activeVehicle.root.position);
-      hornButton.hidden=!driving||state.paused||state.ended;lightsButton.hidden=!driving||state.paused||state.ended;\n      const vehicleStatus=document.getElementById("vehicle-status");
+      hornButton.hidden=!driving||state.paused||state.ended;lightsButton.hidden=!driving||state.paused||state.ended;
+      const vehicleStatus=document.getElementById("vehicle-status");
       vehicleStatus.hidden=!driving;
       document.getElementById("vehicle-fuel").style.width=activeVehicle.fuel+"%";
       document.getElementById("vehicle-condition").style.width=activeVehicle.condition+"%";

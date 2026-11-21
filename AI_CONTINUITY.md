@@ -238,7 +238,13 @@ When the user says **“C virus”** in a new chat:
 - Browser diagnostics exposed a missing Babylon.js side-effect registration: `DefaultCollisionCoordinator`. Added the official collision-coordinator side-effect import before scene creation.
 - Also registered Babylon ray/picking support and exposed `Ray` to the game runtime, which is required by zombie and survivor obstacle-steering code that calls `scene.pickWithRay`.
 - Source guidance confirms collision coordinator and ray registration are required when using Babylon's modular imports. The integrated browser workflow must verify this fix; no pass is claimed yet.
-\n\n## Latest implementation — Audio\n- Procedural ambient audio and synthesized gameplay cues are implemented; Settings exposes persistent separate ambient/music and effects levels.\n- Urdu spoken dialogue/voice acting remains outstanding; current Urdu dialogue remains subtitle text.\n- This batch has not yet been validated by a new CI run.\n
+
+
+## Latest implementation — Audio
+- Procedural ambient audio and synthesized gameplay cues are implemented; Settings exposes persistent separate ambient/music and effects levels.
+- Urdu spoken dialogue/voice acting remains outstanding; current Urdu dialogue remains subtitle text.
+- This batch has not yet been validated by a new CI run.
+
 
 ## Latest settings update
 - Settings now includes persistent Low/Medium/High graphics scaling and camera-look sensitivity in addition to separate ambient/effects volume.
