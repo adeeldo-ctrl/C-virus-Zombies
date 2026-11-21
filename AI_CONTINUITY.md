@@ -26,7 +26,7 @@ Whenever the owner starts a chat with **“C virus”**:
 The approved plan describes a third-person 3D zombie-survival adventure in an explorable Pakistani city. Preserve the requirements in `MASTER_PLAN.md`, including original detailed heroes/zombies, enterable buildings, Pakistani transport and drivable vehicles, a yellow hero health bar, Urdu dialogue/voice/subtitles, sound/music, mobile controls, survival systems, missions and Android APK delivery.
 
 ## Last recorded development checkpoint (2026-11-21)
-Read `DEVELOPMENT_LOG.md` for the authoritative full details. Summary:
+Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has explicitly instructed: complete the entire game first, fix genuine errors as encountered, do not build the APK until the game work is complete, and avoid unnecessary/repeated testing. Keep only essential build/integration/regression checks. Summary:
 - Phase 1 (technical foundation): still in progress; Vite production build passed in GitHub Actions run `44814206896`, but the desktop/mobile Chromium smoke test was still running when the log was written. Check its final conclusion before claiming success.
 - Phase 2 (player foundation): in progress; third-person camera/controller, collision movement, sprint/stamina, jump, joystick, touch actions and camera look are implemented but not signed off.
 - Phase 3 (hero production): a procedural modular hero blockout and walk cycle exist; this is not final-quality art.
@@ -36,9 +36,9 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. Summary:
 - Zombie models, full city, vehicles, story, Urdu voice acting, full audio, inventory, saving and final menus remain unfinished.
 
 ## Important source locations
-- `web/index.html` — game HUD and touch UI
+- `web/index.html` — game HUD (health, stamina, supplies) and touch UI
 - `web/style.css` — responsive HUD, joystick and action controls
-- `web/game.js` — Babylon scene, player controller, hero blockout, walker pursuit and safe-zone objective
+- `web/game.js` — Babylon scene, player controller, hero blockout, articulated walker prototypes, supply pickups, pursuit and safe-zone objective
 - `web/main.js` — modular Babylon imports and gameplay bootstrap
 - `web/package.json` — Vite, Babylon.js, Playwright and Capacitor dependencies/scripts
 - `web/vite.config.js` — production build and relative asset base
