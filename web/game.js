@@ -490,7 +490,7 @@
   function fireWaterGun(){
     if(state.paused||state.ended||driving||state.health<=0||waterGunCooldown>0)return;
     const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
-    const origin=player.position.add(new BABYLON.Vector3(0,.92,0)).add(forward.scale(.62));
+    const origin=player.position.add(new BABYLON.Vector3(0,.55,0)).add(forward.scale(.62));
     let target=null,targetDistance=Infinity;
     for(const z of zombies){
       if(z.metadata.knockback)continue;
