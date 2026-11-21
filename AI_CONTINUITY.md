@@ -36,9 +36,9 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Zombie models, full city, vehicles, story, Urdu voice acting, full audio, inventory, saving and final menus remain unfinished.
 
 ## Important source locations
-- `web/index.html` — game HUD (health, stamina, supplies) and touch UI
-- `web/style.css` — responsive HUD, joystick and action controls
-- `web/game.js` — Babylon scene, player controller, hero blockout, articulated walker prototypes, supply pickups, pursuit and safe-zone objective
+- `web/index.html` — game HUD (health, stamina, supplies), pause overlay and touch UI
+- `web/style.css` — responsive HUD, supply counter, pause overlay, joystick and action controls
+- `web/game.js` — Babylon scene, player controller, detailed hero blockout, articulated walker prototypes, supply pickups, local save, pause/resume, pursuit and safe-zone objective
 - `web/main.js` — modular Babylon imports and gameplay bootstrap
 - `web/package.json` — Vite, Babylon.js, Playwright and Capacitor dependencies/scripts
 - `web/vite.config.js` — production build and relative asset base
