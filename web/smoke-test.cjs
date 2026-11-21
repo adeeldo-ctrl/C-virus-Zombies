@@ -125,6 +125,8 @@ const server = http.createServer((req,res) => {
     await mobile.waitForLoadState("domcontentloaded");
     await waitScene(mobile);
     const touch=await mobile.context().newCDPSession(mobile);
+    const stickHit=await mobile.evaluate(()=>document.elementFromPoint(76,768)?.closest("#stick")?.id==="stick");
+    if(!stickHit)throw new Error("Mobile action buttons overlap the movement joystick hit area.");
     const beforeTouch=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
     await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:76,y:768,id:1}]});
     await touch.send("Input.dispatchTouchEvent",{type:"touchMove",touchPoints:[{x:76,y:728,id:1}]});
