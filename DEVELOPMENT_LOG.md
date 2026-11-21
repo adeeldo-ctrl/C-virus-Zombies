@@ -1,6 +1,6 @@
 # C virus Zombies — Development Log
 
-**Last updated:** 2026-11-21  
+**Last updated:** 2026-11-21 (continuation resumed)  
 **Repository:** https://github.com/adeeldo-ctrl/C-virus-Zombies  
 **Branch:** `main`  
 **Active engine:** Babylon.js 9 (Vite-bundled browser-first 3D)  
@@ -8,7 +8,7 @@
 **Final target:** Android APK
 
 ## Exact continuation checkpoint
-- **Phase 1 — Technical foundation:** in progress. Babylon is now bundled locally through Vite (no CDN runtime dependency), and Capacitor configuration points to the production `dist/` folder. The production build passed in GitHub Actions run `44814206896`; its desktop/mobile Chromium gameplay smoke-test step is still running at the time of this checkpoint. Do not mark Phase 1 complete until that run is checked and an actual Android browser/device validation is performed.
+- **Phase 1 — Technical foundation:** in progress. Babylon is bundled locally through Vite (no CDN runtime dependency), and Capacitor points to the production `dist/` folder. GitHub Actions run `44814206896` completed: dependency installation, production build and Chromium installation passed; the browser smoke test failed on a phase-sensitive walk-cycle assertion (the test sampled one instant of a naturally oscillating animation). A follow-up commit `2b14723a0e19f1ec1ce44f3184f128294b9c6973` changes that assertion to sample across multiple frames. Await the resulting workflow run before marking the check passed. Real Android browser/device validation remains outstanding.
 - **Phase 2 — Player foundation:** implementation in progress; not yet signed off. Current work includes third-person follow camera, keyboard/touch movement, collision movement, sprint with stamina drain/recovery, jump, mobile joystick, mobile RUN/JUMP buttons, right-side camera look, vertical camera adjustment and desktop wheel zoom.
 - **Phase 3 — Hero production:** first original modular 3D hero blockout has been added: jacket/shirt, head/hair, backpack, articulated arms/legs and boots, with a procedural walk cycle. This is a prototype mesh rig, not final-quality art; production model/material/animation polish remains.
 - **Real Android device/browser test:** not performed.
@@ -17,6 +17,8 @@
 - **Zombie art, city, vehicles, story, Urdu voice acting, complete sound, inventory, saving and final menus:** not complete. Existing five walker capsules remain placeholders.
 
 ## Work recorded in this development session
+
+10. Diagnosed the previous CI failure from the actual GitHub Actions job log: the app bundle built successfully; only the walk-cycle assertion failed because it inspected a single animation phase. Updated `web/smoke-test.cjs` to sample eight frames over time. Commit: `2b14723a0e19f1ec1ce44f3184f128294b9c6973`. This is a test-stability correction, not a claim that the new run has passed.
 1. Re-read this file and `MASTER_PLAN.md` before resuming.
 2. Fixed player controller implementation: normalized diagonal movement, collision-aware movement, sprint stamina drain/recovery, jump cooldown, blur/visibility input reset, camera vertical look and desktop zoom.
 3. Added stamina HUD while preserving the required yellow health bar.
@@ -29,7 +31,7 @@
 
 ## Verification evidence
 - Previous source-only validation workflow passed (run `44811652296`), but it predates the Vite production build.
-- Current run `44814206896`: dependency installation passed; Vite production build passed; Chromium installation and browser smoke test were still in progress at log time.
+- Run `44814206896` completed with failure: dependency installation, Vite production build and Chromium installation passed; browser smoke test failed only at the single-frame walk-cycle assertion. Job log confirmed: `Hero walk-cycle animation did not respond to movement.` The assertion was changed to sample multiple frames in commit `2b14723a0e19f1ec1ce44f3184f128294b9c6973`; result of the new workflow run is not yet verified.
 - Earlier browser-test attempts exposed real issues (test newline escaping, missing modular hero rig, and diagnostic visibility). Those were corrected in later commits; the current run is the authoritative verification attempt.
 - Do not report the latest desktop/mobile smoke test as passed until run `44814206896` has a completed `success` conclusion.
 - Browser emulation does not replace a real Android device check.
@@ -46,7 +48,7 @@
 - `.github/workflows/validate-prototype.yml` — build and browser-test workflow.
 
 ## Remaining work — ordered
-1. Finish Phase 1: inspect run `44814206896`; fix any browser-test failure; validate on an actual Android browser/device when available; confirm Capacitor Android project generation works with Android Studio/SDK.
+1. Finish Phase 1: verify the workflow triggered by commit `2b14723a0e19f1ec1ce44f3184f128294b9c6973`; resolve any genuine remaining failure; later perform the one required Android browser/device validation and confirm Capacitor Android project generation with Android Studio/SDK.
 2. Finish Phase 2: refine controller/camera/collisions and mobile touch ergonomics; pass browser checks.
 3. Finish Phase 3: replace blockout with detailed original hero asset, rig and polished animations.
 4. Phase 4: original non-graphic zombie models, animation, navigation and fair evasion/survival AI.
