@@ -122,3 +122,7 @@
 
 #action-buttons #water-gun{width:72px;height:52px;border:1px solid #62dcff;background:linear-gradient(145deg,#087da5ed,#124b78ed);color:#e7fbff;font-size:9px;box-shadow:0 0 13px #25bfff66;touch-action:none}#action-buttons #water-gun:disabled{opacity:.62}#action-buttons #water-gun[hidden]{display:none}
 @media screen and (orientation:portrait){#action-buttons #water-gun{width:50px;height:50px;font-size:8px;letter-spacing:-.3px}}
+
+/* Survival needs: hydration and food meters */
+.needs-wrap{display:flex;align-items:center;gap:6px;margin-top:5px;width:min(280px,65vw);font-size:8px;font-weight:900;letter-spacing:.8px;color:#e8edf0;text-shadow:0 1px 3px #000}.need-track{height:6px;flex:1;min-width:48px;border-radius:6px;background:#17212a;border:1px solid #ffffff70;overflow:hidden}#thirst,#hunger{height:100%;width:100%;transition:width .2s}#thirst{background:#45c9ee}#hunger{background:#e6a94b}
+@media(max-height:520px){.needs-wrap{margin-top:3px;width:230px;font-size:7px}.need-track{height:5px}}
