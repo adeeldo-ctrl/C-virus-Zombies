@@ -42,3 +42,13 @@
 .main-menu-card #continue-game:disabled{opacity:.4}
 .menu-foot{margin-top:24px;color:#8fa4b0;font-size:9px;letter-spacing:2px}
 #pause-overlay .pause-card button+button{margin:10px 0 0 8px;background:#29465b;color:#fff}
+
+#garage-menu{position:absolute;inset:0;z-index:21;display:grid;place-items:center;padding:20px;background:#050d17ed;color:#fff}
+#garage-menu[hidden]{display:none}
+.garage-card{width:min(420px,92vw);padding:26px;border:1px solid #d8c15c66;border-radius:18px;background:linear-gradient(155deg,#172d40,#08131d);box-shadow:0 22px 80px #000b;text-align:center}
+.garage-title{margin-top:9px;font-size:26px;font-weight:1000;letter-spacing:2px;color:#f0d75b}
+.garage-card p{font-size:12px;color:#b8c8d2;margin:10px 0 18px}
+.garage-list{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.garage-list button,.garage-back{min-height:48px;padding:10px;border:1px solid #6c8b9e;border-radius:8px;background:#213d52;color:#fff;font-size:11px;font-weight:900;letter-spacing:.5px}
+.garage-list button:active{background:#a88e2e}
+.garage-back{width:100%;margin-top:14px;background:#d9bf51;border-color:#d9bf51;color:#101820}
