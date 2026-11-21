@@ -48,9 +48,20 @@
   }
   function saveAudioSettings(){try{localStorage.setItem("cvirus-audio-v1",JSON.stringify(audioSettings));}catch{}}
   const settingsPanel=document.getElementById("settings-panel");
-  document.getElementById("settings-button").addEventListener("click",()=>{initAudio();settingsPanel.hidden=false;playCue("tap");});
-  document.getElementById("menu-settings-button").addEventListener("click",()=>{initAudio();settingsPanel.hidden=false;playCue("tap");});
-  document.getElementById("close-settings").addEventListener("click",()=>{settingsPanel.hidden=true;playCue("tap");});
+  let settingsPausedGame=true;
+  function openSettings(){
+    settingsPausedGame=state.paused;
+    if(!state.paused)setPaused(true);
+    initAudio();settingsPanel.hidden=false;playCue("tap");
+  }
+  function closeSettings(){
+    settingsPanel.hidden=true;
+    if(!settingsPausedGame)setPaused(false);
+    playCue("tap");
+  }
+  document.getElementById("settings-button").addEventListener("click",openSettings);
+  document.getElementById("menu-settings-button").addEventListener("click",openSettings);
+  document.getElementById("close-settings").addEventListener("click",closeSettings);
   for(const key of ["music","effects"]){
     const slider=document.getElementById(key+"-volume");
     slider.value=audioSettings[key];
@@ -850,7 +861,7 @@
     }else{localStorage.removeItem(SAVE_KEY);window.location.reload();}
   });
   const doJump=()=>{const canJump=grounded||(player.position.y<=1.18&&verticalVelocity<=0);if(canJump&&jumpCooldown===0&&!state.safe&&state.health>0&&!driving){verticalVelocity=7.2;grounded=false;jumpCooldown=.22;}};
-  window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="h"&&driving){playCue("horn");return;}if(e.key.toLowerCase()==="l"&&driving){setVehicleLights(!activeVehicle.lightsOn);return;}if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){if(state.inventoryOpen){state.inventoryOpen=false;inventoryPanel.hidden=true;}else setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(key==="i"){inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}return;}if(state.paused||!inventoryPanel.hidden)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
+  window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="h"&&driving){playCue("horn");return;}if(e.key.toLowerCase()==="l"&&driving){setVehicleLights(!activeVehicle.lightsOn);return;}if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){if(!settingsPanel.hidden){closeSettings();return;}if(state.inventoryOpen){state.inventoryOpen=false;inventoryPanel.hidden=true;}else setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(key==="i"){inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}return;}if(state.paused||!inventoryPanel.hidden)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
   window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
   window.addEventListener("blur",()=>{for(const key in keys)keys[key]=false;state.sprint=false;});
   engine.runRenderLoop(()=>{const keyX=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const keyY=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);state.moveX=touchX!==0?touchX:keyX;state.moveY=touchY!==0?touchY:keyY;scene.render();});
