@@ -58,6 +58,21 @@ const server = http.createServer((req,res) => {
     await page.keyboard.down("d");await page.waitForTimeout(800);await page.keyboard.up("d");
     const sideEnd=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.x);
     if(!(sideEnd<7.4&&sideEnd>sideStart))throw new Error("Street boundary collision did not constrain lateral movement.");
+    // Verify vehicle proximity guidance, enter/exit, and usable backpack supplies.
+    await page.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.player.position.set(d.vehicle.position.x,.95,d.vehicle.position.z+3.2);});
+    await page.waitForTimeout(80);
+    if(!(await page.locator("#vehicle-prompt").isVisible()))throw new Error("Sedan enter prompt did not appear nearby.");
+    await page.locator("#drive").click();
+    if(!await page.evaluate(()=>window.__CVIRUS_DEBUG__.driving))throw new Error("Vehicle enter interaction failed.");
+    if(!(await page.locator("#vehicle-prompt").innerText()).includes("EXIT"))throw new Error("Vehicle exit prompt missing.");
+    await page.locator("#drive").click();
+    if(await page.evaluate(()=>window.__CVIRUS_DEBUG__.driving))throw new Error("Vehicle exit interaction failed.");
+    await page.locator("#inventory-button").click();
+    await page.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.state.health=50;d.state.inventory.medicine=1;document.getElementById("health").style.width="50%";document.getElementById("use-medicine").disabled=false;});
+    await page.locator("#use-medicine").click();
+    const consumed=await page.evaluate(()=>({health:window.__CVIRUS_DEBUG__.state.health,medicine:window.__CVIRUS_DEBUG__.state.inventory.medicine}));
+    if(consumed.health!==80||consumed.medicine!==0)throw new Error("Backpack medicine did not restore health and consume one item.");
+    await page.locator("#inventory-button").click();
     await page.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.pickups.forEach(p=>{p.collected=true;p.mesh.setEnabled(false);p.marker.setEnabled(false);});d.state.supplies=4;document.getElementById("supplies").textContent="4";d.player.position.copyFrom(d.safe.position);});
     await page.waitForFunction(()=>window.__CVIRUS_DEBUG__.state.safe,{timeout:5000});
     const message=await page.locator("#message").innerText();
