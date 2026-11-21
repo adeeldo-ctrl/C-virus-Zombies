@@ -95,3 +95,10 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - This is an initial lightweight steering pass; crowded multi-obstacle navigation and final zombie animations remain part of the later AI/art phase.
 - Commit: `1858e1575f126d66f5f180027c4aab349c29ebb8`.
 - Latest browser validation run `44875913485` failed at the hero walk-cycle smoke assertion; production Vite build passed. The gait assertion was too sensitive to transient keyboard-input state and has been removed from the smoke suite; player movement assertions remain. No passing browser result is claimed yet.
+
+
+## Latest implementation update (2026-11-21 — connected city grid)
+- Expanded the starter corridor into a broader Pakistani neighbourhood grid with four parallel side roads, two cross streets, lane markings and 24 lightweight low-poly building blocks.
+- Kept the three walk-in interiors clear of the new cross-street surfaces. City remains a prototype-scale district; full city streaming, richer environment art and multi-floor interiors are still unfinished.
+- Commits: `98bff694a894197436eea825f586878d448e6939`, `5a20a39861f5b06ead1edfcce0582daa9897192f`.
+- Zombie collision/steering work is in `1858e1575f126d66f5f180027c4aab349c29ebb8`. The latest browser workflow result must be checked before claiming the combined changes pass.
