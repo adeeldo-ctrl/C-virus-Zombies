@@ -309,3 +309,11 @@ When the user says **“C virus”** in a new chat:
 
 - 2026-11-21 Ibrahim hero pass: layered field clothing, cargo pockets, knee guards, gloves, lower forearms/shins and articulated elbows/knees are added. Idle, walk, sprint, crouch and jump poses are more distinct. Portrait/browser CSS remains untouched. This is still procedural prototype art, not final production character assets.
 - 2026-11-21: Ibrahim now loads a bundled Quaternius Universal Base Characters skinned humanoid (65-bone rig, CC0 1.0) from `web/public/assets/hero/ibrahim.glb`. Runtime survivor palette, torso-attached pack/straps, and bone-driven idle/walk/run/crouch/jump poses are enabled; procedural blockout remains fallback. Asset source/license are documented beside the GLB. No portrait/browser CSS changes.
+
+
+## 2026-11-21 — Latest Android controls and character polish checkpoint
+- User reported that on-foot joystick direction remained inverted while vehicle controls felt correct. Fixed only the on-foot camera-relative vector; preserved all vehicle steering/throttle logic.
+- Improved Ibrahim's skinned walk cycle (alternating stride, knee flex, opposite arm swing, torso response and footfall bounce).
+- Moved mission subtitle notifications to the top-centre HUD area to keep the middle of the game view clear.
+- Added more layered anatomy/clothing details to the procedural zombie prototypes. Do not describe these as realistic/final: a proper authored zombie asset set and animation pipeline remain open requirements.
+- Browser and Android workflows for latest commit `db35f993` are pending. User has confirmed the previously installed APK works, but this new corrected APK has not yet been confirmed on-device.
