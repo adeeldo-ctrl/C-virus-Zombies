@@ -761,7 +761,12 @@
   }));
   let saveClock=0, damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
-  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,get heroModelReady(){return heroModelReady;},get heroModelError(){return heroModelError;},get heroBoneNames(){return [...heroBoneNodes.keys()];},get audioState(){return audioContext?.state||"uninitialized";},get shield(){return heroShield;},moveVector:(x,y)=>{const f=camera.getForwardRay().direction.clone();f.y=0;if(f.lengthSquared()<.0001)f.set(Math.sin(state.yaw),0,-Math.cos(state.yaw));f.normalize();const r=new BABYLON.Vector3(-f.z,0,f.x);return f.scale(-y).add(r.scale(x));},get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
+  function getMovementVector(x,y){
+    const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
+    const right=new BABYLON.Vector3(-forward.z,0,forward.x);
+    return forward.scale(-y).add(right.scale(x));
+  }
+  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,get heroModelReady(){return heroModelReady;},get heroModelError(){return heroModelError;},get heroBoneNames(){return [...heroBoneNodes.keys()];},get audioState(){return audioContext?.state||"uninitialized";},get shield(){return heroShield;},moveVector:getMovementVector,get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
   let worldClock=0;
   let heroWalkPhase=0,footstepClock=0;
   let subtitleTimer=null;
@@ -864,13 +869,9 @@
     // On-foot input is camera-relative. The follow camera sits behind the hero
     // on the -Z side at zero yaw, so joystick UP must travel toward -Z.
     // Vehicle throttle is handled separately below and is intentionally untouched.
-    // Read the actual camera view direction so joystick UP/LEFT/DOWN/RIGHT
-    // always match what the player sees, even after orbiting the camera.
-    const forward=camera.getForwardRay().direction.clone();forward.y=0;
-    if(forward.lengthSquared()<.0001)forward.set(Math.sin(state.yaw),0,-Math.cos(state.yaw));
-    forward.normalize();
-    const right=new BABYLON.Vector3(-forward.z,0,forward.x);
-    const move=forward.scale(-state.moveY).add(right.scale(state.moveX));
+    // Keep movement on the same orbit-yaw basis as the follow camera:
+    // UP = forward, LEFT = camera-left, DOWN = backward, RIGHT = camera-right.
+    const move=getMovementVector(state.moveX,state.moveY);
     if(move.lengthSquared()>1)move.normalize();
     jumpCooldown=Math.max(0,jumpCooldown-dt);
     if(move.lengthSquared()>0.001&&!state.safe&&state.health>0){move.normalize();player.rotation.y=Math.atan2(move.x,move.z);}
