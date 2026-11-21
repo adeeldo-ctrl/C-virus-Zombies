@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, serviceOpen:false, missionIndex:1, activatedRelays:[],braking:false,crouching:false,shieldUntil:0,shieldCooldownUntil:0};
+  const state = {health:100, stamina:100, thirst:100, hunger:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, serviceOpen:false, missionIndex:1, activatedRelays:[],braking:false,crouching:false,shieldUntil:0,shieldCooldownUntil:0};
   // Original procedural audio: ambient survival bed and short gameplay cues.
   const audioSettings={music:0.22,effects:0.55,look:1,quality:"high",...(()=>{try{return JSON.parse(localStorage.getItem("cvirus-audio-v1")||"{}");}catch{return {};}})()};
   let audioContext=null,musicBus=null,effectsBus=null,ambientNodes=[];
@@ -705,6 +705,10 @@
   if(state.rescued)survivorMarker.setEnabled(false);
   state.health=Number.isFinite(savedGame?.health)?BABYLON.Scalar.Clamp(savedGame.health,1,100):100;
   state.stamina=Number.isFinite(savedGame?.stamina)?BABYLON.Scalar.Clamp(savedGame.stamina,0,100):100;
+  state.thirst=Number.isFinite(savedGame?.thirst)?BABYLON.Scalar.Clamp(savedGame.thirst,0,100):100;
+  state.hunger=Number.isFinite(savedGame?.hunger)?BABYLON.Scalar.Clamp(savedGame.hunger,0,100):100;
+  document.getElementById("thirst").style.width=state.thirst+"%";
+  document.getElementById("hunger").style.width=state.hunger+"%";
   document.getElementById("stamina").style.width=state.stamina+"%";
   if(Array.isArray(savedGame?.vehicle)&&savedGame.vehicle.length===3&&savedGame.vehicle.every(Number.isFinite))vehicle.position.set(savedGame.vehicle[0],.58,savedGame.vehicle[2]);
   if(Array.isArray(savedGame?.fleet))savedGame.fleet.forEach((entry,i)=>{if(i<fleet.length&&Array.isArray(entry)&&entry.length>=4&&entry.slice(0,4).every(Number.isFinite)){fleet[i].root.position.set(entry[0],fleet[i].root.position.y,entry[2]);fleet[i].root.rotation.y=entry[3];if(Number.isFinite(entry[4]))fleet[i].fuel=BABYLON.Scalar.Clamp(entry[4],0,100);if(Number.isFinite(entry[5]))fleet[i].condition=BABYLON.Scalar.Clamp(entry[5],0,100);if(entry[6]===0||entry[6]===1){fleet[i].lightsOn=entry[6]===1;fleet[i].frontLights.forEach(mesh=>{mesh.isVisible=fleet[i].lightsOn;});fleet[i].headlightBeams.forEach(light=>light.setEnabled(fleet[i].lightsOn));}}});
@@ -733,8 +737,8 @@
   function updateInventory(){
     for(const key of ["water","food","medicine","parts"])document.getElementById("item-"+key).textContent=String(state.inventory[key]);
     document.getElementById("use-medicine").disabled=state.inventory.medicine<1||state.health>=100;
-    document.getElementById("use-water").disabled=state.inventory.water<1||state.stamina>=100;
-    document.getElementById("use-food").disabled=state.inventory.food<1||state.stamina>=100;
+    document.getElementById("use-water").disabled=state.inventory.water<1||state.thirst>=100;
+    document.getElementById("use-food").disabled=state.inventory.food<1||state.hunger>=100;
   }
   function updateStorage(){
     for(const key of ["water","food","medicine","parts"]){
@@ -763,8 +767,8 @@
   function consumeSupply(item){
     if(state.inventory[item]<1)return;
     if(item==="medicine"&&state.health<100){state.inventory.medicine--;state.health=Math.min(100,state.health+30);document.getElementById("health").style.width=state.health+"%";document.getElementById("status").textContent="Medicine used — health restored.";}
-    else if(item==="water"&&state.stamina<100){state.inventory.water--;state.stamina=Math.min(100,state.stamina+35);document.getElementById("stamina").style.width=state.stamina+"%";document.getElementById("status").textContent="Water used — stamina restored.";}
-    else if(item==="food"&&state.stamina<100){state.inventory.food--;state.stamina=Math.min(100,state.stamina+25);document.getElementById("stamina").style.width=state.stamina+"%";document.getElementById("status").textContent="Food used — stamina restored.";}
+    else if(item==="water"&&state.thirst<100){state.inventory.water--;state.thirst=Math.min(100,state.thirst+48);state.stamina=Math.min(100,state.stamina+12);document.getElementById("thirst").style.width=state.thirst+"%";document.getElementById("stamina").style.width=state.stamina+"%";document.getElementById("status").textContent="Water consumed — hydration restored.";}
+    else if(item==="food"&&state.hunger<100){state.inventory.food--;state.hunger=Math.min(100,state.hunger+42);state.stamina=Math.min(100,state.stamina+10);document.getElementById("hunger").style.width=state.hunger+"%";document.getElementById("stamina").style.width=state.stamina+"%";document.getElementById("status").textContent="Food consumed — hunger reduced.";}
     else return;
     updateInventory();saveProgress();
   }
@@ -783,7 +787,7 @@
   function saveProgress(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
-        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,stash:state.stash,missionIndex:state.missionIndex,activatedRelays:state.activatedRelays,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,fleet:fleet.map(v=>[v.root.position.x,v.root.position.y,v.root.position.z,v.root.rotation.y,v.fuel,v.condition,v.lightsOn?1:0]),
+        health:state.health,stamina:state.stamina,thirst:state.thirst,hunger:state.hunger,supplies:state.supplies,inventory:state.inventory,stash:state.stash,missionIndex:state.missionIndex,activatedRelays:state.activatedRelays,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,fleet:fleet.map(v=>[v.root.position.x,v.root.position.y,v.root.position.z,v.root.rotation.y,v.fuel,v.condition,v.lightsOn?1:0]),
         player:[player.position.x,player.position.y,player.position.z],
         vehicle:[vehicle.position.x,vehicle.position.y,vehicle.position.z],
         collected:pickups.filter(p=>p.collected).map(p=>p.phase)
@@ -795,7 +799,7 @@
     const now=performance.now();
     if(now-item.lastImpact>1100){item.lastImpact=now;item.condition=Math.max(0,item.condition-4);}
   }));
-  let saveClock=0, damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
+  let saveClock=0, damageTimer=0, survivalClock=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
   function getMovementVector(x,y){
     const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
@@ -827,6 +831,20 @@
     if(state.paused||state.ended||state.inventoryOpen||state.serviceOpen)return;
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
     worldClock+=dt;
+    survivalClock+=dt;
+    if(survivalClock>=1){
+      const elapsed=Math.floor(survivalClock);survivalClock-=elapsed;
+      if(!state.safe&&state.health>0){
+        state.thirst=Math.max(0,state.thirst-.055*elapsed);
+        state.hunger=Math.max(0,state.hunger-.032*elapsed);
+        if(state.thirst===0||state.hunger===0)state.health=Math.max(0,state.health-.45*elapsed);
+        document.getElementById("thirst").style.width=state.thirst+"%";
+        document.getElementById("hunger").style.width=state.hunger+"%";
+        document.getElementById("health").style.width=state.health+"%";
+        updateInventory();
+        if(state.thirst<20||state.hunger<20)document.getElementById("status").textContent=state.thirst<20?"Water is running low — find drinking water.":"Food is running low — find supplies.";
+      }
+    }
     waterGunCooldown=Math.max(0,waterGunCooldown-dt);
     for(let i=waterShots.length-1;i>=0;i--){
       const shot=waterShots[i],step=shot.direction.scale(28*dt);
