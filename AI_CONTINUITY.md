@@ -189,3 +189,10 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Root cause in the smoke setup: it teleported the player 1.4 units forward into the sedan's collision footprint. The test now places the player 2.3 units to the side (still inside the 4.8-unit interaction radius), explicitly resumes the scene, and uses Playwright's correct wait-options argument.
 - This is a test-position correction, not evidence of a game runtime pass. One consolidated run will be used to catch any remaining integration defects after the current gameplay batch.
 - APK remains deferred until the Master Plan scope and Android release checks are complete.
+
+
+## 2026-11-21 — Vehicle fuel and maintenance systems
+- Added per-vehicle fuel and condition values for all six transport types; both values persist with each vehicle's saved position and heading while older four-value vehicle saves remain compatible.
+- Driving consumes fuel. Empty tanks and fully damaged vehicles cannot accelerate; lower condition reduces speed. Vehicle collision events wear condition down with an impact cooldown.
+- Added a marked service bay beside the safe house, contextual Android SERVICE action, refuelling and repairs that consume one spare part. Driving HUD displays fuel and condition.
+- Extended the existing integrated flow to cover service interactions. Validation is pending; no browser-suite or Android-device pass is claimed.
