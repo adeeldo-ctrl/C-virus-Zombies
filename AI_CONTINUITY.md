@@ -40,6 +40,12 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - A backpack panel now tracks water, food, medicine and parts from collected crates and persists them; opening it pauses gameplay. A full equipment system and safe-house storage remain unfinished.
 - Full city/interiors, complete vehicle fleet, story progression, inventory, safe house and final menus remain unfinished.
 
+## Latest implementation update (2026-11-21 — survival usability fixes)
+- Corrected escaped CSS line breaks and player restore placement when a save was made while driving.
+- Backpack supplies are now consumable: medicine restores health, water and food restore stamina; unavailable/full-meter actions are disabled and item usage is saved.
+- Commits: `e6cd370357b0bb9277a4d33da6f48d9296c40cf2`, `f3bfd4c6f2547003eda61f6e9af717faa3c8dd2e`, `0b98cbedb5241b19691ba7275f014de29a759294`, `d9624f1a43621579a5a9d69fe55dc913c54260a6`, `74ed1ad634253848331fa82cb90449f81b90a7d0`.
+- Not yet verified by a fresh browser/device run.
+ 
 ## Latest implementation update (2026-11-21)
 - Added a drivable sedan, save persistence, distinct walker archetypes, Urdu subtitle presentation, day/night lighting and aligned the safe-zone smoke test with the four-crate objective.
 - Relevant commits: `da2be44d7e8f35cfdcaccc5b5dd29f6f3cbc4374`, `b4648c7204b8fe26848b87a28fa6541d28285811`, `ff23e5320ca1e2ff06704f619bedadb98c842f`, `fa7ec19f2881b20b8758f13616428a1296e7a935`, `f42b52293f52f98c5627ace2cef5e780a08052a5`, `6959ad2294118fdf30e4297fe99362b75e481c89`, `b47723ffa206e7a408fa0c8e6f8c1b76d36046f3`.
