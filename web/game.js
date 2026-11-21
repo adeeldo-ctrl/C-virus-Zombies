@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, sprint:false, paused:false};
+  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, sprint:false, paused:false, ended:false};
   const scene = new BABYLON.Scene(engine);
   scene.collisionsEnabled = true;
   scene.clearColor = new BABYLON.Color4(0.48,0.66,0.77,1);
@@ -115,6 +115,7 @@
   let savedGame=null;
   try{savedGame=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");}catch{savedGame=null;}
   state.supplies=Number.isInteger(savedGame?.supplies)?Math.max(0,Math.min(4,savedGame.supplies)):0;
+  state.safe=savedGame?.missionComplete===true;
   state.health=Number.isFinite(savedGame?.health)?BABYLON.Scalar.Clamp(savedGame.health,1,100):100;
   if(Array.isArray(savedGame?.player)&&savedGame.player.length===3&&savedGame.player.every(Number.isFinite)){
     player.position.set(savedGame.player[0],.95,savedGame.player[2]);
@@ -127,10 +128,14 @@
   });
   document.getElementById("supplies").textContent=String(state.supplies);
   document.getElementById("health").style.width=state.health+"%";
+  const endOverlay=document.getElementById("end-overlay");
+  const endTitle=document.getElementById("end-title");
+  const endText=document.getElementById("end-text");
+  if(state.safe){state.ended=true;endOverlay.hidden=false;endTitle.textContent="MISSION COMPLETE";endText.textContent="You reached the safe zone with all supplies.";document.getElementById("message").textContent="Mission complete — supplies secured!";document.getElementById("status").textContent="Safe zone secured. All supplies collected.";} 
   function saveProgress(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
-        health:state.health,supplies:state.supplies,yaw:state.yaw,
+        health:state.health,supplies:state.supplies,yaw:state.yaw,missionComplete:state.safe,
         player:[player.position.x,player.position.y,player.position.z],
         collected:pickups.filter(p=>p.collected).map(p=>p.phase)
       }));
@@ -141,7 +146,7 @@
   // Read-only debug surface used by the automated browser smoke test.
   window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups};
   scene.onBeforeRenderObservable.add(()=>{
-    if(state.paused)return;
+    if(state.paused||state.ended)return;
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
     saveClock+=dt;if(saveClock>=5){saveClock=0;saveProgress();}
     const moving=state.moveX*state.moveX+state.moveY*state.moveY>.025;
@@ -188,8 +193,9 @@
     zombies.forEach(z=>{if(state.safe||state.health<=0)return;const delta=player.position.subtract(z.position);delta.y=0;const dist=delta.length();if(dist>1.25&&dist<28){delta.normalize();z.position.addInPlace(delta.scale(1.45*dt));z.rotation.y=Math.atan2(delta.x,delta.z);}if(dist<1.7)near=true;});
     if(near&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
     const reached=BABYLON.Vector3.Distance(player.position,safe.position)<3;
-    if(reached){state.safe=true;document.getElementById("message").textContent="Safe zone reached — mission complete!";document.getElementById("status").textContent="Mission complete. Supplies collected: "+state.supplies+"/4.";saveProgress();}
-    else if(state.health<=0){document.getElementById("message").textContent="Health depleted — refresh to retry";document.getElementById("status").textContent="You were caught. Refresh the page to retry.";}
+    if(reached&&!state.safe&&state.supplies===4){state.safe=true;document.getElementById("message").textContent="Safe zone reached — mission complete!";document.getElementById("status").textContent="Mission complete. All 4 supplies secured.";endTitle.textContent="MISSION COMPLETE";endText.textContent="You reached the safe zone with all supplies.";endOverlay.hidden=false;saveProgress();}
+    else if(reached&&!state.safe){document.getElementById("message").textContent="Safe zone ahead — collect all 4 supplies first.";document.getElementById("status").textContent="Supplies secured: "+state.supplies+"/4. Find the remaining crates.";}
+    if(state.health<=0&&!state.safe&&!state.ended){state.ended=true;document.getElementById("message").textContent="Health depleted — mission failed";document.getElementById("status").textContent="Mission failed. Retry to start again.";endTitle.textContent="MISSION FAILED";endText.textContent="Try a different route and collect the supplies.";endOverlay.hidden=false;}
   });
   // Keyboard controls
   const keys={};
@@ -202,6 +208,7 @@
   }
   pauseButton.addEventListener("click",()=>setPaused(!state.paused));
   resumeButton.addEventListener("click",()=>setPaused(false));
+  document.getElementById("retry-button").addEventListener("click",()=>{localStorage.removeItem(SAVE_KEY);window.location.reload();});
   const doJump=()=>{if(grounded&&jumpCooldown===0&&!state.safe&&state.health>0){verticalVelocity=7.2;grounded=false;jumpCooldown=.22;}};
   window.addEventListener("keydown",e=>{if(e.key==="Escape"){setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(state.paused)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
   window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
