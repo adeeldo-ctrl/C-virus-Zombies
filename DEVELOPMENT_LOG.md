@@ -173,3 +173,11 @@ When the user says **“C virus”** in a new chat:
 - Added non-graphic zombie face detail: glowing eyes, sockets/brows, nose, mouth/teeth and torn-cloth/shoulder panels. Existing five walker archetype tuning and obstacle-aware navigation remain intact.
 - Commit: `4af7d0a103abab25fd3935f617ec49002323cdbe`.
 - These are procedural prototype meshes, not final rigged realistic character assets. Production-grade rigging/animation integration is still outstanding.
+
+
+## 2026-11-21 — Chingchi and safe-house storage
+- Added a distinct three-wheel Chingchi rickshaw to the drivable fleet and garage selection. It has its own passenger canopy/cabin, three-wheel layout, proximity entry/exit and tuned handling. The new vehicle was appended after the original five fleet slots so older saved vehicle-position arrays keep their original mapping.
+- Added a safe-house hub near the extraction area with a supply chest and contextual STORE action. The storage panel displays backpack/stash counts for water, food, medicine and parts, supports Store All and Take All (respecting the 99-item backpack cap), and persists stash quantities in the campaign save.
+- Commits: `4de6e33024670b432c8af7e678b1bda17c32cba4`, `361f44f56f0c1eae4fa0c6936f16c3c99a5da873`, `d89115535cd97f8dd219f0d97ec5b817057e8196`, `a82000cb4edc258fb519d768e12911862a7e2d70`.
+- Integrated GitHub workflow run `44877776879` is running; dependency installation was in progress at the last check. No pass is claimed. No APK built.
+- Remaining large requirements are still open: final rigged character assets/animations, larger multi-district world/interiors and streaming, multiple missions/boss, vehicle fuel/repair/audio, full safe-house progression/crafting, Urdu voice/music/SFX, settings/graphics controls and Android optimization/device validation.
