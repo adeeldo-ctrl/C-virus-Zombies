@@ -255,3 +255,9 @@ When the user says **“C virus”** in a new chat:
 - Added synthesized horn audio and working HORN/LIGHTS contextual buttons while driving, with keyboard H/L shortcuts on desktop.
 - Added front lamp meshes with visible on/off state and rear red lamp details to the vehicle fleet. Light state is kept per selected vehicle during the current session.
 - No new test run is claimed in this commit.
+
+
+## 2026-11-21 — Vehicle brake and lamp correction
+- Removed the old always-visible front lamp meshes so the new headlight toggle controls the actual visible front lamps.
+- Added a contextual touch BRAKE control while driving; holding it stops throttle input and lights the rear brake lamps. Brake state clears on release, exit and pause.
+- No new test run is claimed in this commit.

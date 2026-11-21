@@ -254,3 +254,7 @@ When the user says **“C virus”** in a new chat:
 ## Latest vehicle interaction update
 - Drivable fleet now has contextual horn and headlight toggles (touch controls plus H/L keyboard shortcuts), with generated horn sound and rear lamp details.
 - Vehicle lighting is visual lamp toggling; no simulated road illumination beams are claimed.
+
+
+## Latest driving controls
+- Vehicle controls now include touch BRAKE; holding it cuts throttle and illuminates rear brake lamps. Headlight toggling controls the front lamps without static duplicates.

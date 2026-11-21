@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, serviceOpen:false, missionIndex:1, activatedRelays:[]};
+  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, serviceOpen:false, missionIndex:1, activatedRelays:[],braking:false};
   // Original procedural audio: ambient survival bed and short gameplay cues.
   const audioSettings={music:0.22,effects:0.55,look:1,quality:"high",...(()=>{try{return JSON.parse(localStorage.getItem("cvirus-audio-v1")||"{}");}catch{return {};}})()};
   let audioContext=null,musicBus=null,effectsBus=null,ambientNodes=[];
@@ -350,9 +350,6 @@
       if(!isRickshaw&&!isMini&&!isBus){
         part(BABYLON.MeshBuilder.CreateBox("sedanRoof",{width:1.52,height:.12,depth:1.82},scene),dark,new BABYLON.Vector3(0,.9,-.12));
       }
-      for(const side of [-1,1]){
-        part(BABYLON.MeshBuilder.CreateBox("vehicleHeadlight",{width:Math.min(.42,width*.25),height:.18,depth:.06},scene),shirtMat,new BABYLON.Vector3(side*width*.27,-height*.02,length*.48));
-      }
     }
     const headlightMaterial=mat(type+"HeadlightGlow","#f6e7a0");headlightMaterial.emissiveColor=new BABYLON.Color3(.8,.72,.42);
     const tailMaterial=mat(type+"TailLightGlow","#a92720");tailMaterial.emissiveColor=new BABYLON.Color3(.35,.025,.015);
@@ -361,7 +358,7 @@
       const front=BABYLON.MeshBuilder.CreateBox(type+"FrontLamp",{width:.22,height:.13,depth:.055},scene);front.parent=root;front.position.set(side*width*.31,-height*.02,length*.49);front.material=headlightMaterial;frontLights.push(front);
       const rear=BABYLON.MeshBuilder.CreateBox(type+"RearLamp",{width:.2,height:.12,depth:.055},scene);rear.parent=root;rear.position.set(side*width*.31,-height*.02,-length*.49);rear.material=tailMaterial;rearLights.push(rear);
     }
-    frontLights.forEach(mesh=>{mesh.isVisible=false;});
+    frontLights.forEach(mesh=>{mesh.isVisible=false;});rearLights.forEach(mesh=>{mesh.isVisible=false;});
     return {root,type,parts,fuel:100,condition:100,lastImpact:0,lightsOn:false,frontLights,rearLights};
   }
   const fleet=[
@@ -375,7 +372,7 @@
   const vehicle=fleet[0].root;
   let activeVehicle=fleet[0],driving=false;
   const hornButton=document.getElementById("vehicle-horn");
-  const lightsButton=document.getElementById("vehicle-lights");
+  const lightsButton=document.getElementById("vehicle-lights");\n  const brakeButton=document.getElementById("vehicle-brake");\n  brakeButton.addEventListener("pointerdown",()=>{if(driving&&!state.paused&&!state.ended)state.braking=true;});\n  ["pointerup","pointercancel","pointerleave"].forEach(eventName=>brakeButton.addEventListener(eventName,()=>{state.braking=false;}));
   function setVehicleLights(on){
     activeVehicle.lightsOn=!!on;
     activeVehicle.frontLights.forEach(mesh=>{mesh.isVisible=activeVehicle.lightsOn;});
@@ -414,7 +411,7 @@
       driveButton.textContent="EXIT";
     }else{
       driving=false;document.getElementById("vehicle-status").hidden=true;player.position.copyFrom(activeVehicle.root.position);player.position.x+=activeVehicle.type==="MOTORCYCLE"?1.1:activeVehicle.type==="CHINGCHI"?1.9:1.6;player.position.y=.95;
-      player.rotation.y=activeVehicle.root.rotation.y;player.setEnabled(true);camera.lockedTarget=player;hornButton.hidden=true;lightsButton.hidden=true;
+      player.rotation.y=activeVehicle.root.rotation.y;player.setEnabled(true);camera.lockedTarget=player;hornButton.hidden=true;lightsButton.hidden=true;brakeButton.hidden=true;state.braking=false;
       document.getElementById("status").textContent="On foot — approach a parked vehicle and tap DRIVE.";
       driveButton.textContent="DRIVE";
     }
@@ -634,7 +631,7 @@
     jumpCooldown=Math.max(0,jumpCooldown-dt);
     if(move.lengthSquared()>0.001&&!state.safe&&state.health>0){move.normalize();player.rotation.y=Math.atan2(move.x,move.z);}
     if(driving){
-      const throttle=-state.moveY;
+      const throttle=state.braking?0:-state.moveY;\n      activeVehicle.rearLights.forEach(mesh=>{mesh.isVisible=state.braking;});
       if(Math.abs(throttle)>.08||Math.abs(state.moveX)>.08){
         if(activeVehicle.fuel<=0||activeVehicle.condition<=0){
           document.getElementById("status").textContent=activeVehicle.fuel<=0?"Out of fuel — visit the safe-house service bay.":"Vehicle needs repairs — visit the safe-house service bay.";
@@ -648,7 +645,7 @@
         }
       }
       player.position.copyFrom(activeVehicle.root.position);
-      hornButton.hidden=!driving||state.paused||state.ended;lightsButton.hidden=!driving||state.paused||state.ended;
+      hornButton.hidden=!driving||state.paused||state.ended;lightsButton.hidden=!driving||state.paused||state.ended;brakeButton.hidden=!driving||state.paused||state.ended;
       const vehicleStatus=document.getElementById("vehicle-status");
       vehicleStatus.hidden=!driving;
       document.getElementById("vehicle-fuel").style.width=activeVehicle.fuel+"%";
@@ -784,7 +781,7 @@
   const resumeButton=document.getElementById("resume-button");
   function setPaused(value){
     state.paused=!!value;pauseOverlay.hidden=!state.paused;
-    if(state.paused){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}
+    if(state.paused){state.sprint=false;state.braking=false;touchX=0;touchY=0;reset();saveProgress();}
   }
   pauseButton.addEventListener("click",()=>setPaused(!state.paused));
   resumeButton.addEventListener("click",()=>setPaused(false));
