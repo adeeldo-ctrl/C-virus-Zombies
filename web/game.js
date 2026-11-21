@@ -433,14 +433,19 @@
     };
     const leftArm=limb("walkerLeftArm",-.35,.37,.65,zombieSkin),rightArm=limb("walkerRightArm",.35,.37,.65,zombieSkin);
     const leftLeg=limb("walkerLeftLeg",-.15,-.29,.7,zombieDark),rightLeg=limb("walkerRightLeg",.15,-.29,.7,zombieDark);
+    const lowerArms=[],lowerLegs=[];
     for(const [side,arm,leg] of [[-1,leftArm,leftLeg],[1,rightArm,rightLeg]]){
-      const forearm=piece("walkerForearm",BABYLON.MeshBuilder.CreateCylinder("walkerForearmMesh",{height:.34,diameter:.17,tessellation:10},scene),zombieSkin,arm);forearm.position.y=-.48;forearm.rotation.z=side*-.08;
-      const hand=piece("walkerHand",BABYLON.MeshBuilder.CreateSphere("walkerHandMesh",{diameter:.19,segments:10},scene),zombieSkin,arm);hand.position.set(0,-.66,.015);hand.scaling.set(.85,1.15,.72);
-      const knee=piece("walkerKnee",BABYLON.MeshBuilder.CreateSphere("walkerKneeMesh",{diameter:.25,segments:10},scene),zombieDark,leg);knee.position.set(0,-.48,.025);knee.scaling.set(1,.8,.9);
-      const shin=piece("walkerShin",BABYLON.MeshBuilder.CreateCylinder("walkerShinMesh",{height:.36,diameterTop:.20,diameterBottom:.16,tessellation:10},scene),zombieDark,leg);shin.position.y=-.68;
-      const boot=piece("walkerBoot",BABYLON.MeshBuilder.CreateBox("walkerBoot",{width:.22,height:.15,depth:.3},scene),zombieDark,leg);boot.position.set(0,-.88,.10);
+      const elbow=new BABYLON.TransformNode("walkerElbowPivot"+i+"_"+side,scene);elbow.parent=arm;elbow.position.y=-.34;
+      const forearm=piece("walkerForearm",BABYLON.MeshBuilder.CreateCylinder("walkerForearmMesh",{height:.34,diameter:.17,tessellation:10},scene),zombieSkin,elbow);forearm.position.y=-.17;forearm.rotation.z=side*-.08;
+      const hand=piece("walkerHand",BABYLON.MeshBuilder.CreateSphere("walkerHandMesh",{diameter:.19,segments:10},scene),zombieSkin,elbow);hand.position.set(0,-.34,.015);hand.scaling.set(.85,1.15,.72);
+      lowerArms.push(elbow);
+      const kneePivot=new BABYLON.TransformNode("walkerKneePivot"+i+"_"+side,scene);kneePivot.parent=leg;kneePivot.position.y=-.35;
+      const knee=piece("walkerKnee",BABYLON.MeshBuilder.CreateSphere("walkerKneeMesh",{diameter:.25,segments:10},scene),zombieDark,kneePivot);knee.position.set(0,0,.025);knee.scaling.set(1,.8,.9);
+      const shin=piece("walkerShin",BABYLON.MeshBuilder.CreateCylinder("walkerShinMesh",{height:.36,diameterTop:.20,diameterBottom:.16,tessellation:10},scene),zombieDark,kneePivot);shin.position.y=-.18;
+      const boot=piece("walkerBoot",BABYLON.MeshBuilder.CreateBox("walkerBoot",{width:.22,height:.15,depth:.3},scene),zombieDark,kneePivot);boot.position.set(0,-.53,.10);
+      lowerLegs.push(kneePivot);
     }
-    root.rig={leftArm,rightArm,leftLeg,rightLeg,phase:i*.83};
+    root.rig={leftArm,rightArm,leftLeg,rightLeg,lowerArms,lowerLegs,torso,head,phase:i*.83};
     return root;
   }
   const zombies=Array.from({length:5},(_,i)=>createWalker(i));
@@ -934,12 +939,26 @@
       }
       if(walkDirection){
         z.rotation.y=Math.atan2(walkDirection.x,walkDirection.z);
-        const gait=Math.sin(performance.now()*.007+z.metadata.phase)*(chasing?.48:.18);
-        z.rig.leftLeg.rotation.x=gait;z.rig.rightLeg.rotation.x=-gait;
-        z.rig.leftArm.rotation.x=-gait*.65;z.rig.rightArm.rotation.x=gait*.65;
+        const phase=performance.now()*.007*(z.metadata.archetype==="SPRINTER"?1.22:z.metadata.archetype==="GUARDIAN"?.78:1)+z.metadata.phase;
+        const stride=Math.sin(phase)*(chasing?.52:.24);
+        const kneeLift=Math.max(0,Math.cos(phase))*(chasing?.78:.34);
+        z.rig.leftLeg.rotation.x=stride;z.rig.rightLeg.rotation.x=-stride;
+        z.rig.leftArm.rotation.x=-stride*.72+(chasing?-.12:.08);
+        z.rig.rightArm.rotation.x=stride*.72+(chasing?-.12:.08);
+        z.rig.lowerLegs[0].rotation.x=kneeLift;
+        z.rig.lowerLegs[1].rotation.x=Math.max(0,-Math.cos(phase))*(chasing?.78:.34);
+        z.rig.lowerArms[0].rotation.x=.12+Math.max(0,stride)*.28;
+        z.rig.lowerArms[1].rotation.x=.12+Math.max(0,-stride)*.28;
+        z.rig.torso.position.y=.08+Math.abs(Math.sin(phase*2))*.022;
+        z.rig.torso.rotation.x=chasing?-.075:Math.sin(phase)*.018;
+        z.rig.head.rotation.x=chasing?.045:Math.sin(phase*.5)*.025;
       }else{
         z.rig.leftLeg.rotation.x=0;z.rig.rightLeg.rotation.x=0;
-        z.rig.leftArm.rotation.x=0;z.rig.rightArm.rotation.x=0;
+        z.rig.leftArm.rotation.x=.08;z.rig.rightArm.rotation.x=.08;
+        z.rig.lowerLegs.forEach(p=>p.rotation.x=0);
+        z.rig.lowerArms.forEach(p=>p.rotation.x=.12);
+        z.rig.torso.position.y=.08+Math.sin(performance.now()*.0018)*.008;
+        z.rig.torso.rotation.x=0;z.rig.head.rotation.x=0;
       }
       if(dist<1.7)near=true;
     });
