@@ -159,6 +159,8 @@
   for(const key of ["water","food","medicine","parts"])state.inventory[key]=Number.isInteger(state.inventory[key])?Math.max(0,Math.min(99,state.inventory[key])):0;
   state.safe=savedGame?.missionComplete===true;
   state.health=Number.isFinite(savedGame?.health)?BABYLON.Scalar.Clamp(savedGame.health,1,100):100;
+  state.stamina=Number.isFinite(savedGame?.stamina)?BABYLON.Scalar.Clamp(savedGame.stamina,0,100):100;
+  document.getElementById("stamina").style.width=state.stamina+"%";
   if(Array.isArray(savedGame?.vehicle)&&savedGame.vehicle.length===3&&savedGame.vehicle.every(Number.isFinite))vehicle.position.set(savedGame.vehicle[0],.58,savedGame.vehicle[2]);
   if(Array.isArray(savedGame?.player)&&savedGame.player.length===3&&savedGame.player.every(Number.isFinite)){
     player.position.set(savedGame.player[0],.95,savedGame.player[2]);
@@ -169,7 +171,8 @@
       player.position.z=vehicle.position.z;
     }
   }
-  if(Number.isFinite(savedGame?.yaw))state.yaw=savedGame.yaw;
+  if(Number.isFinite(savedGame?.yaw)){state.yaw=savedGame.yaw;camera.rotationOffset=180+state.yaw*180/Math.PI;}
+  if(Number.isFinite(savedGame?.vehicleYaw))vehicle.rotation.y=savedGame.vehicleYaw;
   pickups.forEach(p=>{
     if(Array.isArray(savedGame?.collected)&&savedGame.collected.includes(p.phase)){
       p.collected=true;p.mesh.setEnabled(false);p.marker.setEnabled(false);
@@ -205,7 +208,7 @@
   function saveProgress(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
-        health:state.health,supplies:state.supplies,inventory:state.inventory,yaw:state.yaw,missionComplete:state.safe,
+        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,
         player:[player.position.x,player.position.y,player.position.z],
         vehicle:[vehicle.position.x,vehicle.position.y,vehicle.position.z],
         collected:pickups.filter(p=>p.collected).map(p=>p.phase)
