@@ -130,7 +130,9 @@ const server = http.createServer((req,res) => {
     const yawAfter=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.state.yaw);
     if(yawAfter===yawBefore)throw new Error("Android right-side camera drag did not respond.");
     const jumpStart=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.y);
-    await mobile.locator("#jump").evaluate(el=>el.dispatchEvent(new PointerEvent("pointerdown",{bubbles:true,pointerId:7,pointerType:"touch"})));
+    const jumpBox=await mobile.locator("#jump").boundingBox();
+    await touch.send("Input.dispatchTouchEvent",{type:"touchStart",touchPoints:[{x:jumpBox.x+jumpBox.width/2,y:jumpBox.y+jumpBox.height/2,id:3}]});
+    await touch.send("Input.dispatchTouchEvent",{type:"touchEnd",touchPoints:[]});
     await mobile.waitForTimeout(180);
     const jumpPeak=await mobile.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.y);
     if(!(jumpPeak>jumpStart+.3))throw new Error("Android jump touch action failed.");
