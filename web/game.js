@@ -461,7 +461,7 @@
   window.addEventListener("pagehide",saveProgress);
   let saveClock=0, damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
-  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,get driving(){return driving;},get activeVehicle(){return activeVehicle;}};
+  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,get driving(){return driving;},get activeVehicle(){return activeVehicle;}};
   let worldClock=0;
   let subtitleTimer=null;
   const subtitlePanel=document.getElementById("subtitles");
