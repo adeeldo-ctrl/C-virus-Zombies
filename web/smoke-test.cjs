@@ -34,6 +34,11 @@ const server = http.createServer((req,res) => {
     await desktop.locator("#new-game").click();
     await desktop.waitForLoadState("domcontentloaded");
     await waitScene(desktop);
+    await desktop.waitForFunction(()=>window.__CVIRUS_DEBUG__.heroModelReady,{timeout:12000});
+    const heroBones=await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.heroBoneNames);
+    const requiredHeroBones=["thigh_l","thigh_r","calf_l","calf_r","upperarm_l","upperarm_r","lowerarm_l","lowerarm_r"];
+    const missingHeroBones=requiredHeroBones.filter(name=>!heroBones.includes(name));
+    if(missingHeroBones.length)throw new Error("Ibrahim animation rig is missing expected bones: "+missingHeroBones.join(", ")+"; available: "+heroBones.join(", "));
     const initial=await desktop.evaluate(()=>({zombies:window.__CVIRUS_DEBUG__.zombies.length,heroParts:window.__CVIRUS_DEBUG__.heroRig.heroParts.length,interiors:window.__CVIRUS_DEBUG__.interiorRooms.map(r=>r.type),vehicles:window.__CVIRUS_DEBUG__.vehicles.map(v=>v.type)}));
     if(initial.zombies!==5||initial.heroParts<10||initial.interiors.join(",")!=="CLINIC,SHOP,POLICE")throw new Error("Core world initialization failed: "+JSON.stringify(initial));
     const zombieRig=await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.zombies.map(z=>({lowerArms:z.rig.lowerArms?.length,lowerLegs:z.rig.lowerLegs?.length,torso:!!z.rig.torso,head:!!z.rig.head})));
