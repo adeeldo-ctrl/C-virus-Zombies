@@ -4,6 +4,7 @@ import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
 import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
+import { SpotLight } from "@babylonjs/core/Lights/spotLight";
 import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { MeshBuilder } from "@babylonjs/core/Meshes/meshBuilder";
 import { FollowCamera } from "@babylonjs/core/Cameras/followCamera";
@@ -20,7 +21,7 @@ import "@babylonjs/core/Meshes/Builders/capsuleBuilder";
 
 window.BABYLON = {
   Engine, Scene, Color3, Color4, Vector3,
-  HemisphericLight, DirectionalLight, StandardMaterial,
+  HemisphericLight, DirectionalLight, SpotLight, StandardMaterial,
   MeshBuilder, FollowCamera, Scalar, TransformNode, Ray
 };
 await import("./game.js");

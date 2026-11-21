@@ -289,3 +289,9 @@ When the user says **“C virus”** in a new chat:
 ## Latest player stealth control
 - Added touch CROUCH/STAND and keyboard C. Crouching reduces movement speed and zombie detection distance; entering a vehicle or pausing resets the stance.
 - The current commit awaits the integrated browser workflow; Android packaging and physical-device validation remain pending.
+
+
+## 2026-11-21 — Babylon spotlight bootstrap fix
+- Investigated the latest failed integrated browser run `44882334006`: dependency installation, production bundle and Chromium setup passed, but the scene never became ready during startup.
+- Traced the startup failure to the vehicle headlight implementation: `game.js` constructs `BABYLON.SpotLight`, but the modular Babylon bootstrap did not import or expose `SpotLight`. Added the missing Babylon spotlight import and exported it on the runtime namespace so the vehicle fleet can initialize.
+- This is a source-level root-cause fix; the next integrated browser workflow must pass before claiming the game startup is repaired. No Android device test or APK is claimed.
