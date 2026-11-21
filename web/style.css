@@ -52,3 +52,12 @@
 .garage-list button,.garage-back{min-height:48px;padding:10px;border:1px solid #6c8b9e;border-radius:8px;background:#213d52;color:#fff;font-size:11px;font-weight:900;letter-spacing:.5px}
 .garage-list button:active{background:#a88e2e}
 .garage-back{width:100%;margin-top:14px;background:#d9bf51;border-color:#d9bf51;color:#101820}
+
+#action-buttons #storage-button{width:76px;height:56px;border-radius:16px;border-color:#8be0b8;background:#155b48ed;font-size:11px}
+#action-buttons #storage-button[hidden]{display:none}
+#storage-panel{position:absolute;z-index:12;left:50%;top:50%;transform:translate(-50%,-50%);width:min(370px,90vw);padding:18px;border:1px solid #7ad8ae88;border-radius:14px;background:#071a1bf5;color:#fff;box-shadow:0 18px 55px #000c;pointer-events:auto}
+#storage-panel[hidden]{display:none}
+.storage-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;padding:10px 0;font-size:11px;text-align:center}
+.storage-grid>div{color:#c3d1d2;text-align:left}.storage-grid>b{color:#f2d65a}
+#storage-panel .inventory-actions{grid-template-columns:1fr}
+#storage-panel .inventory-actions button{min-height:38px}
