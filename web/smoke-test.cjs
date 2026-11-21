@@ -58,7 +58,7 @@ const server = http.createServer((req,res) => {
     await page.keyboard.down("d");await page.waitForTimeout(800);await page.keyboard.up("d");
     const sideEnd=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.x);
     if(!(sideEnd<7.4&&sideEnd>sideStart))throw new Error("Street boundary collision did not constrain lateral movement.");
-    await page.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.player.position.copyFrom(d.safe.position);});
+    await page.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.pickups.forEach(p=>{p.collected=true;p.mesh.setEnabled(false);p.marker.setEnabled(false);});d.state.supplies=4;document.getElementById("supplies").textContent="4";d.player.position.copyFrom(d.safe.position);});
     await page.waitForFunction(()=>window.__CVIRUS_DEBUG__.state.safe,{timeout:5000});
     const message=await page.locator("#message").innerText();
     if(!message.includes("Safe zone reached"))throw new Error("Safe-zone completion message missing.");
