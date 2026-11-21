@@ -356,3 +356,10 @@ When the user says **“C virus”** in a new chat:
 
 - Packaging workflow correction: `.github/workflows/build-android-apk.yml` now runs only on explicit `workflow_dispatch`; ordinary development/documentation commits no longer launch repeated APK builds. APK creation remains a deliberate release-stage action.
 - Browser validation run `44931956438` for the hunger/hydration implementation: production web bundle succeeded; Chromium installation was still in progress at the last status check, so the gameplay smoke suite has not yet run and no pass is claimed.
+
+
+## 2026-11-21 — Visible Pakistani city dressing and expanded encounters
+- Added street-level utility poles and overhead power cables, warm street lamps, roadside market carts/stalls, and local street-direction boards to the Babylon.js world.
+- Expanded the initial zombie population from 5 to 12 and distributed spawn points across the existing neighbourhood grid.
+- Extended browser smoke coverage to assert the new city props and minimum zombie population.
+- Browser validation for the latest commits is queued/running; do not mark this change verified until that run finishes successfully.
