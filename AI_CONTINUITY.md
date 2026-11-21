@@ -102,3 +102,15 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Kept the three walk-in interiors clear of the new cross-street surfaces. City remains a prototype-scale district; full city streaming, richer environment art and multi-floor interiors are still unfinished.
 - Commits: `98bff694a894197436eea825f586878d448e6939`, `5a20a39861f5b06ead1edfcce0582daa9897192f`.
 - Zombie collision/steering work is in `1858e1575f126d66f5f180027c4aab349c29ebb8`. The latest browser workflow result must be checked before claiming the combined changes pass.
+
+
+## Latest implementation update (2026-11-21 — Android touch and world access)
+- Corrected the city perimeter collision boundaries so the player can leave the original central road and explore the expanded 130 x 130 neighbourhood grid.
+- Improved touchscreen camera drag pointer capture and multi-touch independence from the movement joystick. Added Android safe-area positioning and touch gesture suppression.
+- Changed vehicle prompts/status text to mobile-first tap/joystick instructions. Keyboard remains optional only.
+- Commits: `882fc1a4236294edee92dbc22e33f913913c2f46`, `1f5faf105b44c12830234a105e44b1dd36148ca8`.
+- No fresh Android device or integrated build result is claimed.
+
+## Mobile-first priority correction
+- This is an Android touchscreen game. Prioritise left virtual joystick, right-side camera drag, contextual touch actions, vehicle touch driving, safe-area handling, screen scaling and Android performance.
+- Desktop keyboard automation is secondary and must not be treated as the main gameplay acceptance criterion. Do not spend time chasing keyboard-only smoke failures when the real issue/requirement is touch gameplay.
