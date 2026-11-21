@@ -32,6 +32,18 @@
     gain.gain.setValueAtTime(.0001,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.18,ctx.currentTime+.018);gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+duration);
     osc.connect(gain);gain.connect(effectsBus);osc.start();osc.stop(ctx.currentTime+duration+.025);
   }
+  let engineOscillator=null,engineSoundGain=null;
+  function setEngineAudio(active,throttle=0){
+    if(!audioContext)return;
+    if(audioContext.state==="suspended")audioContext.resume();
+    if(!engineOscillator){
+      engineOscillator=audioContext.createOscillator();engineSoundGain=audioContext.createGain();
+      engineOscillator.type="sawtooth";engineOscillator.frequency.value=52;engineSoundGain.gain.value=.0001;
+      engineOscillator.connect(engineSoundGain);engineSoundGain.connect(effectsBus);engineOscillator.start();
+    }
+    engineOscillator.frequency.setTargetAtTime(52+Math.abs(throttle)*95,audioContext.currentTime,.08);
+    engineSoundGain.gain.setTargetAtTime(active?.035+Math.abs(throttle)*.055:.0001,audioContext.currentTime,.12);
+  }
   function saveAudioSettings(){try{localStorage.setItem("cvirus-audio-v1",JSON.stringify(audioSettings));}catch{}}
   const settingsPanel=document.getElementById("settings-panel");
   document.getElementById("settings-button").addEventListener("click",()=>{initAudio();settingsPanel.hidden=false;playCue("tap");});
@@ -635,6 +647,7 @@
     if(move.lengthSquared()>0.001&&!state.safe&&state.health>0){move.normalize();player.rotation.y=Math.atan2(move.x,move.z);}
     if(driving){
       const throttle=state.braking?0:-state.moveY;
+      setEngineAudio(!state.paused&&!state.ended,throttle);
       activeVehicle.rearLights.forEach(mesh=>{mesh.isVisible=state.braking;});
       if(Math.abs(throttle)>.08||Math.abs(state.moveX)>.08){
         if(activeVehicle.fuel<=0||activeVehicle.condition<=0){
@@ -657,6 +670,7 @@
       document.getElementById("vehicle-fuel-label").textContent=Math.round(activeVehicle.fuel)+"%";
       document.getElementById("vehicle-condition-label").textContent=Math.round(activeVehicle.condition)+"%";
     }
+    if(!driving)setEngineAudio(false);
     if(!driving&&!state.safe&&state.health>0){
       const wantsSprint=(state.sprint||keys.shift)&&move.lengthSquared()>.01&&state.stamina>1;
       if(wantsSprint)state.stamina=Math.max(0,state.stamina-27*dt);

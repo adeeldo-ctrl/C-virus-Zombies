@@ -261,3 +261,8 @@ When the user says **“C virus”** in a new chat:
 - Removed the old always-visible front lamp meshes so the new headlight toggle controls the actual visible front lamps.
 - Added a contextual touch BRAKE control while driving; holding it stops throttle input and lights the rear brake lamps. Brake state clears on release, exit and pause.
 - No new test run is claimed in this commit.
+
+
+## 2026-11-21 — Vehicle engine audio
+- Added a generated engine idle/rev sound that responds to throttle while driving and fades out on foot, pause or mission end. It uses the existing effects-volume setting and does not require downloaded audio assets.
+- No new test run is claimed in this commit.

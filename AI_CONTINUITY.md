@@ -258,3 +258,7 @@ When the user says **“C virus”** in a new chat:
 
 ## Latest driving controls
 - Vehicle controls now include touch BRAKE; holding it cuts throttle and illuminates rear brake lamps. Headlight toggling controls the front lamps without static duplicates.
+
+
+## Latest audio update
+- Vehicle engine idle/rev audio is now generated in real time and follows throttle; it is routed through the sound-effects volume control.
