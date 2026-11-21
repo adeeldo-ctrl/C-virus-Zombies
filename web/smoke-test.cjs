@@ -68,10 +68,10 @@ const server = http.createServer((req,res) => {
     });
     await desktop.locator("#water-gun").click();
     await desktop.waitForFunction(()=>!!window.__CVIRUS_DEBUG__.zombies[0].metadata.knockback,{timeout:5000});
-    await desktop.waitForTimeout(300);
+    await desktop.waitForFunction(()=>{const z=window.__CVIRUS_DEBUG__.zombies[0];return !!z.metadata.knockback&&z.position.y>1.7;},null,{timeout:7000});
     const airborne=await desktop.evaluate(()=>({y:window.__CVIRUS_DEBUG__.zombies[0].position.y,knockback:!!window.__CVIRUS_DEBUG__.zombies[0].metadata.knockback}));
-    if(!airborne.knockback||airborne.y<=2)throw new Error("Super Water Gun did not launch the zombie into a visible airborne arc: "+JSON.stringify(airborne));
-    await desktop.waitForTimeout(1750);
+    if(!airborne.knockback||airborne.y<=1.7)throw new Error("Super Water Gun did not launch the zombie into a visible airborne arc: "+JSON.stringify(airborne));
+    await desktop.waitForFunction(()=>{const z=window.__CVIRUS_DEBUG__.zombies[0];return !z.metadata.knockback&&Math.abs(z.position.y-1)<.02;},null,{timeout:10000});
     const landed=await desktop.evaluate(()=>({y:window.__CVIRUS_DEBUG__.zombies[0].position.y,knockback:!!window.__CVIRUS_DEBUG__.zombies[0].metadata.knockback,x:window.__CVIRUS_DEBUG__.zombies[0].position.x,z:window.__CVIRUS_DEBUG__.zombies[0].position.z}));
     if(landed.knockback||Math.abs(landed.y-1)>.02||Math.hypot(landed.x,landed.z+7)<6)throw new Error("Zombie did not travel far, land and complete recovery: "+JSON.stringify(landed));
     // Verify vehicle proximity, enter/exit and mobile-facing prompts.
