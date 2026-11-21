@@ -942,14 +942,16 @@
       if(state.safe||state.health<=0)return;
       const delta=player.position.subtract(z.position);delta.y=0;
       const dist=delta.length();
-      if(shieldActive&&dist<4.7){
-        const away=z.position.subtract(player.position);away.y=0;
-        if(away.lengthSquared()<.001)away.set(index%2?1:0,0,index%2?0:1);
-        away.normalize();
-        z.moveWithCollisions(new BABYLON.Vector3(away.x*(4.7-dist)*2.6*dt,0,away.z*(4.7-dist)*2.6*dt));
+      const shieldPushing=shieldActive&&dist<4.7;
+      let shieldDirection=null;
+      if(shieldPushing){
+        shieldDirection=z.position.subtract(player.position);shieldDirection.y=0;
+        if(shieldDirection.lengthSquared()<.001)shieldDirection.set(index%2?1:0,0,index%2?0:1);
+        shieldDirection.normalize();
+        z.moveWithCollisions(new BABYLON.Vector3(shieldDirection.x*(4.7-dist)*2.6*dt,0,shieldDirection.z*(4.7-dist)*2.6*dt));
       }
-      const chasing=!shieldActive&&!driving&&dist>1.25&&dist<z.metadata.detectionRange*(state.crouching?0.58:1);
-      let walkDirection=null;
+      const chasing=!shieldPushing&&!driving&&dist>1.25&&dist<z.metadata.detectionRange*(state.crouching?0.58:1);
+      let walkDirection=shieldDirection;
       if(chasing){
         let chase=delta.normalize();
         // Check the path at chest height and steer around collidable buildings,
@@ -970,7 +972,7 @@
         }
         walkDirection=chase;
         z.moveWithCollisions(new BABYLON.Vector3(chase.x*z.metadata.speed*dt,0,chase.z*z.metadata.speed*dt));
-      }else if(!state.ended){
+      }else if(!walkDirection&&!state.ended){
         // Unalerted walkers patrol nearby streets instead of standing frozen.
         z.metadata.wanderTimer-=dt;
         if(z.metadata.wanderTimer<=0){
