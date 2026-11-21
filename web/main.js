@@ -2,6 +2,7 @@ import { Engine } from "@babylonjs/core/Engines/engine";
 import { Scene } from "@babylonjs/core/scene";
 import { Color3, Color4 } from "@babylonjs/core/Maths/math.color";
 import { Vector3, Quaternion } from "@babylonjs/core/Maths/math.vector";
+import { Space } from "@babylonjs/core/Maths/math.axis";
 import { HemisphericLight } from "@babylonjs/core/Lights/hemisphericLight";
 import { DirectionalLight } from "@babylonjs/core/Lights/directionalLight";
 import { SpotLight } from "@babylonjs/core/Lights/spotLight";
@@ -22,7 +23,7 @@ import "@babylonjs/core/Meshes/Builders/cylinderBuilder";
 import "@babylonjs/core/Meshes/Builders/capsuleBuilder";
 
 window.BABYLON = {
-  Engine, Scene, Color3, Color4, Vector3, Quaternion,
+  Engine, Scene, Color3, Color4, Vector3, Quaternion, Space,
   HemisphericLight, DirectionalLight, SpotLight, StandardMaterial,
   MeshBuilder, FollowCamera, Scalar, TransformNode, SceneLoader, Ray
 };
