@@ -472,6 +472,7 @@
     if(subtitleTimer)clearTimeout(subtitleTimer);
     subtitleTimer=setTimeout(()=>{subtitlePanel.hidden=true;},duration);
   }
+  document.getElementById("supply-pill").hidden=state.missionIndex===2;
   if(state.missionIndex===1){
     showSubtitle("شہر میں وائرس پھیل چکا ہے۔ دکاندار کو بچائیں اور سپلائی جمع کریں۔","The city is infected. Rescue the shopkeeper and collect supplies.",5200);
     setTimeout(()=>showSubtitle("ریڈیو: چاروں سپلائی کریٹس جمع کریں، پھر سبز محفوظ مقام پر جائیں۔","RADIO: Collect all four supply crates, then reach the green safe zone.",5200),5600);
@@ -609,6 +610,7 @@
       endText.textContent=state.missionIndex===1?"You secured all supplies and escorted the shopkeeper to safety.":"All three emergency radio relays are online. The city can call for help.";
       document.getElementById("retry-button").textContent=state.missionIndex===1?"NEXT MISSION":"RESTART CAMPAIGN";
       endOverlay.hidden=false;
+      document.getElementById("supply-pill").hidden=state.missionIndex===2;
       showSubtitle(state.missionIndex===1?"ہم نے دکاندار کو بچا لیا، محفوظ مقام پہنچ گئے!":"ریڈیو نیٹ ورک بحال ہو گیا، مدد پہنچ سکتی ہے!","Safe zone secured.",5000);
       saveProgress();
     }else if(reached&&!state.safe){
@@ -664,7 +666,7 @@
   else{state.paused=true;menuOverlay.hidden=false;pauseOverlay.hidden=true;}
   document.getElementById("retry-button").addEventListener("click",()=>{
     if(state.safe&&state.missionIndex===1){
-      state.missionIndex=2;state.safe=false;state.ended=false;state.activatedRelays=[];
+      state.missionIndex=2;state.safe=false;state.ended=false;state.activatedRelays=[];document.getElementById("supply-pill").hidden=true;
       relayStations.forEach(item=>{item.active=false;item.root.setEnabled(true);});
       endOverlay.hidden=true;document.getElementById("message").textContent="Mission 2: Restore the emergency radio network.";
       document.getElementById("status").textContent="Activate all 3 radio relays across the city, then return to the safe zone.";
