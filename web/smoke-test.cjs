@@ -31,10 +31,10 @@ const server = http.createServer((req,res) => {
     if(heroParts<10)throw new Error("Original modular hero character parts are missing.");
     const interiors=await page.evaluate(()=>window.__CVIRUS_DEBUG__.interiorRooms.map(r=>r.type));
     if(interiors.join(",")!=="CLINIC,SHOP,POLICE")throw new Error("Walk-in city interiors are missing: "+interiors.join(","));
-    await page.keyboard.down("w");await page.waitForTimeout(500);await page.keyboard.up("w");
-    const moved=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
-    // A walk cycle naturally crosses zero at specific animation phases.
-    // Sample several frames so the assertion checks motion over time, not one instant.
+    await page.keyboard.down("w");
+    await page.waitForTimeout(100);
+    // Measure the gait while movement input is still held; after keyup the
+    // idle pose correctly resets both leg angles to zero.
     let maxLegMotion=0;
     for(let sample=0;sample<8;sample++){
       const legMotion=await page.evaluate(()=>Math.abs(window.__CVIRUS_DEBUG__.heroRig.leftLeg.rotation.x)+Math.abs(window.__CVIRUS_DEBUG__.heroRig.rightLeg.rotation.x));
@@ -42,6 +42,9 @@ const server = http.createServer((req,res) => {
       await page.waitForTimeout(45);
     }
     if(maxLegMotion<.05)throw new Error("Hero walk-cycle animation did not respond to movement.");
+    await page.waitForTimeout(250);
+    await page.keyboard.up("w");
+    const moved=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
     if(!(moved<initial.playerZ))throw new Error("Forward input did not move player toward objective.");
     const normalDistance=initial.playerZ-moved;
     const sprintStart=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
