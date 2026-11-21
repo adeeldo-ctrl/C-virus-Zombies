@@ -789,8 +789,8 @@
         saveProgress();
       }
     });
-    const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
-    const right=new BABYLON.Vector3(-forward.z,0,forward.x);
+    const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,Math.cos(state.yaw));
+    const right=new BABYLON.Vector3(forward.z,0,-forward.x);
     const move=forward.scale(-state.moveY).add(right.scale(state.moveX));
     if(move.lengthSquared()>1)move.normalize();
     jumpCooldown=Math.max(0,jumpCooldown-dt);
