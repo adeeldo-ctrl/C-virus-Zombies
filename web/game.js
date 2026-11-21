@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, sprint:false};
+  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, sprint:false, paused:false};
   const scene = new BABYLON.Scene(engine);
   scene.collisionsEnabled = true;
   scene.clearColor = new BABYLON.Color4(0.48,0.66,0.77,1);
@@ -141,6 +141,7 @@
   // Read-only debug surface used by the automated browser smoke test.
   window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups};
   scene.onBeforeRenderObservable.add(()=>{
+    if(state.paused)return;
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
     saveClock+=dt;if(saveClock>=5){saveClock=0;saveProgress();}
     const moving=state.moveX*state.moveX+state.moveY*state.moveY>.025;
@@ -192,8 +193,17 @@
   });
   // Keyboard controls
   const keys={};
+  const pauseOverlay=document.getElementById("pause-overlay");
+  const pauseButton=document.getElementById("pause-button");
+  const resumeButton=document.getElementById("resume-button");
+  function setPaused(value){
+    state.paused=!!value;pauseOverlay.hidden=!state.paused;
+    if(state.paused){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}
+  }
+  pauseButton.addEventListener("click",()=>setPaused(!state.paused));
+  resumeButton.addEventListener("click",()=>setPaused(false));
   const doJump=()=>{if(grounded&&jumpCooldown===0&&!state.safe&&state.health>0){verticalVelocity=7.2;grounded=false;jumpCooldown=.22;}};
-  window.addEventListener("keydown",e=>{const key=e.key.toLowerCase();if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
+  window.addEventListener("keydown",e=>{if(e.key==="Escape"){setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(state.paused)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
   window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
   window.addEventListener("blur",()=>{for(const key in keys)keys[key]=false;state.sprint=false;});
   engine.runRenderLoop(()=>{const keyX=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const keyY=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);state.moveX=touchX!==0?touchX:keyX;state.moveY=touchY!==0?touchY:keyY;scene.render();});
