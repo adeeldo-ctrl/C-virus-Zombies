@@ -40,6 +40,11 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - A backpack panel now tracks water, food, medicine and parts from collected crates and persists them; opening it pauses gameplay. A full equipment system and safe-house storage remain unfinished.
 - Full city/interiors, complete vehicle fleet, story progression, inventory, safe house and final menus remain unfinished.
 
+## Latest implementation update (2026-11-21 — city interiors and survival usability)
+- Added enterable clinic, general store and police-post interiors with collidable doorway geometry, themed furnishings and proximity prompts. Corrected floor height to align with street level.
+- Expanded the existing integrated browser smoke suite to check the room registry and physically walk through the clinic doorway. Workflow result is pending; no pass is claimed.
+- Commits: `316b2fd0e97c587f5c8fbb8c5f7348782f9d39a7`, `7a5be324c99ae7315aaf6962db5295fa0ec08c0a`, `25d0e1dd3af7acb8a9a250f305bc54832b219c0f`, `26e2962cc783d1e9358077b78c3b91a2816cb634`, `910b89257287f65fd932bf759b5231f474119819`, `4eaad0d4b084ce9beaa2ed84dfacf99c65ef256b`.
+
 ## Latest implementation update (2026-11-21 — survival usability fixes)
 - Corrected escaped CSS line breaks and player restore placement when a save was made while driving.
 - Backpack supplies are now consumable: medicine restores health, water and food restore stamina; unavailable/full-meter actions are disabled and item usage is saved.
