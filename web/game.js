@@ -1,7 +1,7 @@
 (() => {
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
-  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false};
+  const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, missionIndex:1, activatedRelays:[]};
   const scene = new BABYLON.Scene(engine);
   scene.collisionsEnabled = true;
   scene.clearColor = new BABYLON.Color4(0.48,0.66,0.77,1);
@@ -139,6 +139,16 @@
   const baseSign=BABYLON.MeshBuilder.CreateBox("safehouseSign",{width:2.8,height:.48,depth:.12},scene);baseSign.position.set(8,2.55,-57.86);baseSign.material=mat("safehouseSignMat","#2b7465");
   const storageChest=BABYLON.MeshBuilder.CreateBox("safehouseStorage",{width:1.25,height:.85,depth:.85},scene);storageChest.position.set(8, .52,-56.9);storageChest.material=mat("safehouseChest","#806044");
   const storageLid=BABYLON.MeshBuilder.CreateBox("safehouseStorageLid",{width:1.3,height:.16,depth:.9},scene);storageLid.position.set(8,1.02,-56.9);storageLid.material=mat("safehouseChestLid","#bd9959");
+  const relayStations=[[-45,-18],[0,18],[45,18]].map((position,index)=>{
+    const root=new BABYLON.TransformNode("emergencyRelay"+index,scene);root.position.set(position[0],0,position[1]);
+    const base=BABYLON.MeshBuilder.CreateCylinder("relayBase",{diameter:1.15,height:.28,tessellation:12},scene);base.parent=root;base.position.y=.14;base.material=mat("relayBaseMat"+index,"#515b62");
+    const pole=BABYLON.MeshBuilder.CreateCylinder("relayPole",{diameter:.16,height:2.3,tessellation:10},scene);pole.parent=root;pole.position.y=1.35;pole.material=mat("relayPoleMat"+index,"#87959a");
+    const panel=BABYLON.MeshBuilder.CreateBox("relayPanel",{width:.8,height:.65,depth:.2},scene);panel.parent=root;panel.position.set(0,1.95,0);panel.material=mat("relayPanelMat"+index,"#276e67");
+    const antenna=BABYLON.MeshBuilder.CreateCylinder("relayAntenna",{diameter:.045,height:.8,tessellation:8},scene);antenna.parent=root;antenna.position.set(0,2.65,0);antenna.material=mat("relayAntennaMat"+index,"#d5d8d2");
+    const marker=BABYLON.MeshBuilder.CreateCylinder("relayMarker",{diameter:1.5,height:.045,tessellation:20},scene);marker.parent=root;marker.position.y=.04;marker.material=mat("relayMarkerMat"+index,"#e7c83d");
+    return {root,index,active:false};
+  });
+
   // A stranded shopkeeper survivor introduces the first rescue objective.
   const survivorRoot=new BABYLON.TransformNode("survivorShopkeeper",scene);
   survivorRoot.position.set(4.9,0,-14.2);
@@ -308,6 +318,7 @@
   const storageButton=document.getElementById("storage-button");
   const storagePanel=document.getElementById("storage-panel");
   const storageStatus=document.getElementById("storage-status");
+  const rescueButton=document.getElementById("rescue");
   function nearestVehicle(){
     let nearest=null,distance=Infinity;
     for(const item of fleet){const d=BABYLON.Vector3.Distance(player.position,item.root.position);if(d<distance){distance=d;nearest=item;}}
@@ -329,16 +340,39 @@
     }
   }
   driveButton.addEventListener("click",toggleVehicle);
+  rescueButton.addEventListener("click",()=>{
+    if(state.paused||state.ended||driving)return;
+    if(state.missionIndex===1){
+      if(state.rescued||BABYLON.Vector3.Distance(player.position,survivorRoot.position)>2.7)return;
+      state.rescued=true;survivorRoot.setEnabled(false);survivorMarker.setEnabled(false);
+      document.getElementById("message").textContent="Shopkeeper rescued — collect all supplies and reach the safe zone.";
+      document.getElementById("status").textContent="Survivor rescued. Collect all 4 supplies and reach extraction.";
+      showSubtitle("براہ کرم مجھے یہاں سے نکالیں۔ شکریہ!","Thank you for rescuing me. Let's reach the safe zone.",4200);
+      saveProgress();
+    }else{
+      const station=relayStations.filter(item=>!item.active).sort((a,b)=>BABYLON.Vector3.Distance(player.position,a.root.position)-BABYLON.Vector3.Distance(player.position,b.root.position))[0];
+      if(!station||BABYLON.Vector3.Distance(player.position,station.root.position)>3.1)return;
+      station.active=true;station.root.setEnabled(false);state.activatedRelays.push(station.index);
+      const count=state.activatedRelays.length;
+      document.getElementById("message").textContent="Emergency relay online: "+count+"/3";
+      document.getElementById("status").textContent=count===3?"All radio relays active. Return to the safe zone.":"Activate the remaining "+(3-count)+" emergency radio relays.";
+      showSubtitle("ریڈیو ٹاور فعال ہو گیا۔","Emergency radio relay activated.",2600);
+      saveProgress();
+    }
+  });
   const SAVE_KEY="cvirus-zombies-save-v1";
   let savedGame=null;
   try{savedGame=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");}catch{savedGame=null;}
+  state.missionIndex=savedGame?.missionIndex===2?2:1;
+  state.activatedRelays=Array.isArray(savedGame?.activatedRelays)?[...new Set(savedGame.activatedRelays.filter(n=>Number.isInteger(n)&&n>=0&&n<3))]:[];
+  relayStations.forEach(item=>{item.active=state.activatedRelays.includes(item.index);item.root.setEnabled(state.missionIndex===2&&!item.active);});
   state.supplies=Number.isInteger(savedGame?.supplies)?Math.max(0,Math.min(4,savedGame.supplies)):0;
   state.inventory={water:0,food:0,medicine:0,parts:0,...(savedGame?.inventory||{})};
   state.stash={water:0,food:0,medicine:0,parts:0,...(savedGame?.stash||{})};
   for(const key of ["water","food","medicine","parts"])state.stash[key]=Number.isInteger(state.stash[key])?Math.max(0,Math.min(999,state.stash[key])):0;
   for(const key of ["water","food","medicine","parts"])state.inventory[key]=Number.isInteger(state.inventory[key])?Math.max(0,Math.min(99,state.inventory[key])):0;
   state.rescued=savedGame?.survivorRescued===true;
-  state.safe=savedGame?.missionComplete===true&&state.supplies===4&&state.rescued;
+  state.safe=savedGame?.missionComplete===true&&(state.missionIndex===1?state.supplies===4&&state.rescued:state.activatedRelays.length===3);
   if(state.rescued){survivorRoot.setEnabled(false);survivorMarker.setEnabled(false);}
   state.health=Number.isFinite(savedGame?.health)?BABYLON.Scalar.Clamp(savedGame.health,1,100):100;
   state.stamina=Number.isFinite(savedGame?.stamina)?BABYLON.Scalar.Clamp(savedGame.stamina,0,100):100;
@@ -417,7 +451,7 @@
   function saveProgress(){
     try{
       localStorage.setItem(SAVE_KEY,JSON.stringify({
-        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,stash:state.stash,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,fleet:fleet.map(v=>[v.root.position.x,v.root.position.y,v.root.position.z,v.root.rotation.y]),
+        health:state.health,stamina:state.stamina,supplies:state.supplies,inventory:state.inventory,stash:state.stash,missionIndex:state.missionIndex,activatedRelays:state.activatedRelays,yaw:state.yaw,vehicleYaw:vehicle.rotation.y,missionComplete:state.safe,survivorRescued:state.rescued,fleet:fleet.map(v=>[v.root.position.x,v.root.position.y,v.root.position.z,v.root.rotation.y]),
         player:[player.position.x,player.position.y,player.position.z],
         vehicle:[vehicle.position.x,vehicle.position.y,vehicle.position.z],
         collected:pickups.filter(p=>p.collected).map(p=>p.phase)
@@ -438,8 +472,12 @@
     if(subtitleTimer)clearTimeout(subtitleTimer);
     subtitleTimer=setTimeout(()=>{subtitlePanel.hidden=true;},duration);
   }
-  showSubtitle("شہر میں وائرس پھیل چکا ہے۔ محفوظ مقام تک پہنچنا ہوگا۔","The city is infected. Reach the safe zone.",5200);
-  setTimeout(()=>showSubtitle("ریڈیو: چاروں سپلائی کریٹس جمع کریں، پھر سبز محفوظ مقام پر جائیں۔","RADIO: Collect all four supply crates, then reach the green safe zone.",5200),5600);
+  if(state.missionIndex===1){
+    showSubtitle("شہر میں وائرس پھیل چکا ہے۔ دکاندار کو بچائیں اور سپلائی جمع کریں۔","The city is infected. Rescue the shopkeeper and collect supplies.",5200);
+    setTimeout(()=>showSubtitle("ریڈیو: چاروں سپلائی کریٹس جمع کریں، پھر سبز محفوظ مقام پر جائیں۔","RADIO: Collect all four supply crates, then reach the green safe zone.",5200),5600);
+  }else{
+    showSubtitle("ہمیں ایمرجنسی ریڈیو نیٹ ورک بحال کرنا ہے۔","Restore the emergency radio network.",5200);
+  }
   scene.onBeforeRenderObservable.add(()=>{
     if(state.paused||state.ended||state.inventoryOpen)return;
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
@@ -548,14 +586,35 @@
     buildingPrompt.hidden=driving||(!insideRoom&&(!nearestRoom||nearestDoor>3.2));
     buildingPrompt.textContent=insideRoom?insideRoom.type+" INTERIOR — EXPLORE":nearestRoom?nearestRoom.type+" — WALK INSIDE":"";
     const survivorDistance=BABYLON.Vector3.Distance(player.position,survivorRoot.position);
-    rescueButton.hidden=state.rescued||driving||survivorDistance>2.7||state.paused||state.ended;
-    if(!state.rescued&&survivorDistance<8&&!driving)document.getElementById("message").textContent="Shopkeeper nearby — enter the general store to help.";
-    const reached=BABYLON.Vector3.Distance(driving?vehicle.position:player.position,safe.position)<3;
-    if(reached&&!state.safe&&state.supplies===4&&state.rescued){state.safe=true;document.getElementById("message").textContent="Survivor rescued — safe zone secured!";document.getElementById("status").textContent="Mission complete. Supplies collected and survivor rescued.";endTitle.textContent="MISSION COMPLETE";endText.textContent="You secured all supplies and escorted the shopkeeper to safety.";endOverlay.hidden=false;showSubtitle("ہم نے دکاندار کو بچا لیا، محفوظ مقام پہنچ گئے!","Survivor rescued. Safe zone reached.",5000);saveProgress();}
-    else if(reached&&!state.safe){
+    let actionVisible=false;
+    if(state.missionIndex===1){
+      actionVisible=!state.rescued&&survivorDistance<=2.7;
+      rescueButton.textContent="RESCUE";
+      if(!state.rescued&&survivorDistance<8&&!driving)document.getElementById("message").textContent="Shopkeeper nearby — enter the general store to help.";
+    }else{
+      let nearestRelay=null,relayDistance=Infinity;
+      for(const station of relayStations){if(station.active)continue;const distance=BABYLON.Vector3.Distance(player.position,station.root.position);if(distance<relayDistance){relayDistance=distance;nearestRelay=station;}}
+      actionVisible=!!nearestRelay&&relayDistance<=3.1;
+      rescueButton.textContent="ACTIVATE";
+      if(!actionVisible)document.getElementById("status").textContent="Emergency network: "+state.activatedRelays.length+"/3 relays online.";
+    }
+    rescueButton.hidden=!actionVisible||driving||state.paused||state.ended;
+    const reached=BABYLON.Vector3.Distance(driving?activeVehicle.root.position:player.position,safe.position)<3;
+    const objectiveComplete=state.missionIndex===1?state.supplies===4&&state.rescued:state.activatedRelays.length===3;
+    if(reached&&!state.safe&&objectiveComplete){
+      state.safe=true;state.ended=true;
+      document.getElementById("message").textContent="Mission objective secured — safe zone reached!";
+      document.getElementById("status").textContent=state.missionIndex===1?"Mission 1 complete. Survivor and supplies secured.":"Campaign objective complete. Emergency network restored.";
+      endTitle.textContent=state.missionIndex===1?"MISSION 1 COMPLETE":"CAMPAIGN COMPLETE";
+      endText.textContent=state.missionIndex===1?"You secured all supplies and escorted the shopkeeper to safety.":"All three emergency radio relays are online. The city can call for help.";
+      document.getElementById("retry-button").textContent=state.missionIndex===1?"NEXT MISSION":"RESTART CAMPAIGN";
+      endOverlay.hidden=false;
+      showSubtitle(state.missionIndex===1?"ہم نے دکاندار کو بچا لیا، محفوظ مقام پہنچ گئے!":"ریڈیو نیٹ ورک بحال ہو گیا، مدد پہنچ سکتی ہے!","Safe zone secured.",5000);
+      saveProgress();
+    }else if(reached&&!state.safe){
       const missing=[];
-      if(state.supplies<4)missing.push((4-state.supplies)+" supplies");
-      if(!state.rescued)missing.push("rescue the shopkeeper");
+      if(state.missionIndex===1){if(state.supplies<4)missing.push((4-state.supplies)+" supplies");if(!state.rescued)missing.push("rescue the shopkeeper");}
+      else if(state.activatedRelays.length<3)missing.push((3-state.activatedRelays.length)+" radio relays");
       document.getElementById("message").textContent="Safe zone locked — "+missing.join(" and ")+".";
       document.getElementById("status").textContent="Before extraction: "+missing.join(", ")+".";
     }
@@ -603,7 +662,16 @@
   try{startNewGame=sessionStorage.getItem("cvirus-start-new")==="1";if(startNewGame)sessionStorage.removeItem("cvirus-start-new");}catch{}
   if(startNewGame){menuOverlay.hidden=true;setPaused(false);}
   else{state.paused=true;menuOverlay.hidden=false;pauseOverlay.hidden=true;}
-  document.getElementById("retry-button").addEventListener("click",()=>{localStorage.removeItem(SAVE_KEY);window.location.reload();});
+  document.getElementById("retry-button").addEventListener("click",()=>{
+    if(state.safe&&state.missionIndex===1){
+      state.missionIndex=2;state.safe=false;state.ended=false;state.activatedRelays=[];
+      relayStations.forEach(item=>{item.active=false;item.root.setEnabled(true);});
+      endOverlay.hidden=true;document.getElementById("message").textContent="Mission 2: Restore the emergency radio network.";
+      document.getElementById("status").textContent="Activate all 3 radio relays across the city, then return to the safe zone.";
+      showSubtitle("ہمیں شہر کا ایمرجنسی ریڈیو نیٹ ورک بحال کرنا ہے۔","Mission 2: Restore the emergency radio network.",4800);
+      saveProgress();
+    }else{localStorage.removeItem(SAVE_KEY);window.location.reload();}
+  });
   const doJump=()=>{if(grounded&&jumpCooldown===0&&!state.safe&&state.health>0){verticalVelocity=7.2;grounded=false;jumpCooldown=.22;}};
   window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){if(state.inventoryOpen){state.inventoryOpen=false;inventoryPanel.hidden=true;}else setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(key==="i"){inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}return;}if(state.paused||!inventoryPanel.hidden)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
   window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
