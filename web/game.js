@@ -24,7 +24,7 @@
   function playCue(kind="tap"){
     const ctx=initAudio();if(!ctx)return;
     if(ctx.state==="suspended")ctx.resume().catch(()=>{});
-    const presets={tap:[520,.055,"sine"],pickup:[740,.16,"triangle"],rescue:[440,.28,"sine"],alert:[170,.2,"sawtooth"],success:[880,.32,"triangle"],horn:[220,.32,"sawtooth"],shield:[330,.42,"sine"]};
+    const presets={tap:[520,.055,"sine"],pickup:[740,.16,"triangle"],rescue:[440,.28,"sine"],alert:[170,.2,"sawtooth"],success:[880,.32,"triangle"],horn:[220,.32,"sawtooth"],shield:[330,.42,"sine"],water:[620,.14,"triangle"]};
     const [frequency,duration,type]=presets[kind]||presets.tap;
     const osc=ctx.createOscillator(),gain=ctx.createGain();
     osc.type=type;osc.frequency.setValueAtTime(frequency,ctx.currentTime);
@@ -321,6 +321,7 @@
     if(!bone||!rest)return;
     const delta=BABYLON.Quaternion.RotationYawPitchRoll(yaw,pitch,roll);
     const rotation=rest.multiply(delta);
+    heroPoseValues[name]=[pitch,yaw,roll];
     if(typeof bone.setRotationQuaternion==="function")bone.setRotationQuaternion(rotation,BABYLON.Space.LOCAL);
     else if(bone.rotationQuaternion)bone.rotationQuaternion=rotation;
     else if(bone.rotation)bone.rotation.copyFrom(rotation.toEulerAngles());
@@ -415,7 +416,7 @@
       {name:"ALPHA",speed:1.15,detect:30,scale:1.38,cloth:"#51465d"}
     ];
     const archetype=archetypes[i%archetypes.length];
-    root.scaling.setAll(archetype.scale);root.metadata={archetype:archetype.name,speed:archetype.speed,detectionRange:archetype.detect,wanderTimer:Math.random()*2,wanderAngle:Math.random()*Math.PI*2,phase:i*.83};
+    root.scaling.setAll(archetype.scale);root.metadata={archetype:archetype.name,speed:archetype.speed,detectionRange:archetype.detect,wanderTimer:Math.random()*2,wanderAngle:Math.random()*Math.PI*2,phase:i*.83,knockback:null};
     const variantCloth=mat("walkerCloth"+i,archetype.cloth);
     const piece=(name,mesh,material,parent=root)=>{mesh.name=name;mesh.material=material;mesh.parent=parent;return mesh;};
     const torso=piece("walkerTorso",BABYLON.MeshBuilder.CreateBox("walkerTorso",{width:.58,height:.76,depth:.32},scene),variantCloth);torso.position.y=.08;
@@ -471,6 +472,39 @@
     return root;
   }
   const zombies=Array.from({length:5},(_,i)=>createWalker(i));
+  // Super Water Gun: playful, non-damaging cartoon splash knockback.
+  const waterShotMaterial=new BABYLON.StandardMaterial("superWaterShotMaterial",scene);
+  waterShotMaterial.diffuseColor=new BABYLON.Color3(.12,.72,1);
+  waterShotMaterial.emissiveColor=new BABYLON.Color3(.04,.32,.62);
+  waterShotMaterial.alpha=.94;
+  const waterShots=[];
+  let waterGunCooldown=0;
+  function applyWaterKnockback(z,direction){
+    const horizontal=new BABYLON.Vector3(direction.x,0,direction.z);
+    if(horizontal.lengthSquared()<.001)horizontal.set(0,0,-1);
+    horizontal.normalize();
+    z.metadata.knockback={velocity:horizontal.scale(12.5),vertical:7.1,air:1.05,recovery:.72,baseYaw:z.rotation.y,spin:(Math.random()>.5?1:-1)*8.5};
+    playCue("water");
+    document.getElementById("status").textContent="SUPER WATER GUN! Zombie splashed far away.";
+  }
+  function fireWaterGun(){
+    if(state.paused||state.ended||driving||state.health<=0||waterGunCooldown>0)return;
+    const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
+    const origin=player.position.add(new BABYLON.Vector3(0,.92,0)).add(forward.scale(.62));
+    let target=null,targetDistance=Infinity;
+    for(const z of zombies){
+      if(z.metadata.knockback)continue;
+      const offset=z.position.subtract(origin);offset.y=0;
+      const distance=offset.length();if(distance>28||distance<.5)continue;
+      const facing=BABYLON.Vector3.Dot(offset.normalize(),forward);
+      if(facing>.48&&distance<targetDistance){target=z;targetDistance=distance;}
+    }
+    const direction=target?target.position.subtract(origin).normalize():forward;
+    const mesh=BABYLON.MeshBuilder.CreateSphere("superWaterProjectile",{diameter:.28,segments:12},scene);
+    mesh.position.copyFrom(origin);mesh.material=waterShotMaterial;mesh.isPickable=false;
+    waterShots.push({mesh,direction,target,distance:0,maxDistance:target?targetDistance+1.2:28});
+    waterGunCooldown=.72;waterGunButton.disabled=true;waterGunButton.textContent="SPLASH!";
+  }
   // Collectible supply crates create a short, repeatable survival objective before the safe zone.
   const pickups=[];
   for(let i=0;i<4;i++){
@@ -578,6 +612,8 @@
   const storageStatus=document.getElementById("storage-status");
   const rescueButton=document.getElementById("rescue");
   const serviceButton=document.getElementById("service-button");
+  const waterGunButton=document.getElementById("water-gun");
+  waterGunButton.addEventListener("click",fireWaterGun);
   const servicePanel=document.getElementById("service-panel");
   function nearestVehicle(){
     // Interaction range is measured on the ground plane; character/vehicle
@@ -766,9 +802,11 @@
     const right=new BABYLON.Vector3(-forward.z,0,forward.x);
     return forward.scale(-y).add(right.scale(x));
   }
-  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,get heroModelReady(){return heroModelReady;},get heroModelError(){return heroModelError;},get heroBoneNames(){return [...heroBoneNodes.keys()];},get audioState(){return audioContext?.state||"uninitialized";},get touchState(){return {x:touchX,y:touchY,active};},get shield(){return heroShield;},moveVector:getMovementVector,get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
+  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,waterShots,get heroPose(){return {...heroAnimationSnapshot,bones:{...heroPoseValues}};},get heroModelReady(){return heroModelReady;},get heroModelError(){return heroModelError;},get heroBoneNames(){return [...heroBoneNodes.keys()];},get audioState(){return audioContext?.state||"uninitialized";},get touchState(){return {x:touchX,y:touchY,active};},get shield(){return heroShield;},moveVector:getMovementVector,get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
   let worldClock=0;
   let heroWalkPhase=0,footstepClock=0;
+  const heroPoseValues={};
+  let heroAnimationSnapshot={moving:false,gait:0,phase:0};
   let subtitleTimer=null;
   const subtitlePanel=document.getElementById("subtitles");
   function showSubtitle(urdu,translation,duration=4200){
@@ -789,6 +827,13 @@
     if(state.paused||state.ended||state.inventoryOpen||state.serviceOpen)return;
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
     worldClock+=dt;
+    waterGunCooldown=Math.max(0,waterGunCooldown-dt);
+    for(let i=waterShots.length-1;i>=0;i--){
+      const shot=waterShots[i],step=shot.direction.scale(28*dt);
+      shot.mesh.position.addInPlace(step);shot.distance+=step.length();
+      if(shot.target&&!shot.target.metadata.knockback&&BABYLON.Vector3.Distance(shot.mesh.position,shot.target.position)<.82){applyWaterKnockback(shot.target,shot.direction);shot.mesh.dispose();waterShots.splice(i,1);continue;}
+      if(shot.distance>=shot.maxDistance){shot.mesh.dispose();waterShots.splice(i,1);}
+    }
     const daylight=(Math.sin(worldClock/90*Math.PI*2-Math.PI/2)+1)/2;
     sun.intensity=.16+daylight*.72;
     light.intensity=.42+daylight*.52;
@@ -811,6 +856,7 @@
     const heroPhase=heroWalkPhase;
     const gait=moving?Math.sin(heroPhase)*(sprinting?.88:state.crouching?.22:.62):Math.sin(worldClock*1.8)*.025;
     const airborne=!grounded&&verticalVelocity>0;
+    heroAnimationSnapshot={moving,gait,phase:heroPhase,sprinting,airborne};
     if(heroModelReady){
       const crouch=state.crouching?1:0;
       const leftSwing=gait,rightSwing=-gait;
@@ -823,12 +869,15 @@
       setIbrahimBone("foot_l",moving?-leftKnee*.22:0);
       setIbrahimBone("foot_r",moving?-rightKnee*.22:0);
       // Bend both elbows and keep the shoulders slightly relaxed instead of a stiff straight-arm pose.
-      setIbrahimBone("upperarm_l",-gait*.92+(airborne?-.48:crouch*-.22),0,-.17);
-      setIbrahimBone("upperarm_r",gait*.92+(airborne?-.48:crouch*-.22),0,.17);
-      setIbrahimBone("lowerarm_l",.48+Math.max(0,gait)*.30,0,-.035);
-      setIbrahimBone("lowerarm_r",.48+Math.max(0,-gait)*.30,0,.035);
-      setIbrahimBone("spine_01",moving?Math.sin(heroPhase*2)*.018:0);
-      setIbrahimBone("spine_02",crouch*.18+(airborne?-.06:Math.sin(worldClock*2)*.012));
+      const armSwing=gait*.78;
+      setIbrahimBone("upperarm_l",-armSwing+(airborne?-.48:crouch*-.18),0,-.10-Math.sin(heroPhase)*.045);
+      setIbrahimBone("upperarm_r",armSwing+(airborne?-.48:crouch*-.18),0,.10+Math.sin(heroPhase)*.045);
+      setIbrahimBone("lowerarm_l",.34+Math.max(0,gait)*.22,0,-.025);
+      setIbrahimBone("lowerarm_r",.34+Math.max(0,-gait)*.22,0,.025);
+      setIbrahimBone("hand_l",moving?-.04+gait*.08:0);setIbrahimBone("hand_r",moving?-.04-gait*.08:0);
+      setIbrahimBone("clavicle_l",0,0,-.035+armSwing*.10);setIbrahimBone("clavicle_r",0,0,.035-armSwing*.10);
+      setIbrahimBone("spine_01",moving?Math.sin(heroPhase*2)*.018:0,moving?gait*.035:0);
+      setIbrahimBone("spine_02",crouch*.18+(airborne?-.06:Math.sin(worldClock*2)*.012),moving?-gait*.045:0);
       setIbrahimBone("spine_03",crouch*.08+(moving?gait*.045:Math.sin(worldClock*2)*.008));
       setIbrahimBone("head",airborne?-0.07:(crouch?0.08:Math.sin(worldClock*1.4)*0.012));
       if(heroModelRoot)heroModelRoot.position.y=-.95+(moving?Math.abs(Math.sin(heroPhase*2))*.035:Math.sin(worldClock*2)*.008);
@@ -838,8 +887,8 @@
       heroRig.rightArm.rotation.x=gait*.72+(airborne?-.7:state.crouching?-.28:0);
       heroRig.lowerLegs[0].rotation.x=Math.max(0,-gait)*.72+(state.crouching?.55:0);
       heroRig.lowerLegs[1].rotation.x=Math.max(0,gait)*.72+(state.crouching?.55:0);
-      heroRig.lowerArms[0].rotation.x=-.12+Math.max(0,gait)*.35;
-      heroRig.lowerArms[1].rotation.x=-.12+Math.max(0,-gait)*.35;
+      heroRig.lowerArms[0].rotation.x=.28+Math.max(0,gait)*.22;
+      heroRig.lowerArms[1].rotation.x=.28+Math.max(0,-gait)*.22;
       torso.position.y=.13+(moving?Math.abs(gait)*.025:Math.sin(worldClock*2)*.012);
       head.rotation.x=airborne?-.08:state.crouching?.1:Math.sin(worldClock*1.4)*.012;
     }
@@ -941,6 +990,19 @@
     }
     let near=false;
     zombies.forEach((z,index)=>{
+      const knockback=z.metadata.knockback;
+      if(knockback){
+        if(knockback.air>0){
+          z.position.addInPlace(knockback.velocity.scale(dt));knockback.vertical-=16.5*dt;z.position.y+=knockback.vertical*dt;knockback.air-=dt;z.rotation.y+=knockback.spin*dt;z.rotation.x=-.24;z.rotation.z=Math.sin((1.05-knockback.air)*10)*.28;
+          z.rig.leftArm.rotation.x=-1.12;z.rig.rightArm.rotation.x=-1.12;z.rig.leftLeg.rotation.x=.72;z.rig.rightLeg.rotation.x=-.72;z.rig.lowerArms.forEach(p=>p.rotation.x=.55);
+          if(z.position.y<=1||knockback.air<=0){z.position.y=1;knockback.air=0;knockback.vertical=0;knockback.velocity.scaleInPlace(.12);}
+        }else{
+          knockback.recovery-=dt;z.position.y=1;z.rotation.y=knockback.baseYaw;const blend=Math.max(0,knockback.recovery/.72);z.rotation.x=-.24*blend;z.rotation.z*=Math.max(0,1-dt*4);
+          z.rig.leftArm.rotation.x=-.72*blend;z.rig.rightArm.rotation.x=-.72*blend;z.rig.leftLeg.rotation.x=.34*blend;z.rig.rightLeg.rotation.x=-.34*blend;z.rig.lowerArms.forEach(p=>p.rotation.x=.28*blend);
+          if(knockback.recovery<=0){z.metadata.knockback=null;z.rotation.x=0;z.rotation.z=0;z.rig.leftArm.rotation.x=0;z.rig.rightArm.rotation.x=0;z.rig.leftLeg.rotation.x=0;z.rig.rightLeg.rotation.x=0;}
+        }
+        return;
+      }
       if(state.safe||state.health<=0)return;
       const delta=player.position.subtract(z.position);delta.y=0;
       const dist=delta.length();
@@ -1023,6 +1085,9 @@
     lightsButton.hidden=!driving||state.paused||state.ended;
     brakeButton.hidden=!driving||state.paused||state.ended;
     crouchButton.hidden=driving||state.paused||state.ended;
+    waterGunButton.hidden=driving||state.paused||state.ended;
+    waterGunButton.disabled=waterGunCooldown>0;
+    waterGunButton.textContent=waterGunCooldown>0?"WATER "+waterGunCooldown.toFixed(1):"WATER GUN";
     if(driving){state.crouching=false;crouchButton.textContent="CROUCH";}
     vehiclePrompt.hidden=!driving&&nearest.distance>4.8;
     vehiclePrompt.textContent=driving?"Tap EXIT to leave "+activeVehicle.type:"Tap DRIVE to enter "+nearest.item.type;
@@ -1133,7 +1198,8 @@
   window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="h"&&driving){playCue("horn");return;}if(e.key.toLowerCase()==="l"&&driving){setVehicleLights(!activeVehicle.lightsOn);return;}if(e.key.toLowerCase()==="c"&&!state.paused&&!driving&&!state.ended){state.crouching=!state.crouching;crouchButton.textContent=state.crouching?"STAND":"CROUCH";return;}if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){if(!settingsPanel.hidden){closeSettings();return;}if(state.inventoryOpen){state.inventoryOpen=false;inventoryPanel.hidden=true;}else setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(key==="i"){inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}return;}if(state.paused||!inventoryPanel.hidden)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
   window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
   window.addEventListener("blur",()=>{for(const key in keys)keys[key]=false;state.sprint=false;});
-  engine.runRenderLoop(()=>{const keyX=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const keyY=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);state.moveX=touchX!==0?touchX:keyX;state.moveY=touchY!==0?touchY:keyY;scene.render();});
+  let smoothedMoveX=0,smoothedMoveY=0;
+  engine.runRenderLoop(()=>{const keyX=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const keyY=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);const inputX=touchX!==0?touchX:keyX,inputY=touchY!==0?touchY:keyY;const frameDt=Math.min(engine.getDeltaTime()/1000,.05);const response=driving?1:1-Math.exp(-24*frameDt);smoothedMoveX+=(inputX-smoothedMoveX)*response;smoothedMoveY+=(inputY-smoothedMoveY)*response;if(Math.abs(smoothedMoveX)<.012)smoothedMoveX=0;if(Math.abs(smoothedMoveY)<.012)smoothedMoveY=0;state.moveX=driving?inputX:smoothedMoveX;state.moveY=driving?inputY:smoothedMoveY;scene.render();});
   // Touch joystick
   const stick=document.getElementById("stick"),knob=document.getElementById("knob");let active=false;
   const sprintButton=document.getElementById("sprint"),jumpButton=document.getElementById("jump");
