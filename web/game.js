@@ -483,7 +483,7 @@
     const horizontal=new BABYLON.Vector3(direction.x,0,direction.z);
     if(horizontal.lengthSquared()<.001)horizontal.set(0,0,-1);
     horizontal.normalize();
-    z.metadata.knockback={velocity:horizontal.scale(12.5),vertical:7.1,air:1.05,recovery:.72,baseYaw:z.rotation.y,spin:(Math.random()>.5?1:-1)*8.5};
+    z.metadata.knockback={velocity:horizontal.scale(12.5),elapsed:0,flightDuration:.95,recovery:.72,baseYaw:z.rotation.y,spin:(Math.random()>.5?1:-1)*8.5};
     playCue("water");
     document.getElementById("status").textContent="SUPER WATER GUN! Zombie splashed far away.";
   }
@@ -992,10 +992,14 @@
     zombies.forEach((z,index)=>{
       const knockback=z.metadata.knockback;
       if(knockback){
-        if(knockback.air>0){
-          z.position.addInPlace(knockback.velocity.scale(dt));knockback.vertical-=16.5*dt;z.position.y+=knockback.vertical*dt;knockback.air-=dt;z.rotation.y+=knockback.spin*dt;z.rotation.x=-.24;z.rotation.z=Math.sin((1.05-knockback.air)*10)*.28;
+        if(knockback.elapsed<knockback.flightDuration){
+          knockback.elapsed=Math.min(knockback.flightDuration,knockback.elapsed+dt);
+          z.position.x+=knockback.velocity.x*dt;z.position.z+=knockback.velocity.z*dt;
+          const flight=knockback.elapsed/knockback.flightDuration;
+          z.position.y=1+Math.sin(flight*Math.PI)*2.45;
+          z.rotation.y+=knockback.spin*dt;z.rotation.x=-.24;z.rotation.z=Math.sin(flight*Math.PI*2)*.28;
           z.rig.leftArm.rotation.x=-1.12;z.rig.rightArm.rotation.x=-1.12;z.rig.leftLeg.rotation.x=.72;z.rig.rightLeg.rotation.x=-.72;z.rig.lowerArms.forEach(p=>p.rotation.x=.55);
-          if(z.position.y<=1||knockback.air<=0){z.position.y=1;knockback.air=0;knockback.vertical=0;knockback.velocity.scaleInPlace(.12);}
+          if(flight>=1){z.position.y=1;knockback.velocity.set(0,0,0);}
         }else{
           knockback.recovery-=dt;z.position.y=1;z.rotation.y=knockback.baseYaw;const blend=Math.max(0,knockback.recovery/.72);z.rotation.x=-.24*blend;z.rotation.z*=Math.max(0,1-dt*4);
           z.rig.leftArm.rotation.x=-.72*blend;z.rig.rightArm.rotation.x=-.72*blend;z.rig.leftLeg.rotation.x=.34*blend;z.rig.rightLeg.rotation.x=-.34*blend;z.rig.lowerArms.forEach(p=>p.rotation.x=.28*blend);
