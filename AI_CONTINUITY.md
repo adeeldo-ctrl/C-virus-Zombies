@@ -324,3 +324,12 @@ When the user says **“C virus”** in a new chat:
 - The prior checkpoint's browser smoke test and Android debug APK workflows passed, but this new animation pass still requires its own integrated workflow result. No device visual test is claimed.
 - Important limitation: the zombie meshes are still stylized procedural prototypes. Realistic production hero/zombie models and authored animation clips remain outstanding; do not mark the art phase complete.
 - Next: inspect the new browser workflow result, fix any regression, then verify the Android APK build. Continue production character asset work after this checkpoint.
+
+## Latest checkpoint — 2026-11-21 (controls / animation / audio / shield)
+- Current verified game-code checkpoint: `3e31ab2893564f6dfa305067e74b8adac0ac4d6d`. Touch joystick UP/LEFT/DOWN/RIGHT is tested. Root cause of no movement in mobile test was UI overlap: the new fourth action button caused the action row to cover the joystick. Portrait action controls are now a compact grid and the hit-target regression is tested.
+- Ibrahim's GLB skinned model now loads through Babylon's `Space` enum export; Bone objects are kept separate from TransformNode attachment parents. Expected thigh/calf/upperarm/lowerarm bones are asserted. Shoulder swing and elbow bend were added to the walk cycle.
+- Added procedural footstep audio, stronger ambient sound, reliable audio context resume/unlock and engine audio initialization.
+- Added mobile SHIELD ability: 4.5s defensive bubble, 20s cooldown, pushes nearby zombies away and blocks contact damage while active.
+- Browser desktop/mobile smoke test passed and Android debug APK workflow passed for the same code commit. APK SHA-256: `33a27dc213622967b32fbe54ce7547f58cd25d1321863561fe610e821a7c9b5a`.
+- Physical Android device testing has not yet been done; ask user to install and check feel/sound. The realistic hero/zombie art requirement is still incomplete; don't represent current procedural zombies as final production models.
+- Follow-up: wait for or disregard any docs-only workflow runs from this continuity update; do not confuse them with the verified game-code build above. Continue from latest main and do not regress joystick hit-area spacing, audio unlock, or the shield cooldown.
