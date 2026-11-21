@@ -710,6 +710,7 @@
   // Read-only debug surface used by the automated browser smoke test.
   window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,vehicles:fleet,interiorRooms,survivorRoot,relayStations,safehouseCenter,serviceCenter,get driving(){return driving;},get activeVehicle(){return activeVehicle;},get nearestVehicle(){return nearestVehicle();}};
   let worldClock=0;
+  let heroWalkPhase=0;
   let subtitleTimer=null;
   const subtitlePanel=document.getElementById("subtitles");
   function showSubtitle(urdu,translation,duration=4200){
@@ -739,22 +740,30 @@
     const moving=!driving&&state.moveX*state.moveX+state.moveY*state.moveY>.025;
     const sprinting=moving&&(state.sprint||keys.shift)&&!state.crouching&&state.stamina>1;
     const heroSpeed=sprinting?1.42:state.crouching?.62:1;
-    const heroPhase=performance.now()*.009*heroSpeed;
-    const gait=moving?Math.sin(heroPhase)*(sprinting?.88:state.crouching?.22:.58):Math.sin(worldClock*1.8)*.035;
+    heroWalkPhase+=dt*(sprinting?12.2:state.crouching?5.1:9.1);
+    const heroPhase=heroWalkPhase;
+    const gait=moving?Math.sin(heroPhase)*(sprinting?.88:state.crouching?.22:.62):Math.sin(worldClock*1.8)*.025;
     const airborne=!grounded&&verticalVelocity>0;
     if(heroModelReady){
       const crouch=state.crouching?1:0;
-      setIbrahimBone("thigh_l",gait*.78+crouch*.32);
-      setIbrahimBone("thigh_r",-gait*.78+crouch*.32);
-      setIbrahimBone("calf_l",Math.max(0,-gait)*.72+crouch*.78);
-      setIbrahimBone("calf_r",Math.max(0,gait)*.72+crouch*.78);
-      setIbrahimBone("upperarm_l",-gait*.66+(airborne?-.58:crouch*-.28));
-      setIbrahimBone("upperarm_r",gait*.66+(airborne?-.58:crouch*-.28));
-      setIbrahimBone("lowerarm_l",-.10+Math.max(0,gait)*.26);
-      setIbrahimBone("lowerarm_r",-.10+Math.max(0,-gait)*.26);
+      const leftSwing=gait,rightSwing=-gait;
+      const leftKnee=moving?Math.max(0,-Math.cos(heroPhase))*.92:0;
+      const rightKnee=moving?Math.max(0,Math.cos(heroPhase))*.92:0;
+      setIbrahimBone("thigh_l",leftSwing*.88+crouch*.30);
+      setIbrahimBone("thigh_r",rightSwing*.88+crouch*.30);
+      setIbrahimBone("calf_l",leftKnee+crouch*.72);
+      setIbrahimBone("calf_r",rightKnee+crouch*.72);
+      setIbrahimBone("foot_l",moving?-leftKnee*.22:0);
+      setIbrahimBone("foot_r",moving?-rightKnee*.22:0);
+      setIbrahimBone("upperarm_l",-gait*.78+(airborne?-.58:crouch*-.24));
+      setIbrahimBone("upperarm_r",gait*.78+(airborne?-.58:crouch*-.24));
+      setIbrahimBone("lowerarm_l",-.12+Math.max(0,gait)*.30);
+      setIbrahimBone("lowerarm_r",-.12+Math.max(0,-gait)*.30);
+      setIbrahimBone("spine_01",moving?Math.sin(heroPhase*2)*.018:0);
       setIbrahimBone("spine_02",crouch*.18+(airborne?-.06:Math.sin(worldClock*2)*.012));
-      setIbrahimBone("spine_03",crouch*.08+(moving?gait*.025:Math.sin(worldClock*2)*.008));
+      setIbrahimBone("spine_03",crouch*.08+(moving?gait*.045:Math.sin(worldClock*2)*.008));
       setIbrahimBone("head",airborne?-0.07:(crouch?0.08:Math.sin(worldClock*1.4)*0.012));
+      if(heroModelRoot)heroModelRoot.position.y=-.95+(moving?Math.abs(Math.sin(heroPhase*2))*.035:Math.sin(worldClock*2)*.008);
     }else{
       heroRig.leftLeg.rotation.x=gait;heroRig.rightLeg.rotation.x=-gait;
       heroRig.leftArm.rotation.x=-gait*.72+(airborne?-.7:state.crouching?-.28:0);
@@ -789,8 +798,11 @@
         saveProgress();
       }
     });
-    const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,Math.cos(state.yaw));
-    const right=new BABYLON.Vector3(forward.z,0,-forward.x);
+    // On-foot input is camera-relative. The follow camera sits behind the hero
+    // on the -Z side at zero yaw, so joystick UP must travel toward -Z.
+    // Vehicle throttle is handled separately below and is intentionally untouched.
+    const forward=new BABYLON.Vector3(Math.sin(state.yaw),0,-Math.cos(state.yaw));
+    const right=new BABYLON.Vector3(-forward.z,0,forward.x);
     const move=forward.scale(-state.moveY).add(right.scale(state.moveX));
     if(move.lengthSquared()>1)move.normalize();
     jumpCooldown=Math.max(0,jumpCooldown-dt);
