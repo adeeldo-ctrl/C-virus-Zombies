@@ -64,6 +64,7 @@ const server = http.createServer((req,res) => {
     if(!(await page.locator("#vehicle-prompt").isVisible()))throw new Error("Sedan enter prompt did not appear nearby.");
     await page.locator("#drive").click();
     if(!await page.evaluate(()=>window.__CVIRUS_DEBUG__.driving))throw new Error("Vehicle enter interaction failed.");
+    await page.waitForFunction(()=>document.getElementById("vehicle-prompt").textContent.includes("EXIT"),null,{timeout:3000});
     if(!(await page.locator("#vehicle-prompt").innerText()).includes("EXIT"))throw new Error("Vehicle exit prompt missing.");
     await page.locator("#drive").click();
     if(await page.evaluate(()=>window.__CVIRUS_DEBUG__.driving))throw new Error("Vehicle exit interaction failed.");
@@ -107,6 +108,6 @@ const server = http.createServer((req,res) => {
     if(!(mobileJumpPeak>mobileJumpStart+.3))throw new Error("Mobile jump button did not work.");
     if(!await mobile.locator("#stamina").count())throw new Error("Mobile stamina HUD missing.");
     if(errors.length)throw new Error("Browser errors: "+errors.join(" | "));
-    console.log("PASS: desktop scene, walkers, keyboard movement, sprint, jump, street collision and safe-zone objective; mobile viewport, joystick, camera-look and jump controls; no browser errors.");
+    console.log("PASS: desktop scene, walkers, movement, sprint, jump, collision, vehicle enter/exit, backpack medicine, safe-zone objective; mobile viewport, joystick, camera-look and jump controls; no browser errors.");
   } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
 })().catch(e=>{console.error(e);process.exit(1);});
