@@ -32,7 +32,7 @@ const server = http.createServer((req,res) => {
     const interiors=await page.evaluate(()=>window.__CVIRUS_DEBUG__.interiorRooms.map(r=>r.type));
     if(interiors.join(",")!=="CLINIC,SHOP,POLICE")throw new Error("Walk-in city interiors are missing: "+interiors.join(","));
     await page.keyboard.down("w");
-    await page.waitForTimeout(100);
+    await page.waitForFunction(()=>window.__CVIRUS_DEBUG__.state.moveY!==0,null,{timeout:3000});
     // Measure the gait while movement input is still held; after keyup the
     // idle pose correctly resets both leg angles to zero.
     let maxLegMotion=0;
@@ -41,7 +41,7 @@ const server = http.createServer((req,res) => {
       maxLegMotion=Math.max(maxLegMotion,legMotion);
       await page.waitForTimeout(45);
     }
-    if(maxLegMotion<.05)throw new Error("Hero walk-cycle animation did not respond to movement.");
+    if(maxLegMotion<.05){const gaitState=await page.evaluate(()=>({moveX:window.__CVIRUS_DEBUG__.state.moveX,moveY:window.__CVIRUS_DEBUG__.state.moveY,left:window.__CVIRUS_DEBUG__.heroRig.leftLeg.rotation.x,right:window.__CVIRUS_DEBUG__.heroRig.rightLeg.rotation.x}));throw new Error("Hero walk-cycle animation did not respond to movement: "+JSON.stringify(gaitState));}
     await page.waitForTimeout(250);
     await page.keyboard.up("w");
     const moved=await page.evaluate(()=>window.__CVIRUS_DEBUG__.player.position.z);
