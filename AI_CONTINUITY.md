@@ -262,3 +262,8 @@ When the user says **“C virus”** in a new chat:
 
 ## Latest audio update
 - Vehicle engine idle/rev audio is now generated in real time and follows throttle; it is routed through the sound-effects volume control.
+
+
+## Android packaging readiness
+- A manual GitHub Actions workflow now exists at `.github/workflows/build-android-apk.yml`. It builds and uploads a Capacitor debug APK artifact using Java 21 and Android SDK 36 when dispatched.
+- It has not yet been run. No Android project or APK artifact is currently generated in the repository; final build remains pending.

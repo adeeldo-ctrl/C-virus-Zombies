@@ -266,3 +266,8 @@ When the user says **“C virus”** in a new chat:
 ## 2026-11-21 — Vehicle engine audio
 - Added a generated engine idle/rev sound that responds to throttle while driving and fades out on foot, pause or mission end. It uses the existing effects-volume setting and does not require downloaded audio assets.
 - No new test run is claimed in this commit.
+
+
+## 2026-11-21 — Android APK build pipeline prepared
+- Added a manual GitHub Actions workflow that installs Java 21 and Android SDK 36, builds the Vite game, generates/syncs the Capacitor Android project and uploads an installable debug APK artifact.
+- Workflow is intentionally manual and has not been run; no APK is claimed as built. Final APK creation remains for the release stage after game development is complete.
