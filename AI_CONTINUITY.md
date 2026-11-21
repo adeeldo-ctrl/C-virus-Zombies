@@ -125,3 +125,17 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 ## Android-first implementation rule
 - The game is intended for Android touchscreen. Main acceptance is virtual joystick movement, independent right-side camera drag, contextual touch actions, vehicle controls and Android layout/performance. Desktop keyboard input is optional and must not define gameplay readiness.
 - Avoid repeated micro-tests. Run only consolidated build/integration checks when they provide useful evidence; build the APK only after the full approved game scope is implemented.
+
+
+## Latest implementation update — main menu and Pakistani vehicle fleet (2026-11-21)
+- Main menu now supports Continue/New Game, with a pause-to-main-menu route. New Game clears prior save and starts a fresh campaign.
+- Added five drivable low-poly vehicle types: sedan, motorcycle, auto-rickshaw, mini bus and 4K-style bus. The player can enter/exit the nearest vehicle; joystick steers/throttles and handling speeds differ by vehicle type.
+- Fleet positions/headings persist. Older sedan-only save positions remain readable. Restored mission completion is validated against all four supplies and the rescued survivor.
+- Commits: `3ac019a7c5f62bdb144b398913d22211aa022858`, `2dcbed513987a850f2a7e27658858138b6ab5243`, `a4b7ce6df92d744975b36d330c9a08832625ca3d`, `e5569836f4160bce9c83d8da03d57cfac8959bc8`, `33e5e738c8f931ec133659f7b52784bf92ee6fac`.
+- Vehicle models are still low-poly prototypes and are not final realistic art. No Android device validation or APK is claimed.
+
+## Next exact work
+- Replace procedural hero/zombie blockouts with properly rigged, detailed production models and integrated animations.
+- Expand mission progression beyond the first rescue/supply extraction, then implement safe-house storage, preparation and unlocks.
+- Add properly licensed/original Urdu voice, sound effects, music and separate audio settings.
+- Complete garage/hero selection/settings, mobile optimization and Android packaging only after all features are implemented.
