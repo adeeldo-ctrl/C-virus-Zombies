@@ -137,6 +137,7 @@
   vehiclePart(BABYLON.MeshBuilder.CreateBox("sedanFrontLight",{width:.42,height:.18,depth:.06},scene),shirtMat,new BABYLON.Vector3(.52,.12,1.7));
   let driving=false;
   const driveButton=document.getElementById("drive");
+  const vehiclePrompt=document.getElementById("vehicle-prompt");
   function toggleVehicle(){
     if(state.paused||state.ended)return;
     if(!driving&&BABYLON.Vector3.Distance(player.position,vehicle.position)<4.3){
@@ -293,6 +294,9 @@
     let near=false;
     zombies.forEach(z=>{if(state.safe||state.health<=0)return;const delta=player.position.subtract(z.position);delta.y=0;const dist=delta.length();if(!driving&&dist>1.25&&dist<z.metadata.detectionRange){delta.normalize();z.position.addInPlace(delta.scale(z.metadata.speed*dt));z.rotation.y=Math.atan2(delta.x,delta.z);}if(dist<1.7)near=true;});
     if(near&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
+    const vehicleDistance=BABYLON.Vector3.Distance(player.position,vehicle.position);
+    vehiclePrompt.hidden=!driving&&vehicleDistance>4.3;
+    vehiclePrompt.textContent=driving?"Press E / EXIT to leave vehicle":"Press E / DRIVE to enter sedan";
     const reached=BABYLON.Vector3.Distance(driving?vehicle.position:player.position,safe.position)<3;
     if(reached&&!state.safe&&state.supplies===4){state.safe=true;document.getElementById("message").textContent="Safe zone reached — mission complete!";document.getElementById("status").textContent="Mission complete. All 4 supplies secured.";endTitle.textContent="MISSION COMPLETE";endText.textContent="You reached the safe zone with all supplies.";endOverlay.hidden=false;showSubtitle("ہم محفوظ مقام تک پہنچ گئے! مشن مکمل۔","Safe zone reached. Mission complete.",5000);saveProgress();}
     else if(reached&&!state.safe){document.getElementById("message").textContent="Safe zone ahead — collect all 4 supplies first.";document.getElementById("status").textContent="Supplies secured: "+state.supplies+"/4. Find the remaining crates.";}
