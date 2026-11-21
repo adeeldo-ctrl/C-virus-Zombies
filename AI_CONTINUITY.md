@@ -25,7 +25,7 @@ Whenever the owner starts a chat with **“C virus”**:
 ## Current verified project direction
 The approved plan describes a third-person 3D zombie-survival adventure in an explorable Pakistani city. Preserve the requirements in `MASTER_PLAN.md`, including original detailed heroes/zombies, enterable buildings, Pakistani transport and drivable vehicles, a yellow hero health bar, Urdu dialogue/voice/subtitles, sound/music, mobile controls, survival systems, missions and Android APK delivery.
 
-## Last recorded development checkpoint (2026-11-21, mission-flow update)
+## Last recorded development checkpoint (2026-11-21, vehicle/archetype/story update)
 Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has explicitly instructed: complete the entire game first, fix genuine errors as encountered, do not build the APK until the game work is complete, and avoid unnecessary/repeated testing. Keep only essential build/integration/regression checks. Summary:
 - Phase 1 (technical foundation): still in progress; Vite production build passed in GitHub Actions run `44814206896`, but the desktop/mobile Chromium smoke test was still running when the log was written. Check its final conclusion before claiming success.
 - Phase 2 (player foundation): in progress; third-person camera/controller, collision movement, sprint/stamina, jump, joystick, touch actions and camera look are implemented but not signed off.
@@ -33,8 +33,16 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Real Android device/browser validation has not been performed.
 - Capacitor config exists, but the native `android/` project has not yet been generated in an Android SDK environment.
 - No APK has been built.
-- Current mission now requires all four supplies before safe-zone completion; early arrival reports the remaining crate count. Mission-complete state is persisted; end overlays offer a replay action that clears the local save.
-- Zombie models, full city, vehicles, story, Urdu voice acting, full audio, inventory and final menus remain unfinished.
+- Current mission requires all four supplies before safe-zone completion; mission-complete state is persisted; end overlays offer a replay action.
+- One low-poly sedan is now enterable/drivable with keyboard and mobile controls, and its position is saved. The remaining Pakistani vehicle categories are unfinished.
+- Five procedural walker archetypes have distinct size/detection/speed tuning; final art and obstacle-aware navigation remain unfinished.
+- Urdu subtitle intro/objective feedback and a basic day/night lighting/fog cycle are implemented; spoken Urdu voice acting and full audio remain unfinished.
+- Full city/interiors, complete vehicle fleet, story progression, inventory, safe house and final menus remain unfinished.
+
+## Latest implementation update (2026-11-21)
+- Added a drivable sedan, save persistence, distinct walker archetypes, Urdu subtitle presentation, day/night lighting and aligned the safe-zone smoke test with the four-crate objective.
+- Relevant commits: `da2be44d7e8f35cfdcaccc5b5dd29f6f3cbc4374`, `b4648c7204b8fe26848b87a28fa6541d28285811`, `ff23e5320ca1e2ff06704f619bedadb98c842f`, `fa7ec19f2881b20b8758f13616428a1296e7a935`, `f42b52293f52f98c5627ace2cef5e780a08052a5`, `6959ad2294118fdf30e4297fe99362b75e481c89`, `b47723ffa206e7a408fa0c8e6f8c1b76d36046f3`.
+- These latest changes have not yet been verified by a completed CI/device run.
 
 ## Latest implementation update (2026-11-21)
 - Fixed the safe-zone objective gate so the mission completes only after all four supply crates are collected.
