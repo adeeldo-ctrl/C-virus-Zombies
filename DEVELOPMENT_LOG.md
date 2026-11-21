@@ -1,6 +1,6 @@
 # C virus Zombies — Development Log
 
-**Last updated:** 2026-11-21 (mission-flow update)  
+**Last updated:** 2026-11-21 (vehicle, archetype and story presentation update)  
 **Repository:** https://github.com/adeeldo-ctrl/C-virus-Zombies  
 **Branch:** `main`  
 **Active engine:** Babylon.js 9 (Vite-bundled browser-first 3D)  
@@ -14,8 +14,20 @@
 - **Real Android device/browser test:** not performed.
 - **Android native project:** Capacitor config and scripts exist; `android/` has not yet been generated in an Android SDK environment.
 - **APK:** not built.
-- **Zombie art, city, vehicles, story, Urdu voice acting, complete sound, inventory and final menus:** not complete. Existing five articulated walkers remain prototype models.
+- **Zombie art and AI:** five distinct prototype archetypes now have different scale, detection range and pursuit speed (wanderer, sprinter, guardian, scout and alpha). These remain procedural placeholders; obstacle-aware pathfinding and polished art are still outstanding.
+- **Vehicles:** one low-poly sedan can be entered/exited with E or the mobile DRIVE/EXIT control and driven with movement input; its position is included in local saves. This is a first gameplay prototype only; bikes, auto rickshaws, Chingchi, mini buses and 4K buses are still outstanding.
+- **Story and world presentation:** added a short Urdu subtitle intro and pickup/mission feedback, plus a basic dynamic day/night lighting and fog cycle. Spoken Urdu voice acting, full dialogue scenes and audio remain outstanding.
+- **City, building interiors, inventory, safe house, complete audio, final menus and vehicle fleet:** not complete.
 - **Mission/save flow:** local save now persists mission completion. The safe-zone objective requires all four supply crates; reaching it early displays the remaining-supplies requirement. Mission-complete and mission-failed overlays provide a replay action that clears the local save and restarts the level.
+
+## Latest continuation work (2026-11-21)
+
+20. Added a drivable prototype sedan with proximity enter, exit, keyboard E and mobile DRIVE/EXIT control; vehicle position is saved alongside player progress. This is not the complete approved transport fleet.
+21. Added five non-graphic walker archetypes with distinct silhouettes/scales, detection distances and pursuit speeds.
+22. Added Urdu story/objective subtitles and pickup feedback, plus a basic day/night lighting and fog cycle.
+23. Updated the browser smoke-test setup so its safe-zone completion scenario supplies all four required crates before asserting mission completion.
+24. Normalized CSS line breaks and added bilingual subtitle styling.
+25. Commits: `da2be44d7e8f35cfdcaccc5b5dd29f6f3cbc4374`, `b4648c7204b8fe26848b87a28fa6541d28285811`, `ff23e5320ca1e2ff06704f619bedadb98c842f`, `fa7ec19f2881b20b8758f13616428a1296e7a935`, `f42b52293f52f98c5627ace2cef5e780a08052a5`, `6959ad2294118fdf30e4297fe99362b75e481c89`, `b47723ffa206e7a408fa0c8e6f8c1b76d36046f3`.
 
 ## Latest continuation work (2026-11-21)
 
@@ -44,6 +56,7 @@
 9. Updated GitHub Actions to install dependencies, build the production bundle, install Chromium and run desktop plus emulated-mobile gameplay checks. Added concurrency cancellation so obsolete runs are cancelled.
 
 ## Verification evidence
+- Source-level changes above were committed; no new browser/device test has been run in this continuation. The updated smoke test now matches the four-supply objective. CI completion remains unverified; do not claim the new vehicle, archetypes, subtitles or lighting as tested.
 - The latest mission/save changes were reviewed against the source flow, but no new browser/device test was run in this continuation. The earlier GitHub Actions status remains unverified after the animation-sampling fix. Do not claim these changes or the latest full project as tested.
 - Previous source-only validation workflow passed (run `44811652296`), but it predates the Vite production build.
 - Run `44814206896` completed with failure: dependency installation, Vite production build and Chromium installation passed; browser smoke test failed only at the single-frame walk-cycle assertion. Job log confirmed: `Hero walk-cycle animation did not respond to movement.` The assertion was changed to sample multiple frames in commit `2b14723a0e19f1ec1ce44f3184f128294b9c6973`. Subsequent gameplay/HUD commits also triggered the workflow; the GitHub connector does not expose push-run listing in this session, and combined commit status returned no status entries. Do not claim the latest workflow passed until a completed run is visible.
@@ -63,7 +76,7 @@
 - `.github/workflows/validate-prototype.yml` — build and browser-test workflow.
 
 ## Remaining work — ordered
-1. Continue Phase 1/2 only as needed: resolve the outstanding CI/browser foundation issue with one focused check when the workflow result is available; refine player/mobile controls and preserve Android compatibility.
+1. Continue Phase 1/2 with one focused production build/browser check when the current workflow result is available; then continue hero, zombie navigation, city/interior and vehicle-fleet implementation in plan order.
 2. Finish Phase 2: refine controller/camera/collisions and mobile touch ergonomics; pass browser checks.
 3. Finish Phase 3: replace blockout with detailed original hero asset, rig and polished animations.
 4. Phase 4: original non-graphic zombie models, animation, navigation and fair evasion/survival AI.
