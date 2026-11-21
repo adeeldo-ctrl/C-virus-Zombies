@@ -191,3 +191,10 @@ When the user says **“C virus”** in a new chat:
 - Diagnosed workflow `44878034035`: dependency installation failed before build because npm attempted to fetch unpublished Rollup `4.68.8`; public npm currently lists `4.68.7`. Added an npm override pinning Rollup to published `4.68.7` in commit `3337f3b960ab57084bb2dfa94ca927b02364a13d`. Workflow `44878101794` is the validation run for the dependency fix and integrated suite; its result must be checked before claiming success.
 - Relevant commits: `942db9c455fc02c1f6004e182bb872b6921d7139`, `19a411645d3f0440100b80e65eaccef5c2578ad2`, `c1a9492d940bac6cfa86593b2be5ea7f2b3eabc9`, `d82de395dfd95567d6f36340cbc191635b6e2d52`, `9ace0abde57b2dc2754fb6f1f5c77458bdc41d75`, `e2fa1760d12f4e82d8290635f1bc21f373297e76`, `3337f3b960ab57084bb2dfa94ca927b02364a13d`.
 - No APK built. Final-quality character art, city scale/streaming, boss, vehicle fuel/repair/audio, full story, crafting/upgrades, Urdu voice acting, settings, Android optimization/device QA remain unfinished.
+
+
+## 2026-11-21 — Android-first acceptance correction
+- Integrated workflow `44878101794` confirmed dependency installation and Vite production build succeeded; the smoke suite then failed because a desktop mouse surrogate did not move the player through the joystick. This was a test harness mismatch, not a reason to reintroduce keyboard-based acceptance.
+- Removed the desktop mouse-surrogate movement assertion; retained the actual mobile Chromium touch-event test for joystick movement, right-side camera drag and jump. The consolidated suite still covers vehicle enter/exit, backpack medicine, safe-house storage, survivor rescue and both campaign missions.
+- Latest workflow `44878209378` has dependency installation and production bundle build successful; Chromium installation was still running at last check and the updated integrated smoke test had not yet completed. No overall pass is claimed.
+- Fix commit: `f2052db1d8d7d83d7d744db2c3094e88301373a0`.
