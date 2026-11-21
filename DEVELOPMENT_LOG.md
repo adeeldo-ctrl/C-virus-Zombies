@@ -17,7 +17,8 @@
 - **Zombie art and AI:** five distinct prototype archetypes now have different scale, detection range and pursuit speed (wanderer, sprinter, guardian, scout and alpha). These remain procedural placeholders; obstacle-aware pathfinding and polished art are still outstanding.
 - **Vehicles:** one low-poly sedan can be entered/exited with E or the mobile DRIVE/EXIT control and driven with movement input; its position is included in local saves. This is a first gameplay prototype only; bikes, auto rickshaws, Chingchi, mini buses and 4K buses are still outstanding.
 - **Story and world presentation:** added a short Urdu subtitle intro and pickup/mission feedback, plus a basic dynamic day/night lighting and fog cycle. Spoken Urdu voice acting, full dialogue scenes and audio remain outstanding.
-- **City, building interiors, inventory, safe house, complete audio, final menus and vehicle fleet:** not complete.
+- **Inventory:** backpack panel now tracks water, food, medicine and parts from the four crates and persists these counts with the save. A complete expandable inventory/equipment system and safe-house storage remain outstanding.
+- **City, building interiors, safe house, complete audio, final menus and vehicle fleet:** not complete.
 - **Mission/save flow:** local save now persists mission completion. The safe-zone objective requires all four supply crates; reaching it early displays the remaining-supplies requirement. Mission-complete and mission-failed overlays provide a replay action that clears the local save and restarts the level.
 
 ## Latest continuation work (2026-11-21)
@@ -27,7 +28,8 @@
 22. Added Urdu story/objective subtitles and pickup feedback, plus a basic day/night lighting and fog cycle.
 23. Updated the browser smoke-test setup so its safe-zone completion scenario supplies all four required crates before asserting mission completion.
 24. Normalized CSS line breaks and added bilingual subtitle styling.
-25. Commits: `da2be44d7e8f35cfdcaccc5b5dd29f6f3cbc4374`, `b4648c7204b8fe26848b87a28fa6541d28285811`, `ff23e5320ca1e2ff06704f619bedadb98c842f`, `fa7ec19f2881b20b8758f13616428a1296e7a935`, `f42b52293f52f98c5627ace2cef5e780a08052a5`, `6959ad2294118fdf30e4297fe99362b75e481c89`, `b47723ffa206e7a408fa0c8e6f8c1b76d36046f3`.
+25. Added a backpack panel with four supply categories, bilingual labels and save/load persistence; fixed the top HUD action-button layout.
+26. Commits: `da2be44d7e8f35cfdcaccc5b5dd29f6f3cbc4374`, `b4648c7204b8fe26848b87a28fa6541d28285811`, `ff23e5320ca1e2ff06704f619bedadb98c842f`, `fa7ec19f2881b20b8758f13616428a1296e7a935`, `f42b52293f52f98c5627ace2cef5e780a08052a5`, `6959ad2294118fdf30e4297fe99362b75e481c89`, `b47723ffa206e7a408fa0c8e6f8c1b76d36046f3`, `675a35eaf9769d4a1f839aa219099a2f25bbe5bc`, `d8a89c0d7512f8bba0ae5d444e4828b622cc08b1`, `876935086b7d86d5edcd4eb628f50785fdd1b919`.
 
 ## Latest continuation work (2026-11-21)
 
