@@ -173,3 +173,12 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Workflow `44878101794`: npm install and Vite production build passed; smoke test stopped on a desktop mouse surrogate for the joystick. That desktop-only surrogate assertion was removed. Actual mobile Chromium touch joystick/camera/jump checks remain in the suite.
 - Latest workflow `44878209378`: npm install and production bundle build passed; Chromium installation was still running at last check, so overall smoke-test result remains unverified.
 - Fix commit: `f2052db1d8d7d83d7d744db2c3094e88301373a0`.
+
+
+## 2026-11-21 — Survivor escort gameplay
+- Replaced the instant-hide rescue outcome with a visible shopkeeper escort. After rescue, the NPC follows the player, keeps a safe trailing distance, turns toward the travel direction and uses lightweight obstacle steering; the follower keeps pace when the player drives.
+- Save/load restores the rescued NPC near the restored player, and the NPC is hidden when Mission 2 begins.
+- Mission 1 extraction now requires the shopkeeper to reach the safe zone as well as the player, survivor rescue and all four supplies. The safe-zone prompt tells the player to wait if the escort is still catching up.
+- Extended the existing integrated flow to assert that the rescued NPC remains present for escort. Verification after the changes is pending; no browser-suite or Android-device pass is claimed.
+- APK remains deferred until all approved game features are implemented.
+
