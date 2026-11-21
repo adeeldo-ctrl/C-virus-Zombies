@@ -178,7 +178,23 @@
   document.getElementById("supplies").textContent=String(state.supplies);
   document.getElementById("health").style.width=state.health+"%";
   const inventoryPanel=document.getElementById("inventory-panel");
-  function updateInventory(){for(const key of ["water","food","medicine","parts"])document.getElementById("item-"+key).textContent=String(state.inventory[key]);}
+  function updateInventory(){
+    for(const key of ["water","food","medicine","parts"])document.getElementById("item-"+key).textContent=String(state.inventory[key]);
+    document.getElementById("use-medicine").disabled=state.inventory.medicine<1||state.health>=100;
+    document.getElementById("use-water").disabled=state.inventory.water<1||state.stamina>=100;
+    document.getElementById("use-food").disabled=state.inventory.food<1||state.stamina>=100;
+  }
+  function consumeSupply(item){
+    if(state.inventory[item]<1)return;
+    if(item==="medicine"&&state.health<100){state.inventory.medicine--;state.health=Math.min(100,state.health+30);document.getElementById("health").style.width=state.health+"%";document.getElementById("status").textContent="Medicine used — health restored.";}
+    else if(item==="water"&&state.stamina<100){state.inventory.water--;state.stamina=Math.min(100,state.stamina+35);document.getElementById("stamina").style.width=state.stamina+"%";document.getElementById("status").textContent="Water used — stamina restored.";}
+    else if(item==="food"&&state.stamina<100){state.inventory.food--;state.stamina=Math.min(100,state.stamina+25);document.getElementById("stamina").style.width=state.stamina+"%";document.getElementById("status").textContent="Food used — stamina restored.";}
+    else return;
+    updateInventory();saveProgress();
+  }
+  document.getElementById("use-medicine").addEventListener("click",()=>consumeSupply("medicine"));
+  document.getElementById("use-water").addEventListener("click",()=>consumeSupply("water"));
+  document.getElementById("use-food").addEventListener("click",()=>consumeSupply("food"));
   updateInventory();
   const inventoryButton=document.getElementById("inventory-button");
   inventoryButton.addEventListener("click",()=>{inventoryPanel.hidden=!inventoryPanel.hidden;state.inventoryOpen=!inventoryPanel.hidden;if(state.inventoryOpen){state.sprint=false;touchX=0;touchY=0;reset();saveProgress();}});
