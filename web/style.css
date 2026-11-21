@@ -23,3 +23,5 @@
 #top-actions #pause-button{position:static}
 
 .inventory-actions{display:grid;gap:7px;margin-top:12px}.inventory-actions button{padding:9px 8px;border:1px solid #ffffff35;border-radius:7px;background:#203b4d;color:#fff;font-size:10px;font-weight:800;letter-spacing:.35px}.inventory-actions button:disabled{opacity:.35;filter:grayscale(1)}.inventory-actions button:not(:disabled):active{background:#397a70}
+
+#vehicle-prompt{position:absolute;left:50%;bottom:205px;transform:translateX(-50%);padding:8px 12px;border:1px solid #e5c44b99;border-radius:8px;background:#101d2be8;color:#ffe58a;font-size:11px;font-weight:800;letter-spacing:.35px;white-space:nowrap;pointer-events:none;box-shadow:0 4px 16px #0008}#vehicle-prompt[hidden]{display:none}
