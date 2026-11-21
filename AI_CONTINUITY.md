@@ -304,3 +304,5 @@ When the user says **“C virus”** in a new chat:
 - Next implementation checkpoint: continue the Master Plan in order, prioritising Phase 2 mobile controller/camera ergonomics and Phase 3 hero production improvements. Keep work consolidated and avoid unnecessary test runs.
 
 - Follow-up mobile ergonomics: added a landscape-specific HUD, joystick, action-button, subtitle, vehicle-status and main-menu layout for short-height Android screens. Existing portrait/browser styles remain unchanged.
+
+- UI notification improvement: gameplay notifications now appear as a compact, single-line banner at the top centre instead of covering the lower middle gameplay area. Long messages are clipped with ellipsis; landscape layout uses a slightly tighter banner.
