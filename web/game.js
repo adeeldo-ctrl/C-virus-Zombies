@@ -372,7 +372,10 @@
   const vehicle=fleet[0].root;
   let activeVehicle=fleet[0],driving=false;
   const hornButton=document.getElementById("vehicle-horn");
-  const lightsButton=document.getElementById("vehicle-lights");\n  const brakeButton=document.getElementById("vehicle-brake");\n  brakeButton.addEventListener("pointerdown",()=>{if(driving&&!state.paused&&!state.ended)state.braking=true;});\n  ["pointerup","pointercancel","pointerleave"].forEach(eventName=>brakeButton.addEventListener(eventName,()=>{state.braking=false;}));
+  const lightsButton=document.getElementById("vehicle-lights");
+  const brakeButton=document.getElementById("vehicle-brake");
+  brakeButton.addEventListener("pointerdown",()=>{if(driving&&!state.paused&&!state.ended)state.braking=true;});
+  ["pointerup","pointercancel","pointerleave"].forEach(eventName=>brakeButton.addEventListener(eventName,()=>{state.braking=false;}));
   function setVehicleLights(on){
     activeVehicle.lightsOn=!!on;
     activeVehicle.frontLights.forEach(mesh=>{mesh.isVisible=activeVehicle.lightsOn;});
@@ -631,7 +634,8 @@
     jumpCooldown=Math.max(0,jumpCooldown-dt);
     if(move.lengthSquared()>0.001&&!state.safe&&state.health>0){move.normalize();player.rotation.y=Math.atan2(move.x,move.z);}
     if(driving){
-      const throttle=state.braking?0:-state.moveY;\n      activeVehicle.rearLights.forEach(mesh=>{mesh.isVisible=state.braking;});
+      const throttle=state.braking?0:-state.moveY;
+      activeVehicle.rearLights.forEach(mesh=>{mesh.isVisible=state.braking;});
       if(Math.abs(throttle)>.08||Math.abs(state.moveX)>.08){
         if(activeVehicle.fuel<=0||activeVehicle.condition<=0){
           document.getElementById("status").textContent=activeVehicle.fuel<=0?"Out of fuel — visit the safe-house service bay.":"Vehicle needs repairs — visit the safe-house service bay.";
