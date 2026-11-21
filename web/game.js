@@ -2,6 +2,45 @@
   const canvas = document.getElementById("game");
   const engine = new BABYLON.Engine(canvas, true, {preserveDrawingBuffer:false, stencil:true, antialias:true});
   const state = {health:100, stamina:100, moveX:0, moveY:0, yaw:0, pitch:0, safe:false, rescued:false, sprint:false, paused:true, ended:false, inventoryOpen:false, storageOpen:false, serviceOpen:false, missionIndex:1, activatedRelays:[]};
+  // Original procedural audio: ambient survival bed and short gameplay cues.
+  const audioSettings={music:0.22,effects:0.55,...(()=>{try{return JSON.parse(localStorage.getItem("cvirus-audio-v1")||"{}");}catch{return {};}})()};
+  let audioContext=null,musicBus=null,effectsBus=null,ambientNodes=[];
+  function initAudio(){
+    if(audioContext)return audioContext;
+    const AudioCtx=window.AudioContext||window.webkitAudioContext;
+    if(!AudioCtx)return null;
+    audioContext=new AudioCtx();
+    musicBus=audioContext.createGain();musicBus.gain.value=audioSettings.music;musicBus.connect(audioContext.destination);
+    effectsBus=audioContext.createGain();effectsBus.gain.value=audioSettings.effects;effectsBus.connect(audioContext.destination);
+    const low=audioContext.createOscillator(),high=audioContext.createOscillator(),filter=audioContext.createBiquadFilter(),bed=audioContext.createGain();
+    low.type="sine";low.frequency.value=55;high.type="triangle";high.frequency.value=110;
+    filter.type="lowpass";filter.frequency.value=260;bed.gain.value=.12;
+    low.connect(filter);high.connect(filter);filter.connect(bed);bed.connect(musicBus);
+    low.start();high.start();ambientNodes=[low,high,filter,bed];
+    return audioContext;
+  }
+  function playCue(kind="tap"){
+    const ctx=initAudio();if(!ctx)return;
+    if(ctx.state==="suspended")ctx.resume();
+    const presets={tap:[520,.055,"sine"],pickup:[740,.16,"triangle"],rescue:[440,.28,"sine"],alert:[170,.2,"sawtooth"],success:[880,.32,"triangle"]};
+    const [frequency,duration,type]=presets[kind]||presets.tap;
+    const osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.type=type;osc.frequency.setValueAtTime(frequency,ctx.currentTime);
+    if(kind==="pickup"||kind==="success")osc.frequency.exponentialRampToValueAtTime(frequency*1.45,ctx.currentTime+duration);
+    gain.gain.setValueAtTime(.0001,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(.18,ctx.currentTime+.018);gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+duration);
+    osc.connect(gain);gain.connect(effectsBus);osc.start();osc.stop(ctx.currentTime+duration+.025);
+  }
+  function saveAudioSettings(){try{localStorage.setItem("cvirus-audio-v1",JSON.stringify(audioSettings));}catch{}}
+  const settingsPanel=document.getElementById("settings-panel");
+  document.getElementById("settings-button").addEventListener("click",()=>{initAudio();settingsPanel.hidden=false;playCue("tap");});
+  document.getElementById("close-settings").addEventListener("click",()=>{settingsPanel.hidden=true;playCue("tap");});
+  for(const key of ["music","effects"]){
+    const slider=document.getElementById(key+"-volume");
+    slider.value=audioSettings[key];
+    document.getElementById(key+"-value").textContent=Math.round(audioSettings[key]*100)+"%";
+    slider.addEventListener("input",()=>{audioSettings[key]=Number(slider.value);document.getElementById(key+"-value").textContent=Math.round(audioSettings[key]*100)+"%";if(key==="music"&&musicBus)musicBus.gain.value=audioSettings.music;if(key==="effects"&&effectsBus)effectsBus.gain.value=audioSettings.effects;saveAudioSettings();});
+  }
+  document.addEventListener("pointerdown",()=>{const ctx=initAudio();if(ctx&&ctx.state==="suspended")ctx.resume();},{once:true});
   const scene = new BABYLON.Scene(engine);
   scene.collisionsEnabled = true;
   scene.clearColor = new BABYLON.Color4(0.48,0.66,0.77,1);
@@ -384,7 +423,7 @@
     if(state.missionIndex===1){
       if(state.rescued||BABYLON.Vector3.Distance(player.position,survivorRoot.position)>2.7)return;
       state.rescued=true;survivorRoot.setEnabled(true);survivorMarker.setEnabled(false);
-      document.getElementById("message").textContent="Shopkeeper rescued — stay close and escort him to the safe zone.";
+      playCue("rescue");document.getElementById("message").textContent="Shopkeeper rescued — stay close and escort him to the safe zone.";
       document.getElementById("status").textContent="The shopkeeper is following you. Collect all 4 supplies and bring him to extraction.";
       showSubtitle("براہ کرم مجھے یہاں سے نکالیں۔ شکریہ!","Thank you for rescuing me. Let's reach the safe zone.",4200);
       saveProgress();
@@ -393,7 +432,7 @@
       if(!station||BABYLON.Vector3.Distance(player.position,station.root.position)>3.1)return;
       station.active=true;station.root.setEnabled(false);state.activatedRelays.push(station.index);
       const count=state.activatedRelays.length;
-      document.getElementById("message").textContent="Emergency relay online: "+count+"/3";
+      playCue("success");document.getElementById("message").textContent="Emergency relay online: "+count+"/3";
       document.getElementById("status").textContent=count===3?"All radio relays active. Return to the safe zone.":"Activate the remaining "+(3-count)+" emergency radio relays.";
       showSubtitle("ریڈیو ٹاور فعال ہو گیا۔","Emergency radio relay activated.",2600);
       saveProgress();
@@ -557,7 +596,7 @@
         updateInventory();
         document.getElementById("supplies").textContent=String(state.supplies);
         document.getElementById("health").style.width=state.health+"%";
-        document.getElementById("status").textContent="Supplies collected: "+state.supplies+"/4 — reach the safe zone.";showSubtitle("سپلائی مل گئی۔ محفوظ مقام کی طرف بڑھیں۔","Supply secured. Keep moving toward the safe zone.",2200);
+        playCue("pickup");document.getElementById("status").textContent="Supplies collected: "+state.supplies+"/4 — reach the safe zone.";showSubtitle("سپلائی مل گئی۔ محفوظ مقام کی طرف بڑھیں۔","Supply secured. Keep moving toward the safe zone.",2200);
         saveProgress();
       }
     });
@@ -654,7 +693,7 @@
       }
       if(dist<1.7)near=true;
     });
-    if(near&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
+    if(near&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){playCue("alert");state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
     const nearest=nearestVehicle();
     vehiclePrompt.hidden=!driving&&nearest.distance>4.8;
     vehiclePrompt.textContent=driving?"Tap EXIT to leave "+activeVehicle.type:"Tap DRIVE to enter "+nearest.item.type;
