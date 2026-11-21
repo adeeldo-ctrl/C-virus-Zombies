@@ -126,3 +126,10 @@ When the user says **“C virus”** in a new chat:
 - No browser test pass is claimed for this commit. APK remains deferred until all game phases are complete.
 - Commits: `1858e1575f126d66f5f180027c4aab349c29ebb8` plus the current documentation/smoke-suite commit.
 - Next: continue Phase 2/3 and production city/character work, then expand vehicles, story, safe-house, audio and menus in the master-plan order.
+
+
+## 2026-11-21 — city district expansion
+- Added four parallel side roads, two connected cross streets with lane markings, and 24 lightweight neighbourhood building blocks to open up the playable world beyond the original narrow central street.
+- Preserved the clinic, shop and police-post interior access by moving the cross-street set away from their entrances.
+- The new district is still low-poly prototype environment art; final-quality city assets, world streaming, richer streetscape props and expanded enterable buildings remain outstanding.
+- Commits: `98bff694a894197436eea825f586878d448e6939`, `5a20a39861f5b06ead1edfcce0582daa9897192f`.
