@@ -29,7 +29,8 @@
 23. Updated the browser smoke-test setup so its safe-zone completion scenario supplies all four required crates before asserting mission completion.
 24. Normalized CSS line breaks and added bilingual subtitle styling.
 25. Added a backpack panel with four supply categories, bilingual labels and save/load persistence; fixed the top HUD action-button layout.
-26. Commits: `da2be44d7e8f35cfdcaccc5b5dd29f6f3cbc4374`, `b4648c7204b8fe26848b87a28fa6541d28285811`, `ff23e5320ca1e2ff06704f619bedadb98c842f`, `fa7ec19f2881b20b8758f13616428a1296e7a935`, `f42b52293f52f98c5627ace2cef5e780a08052a5`, `6959ad2294118fdf30e4297fe99362b75e481c89`, `b47723ffa206e7a408fa0c8e6f8c1b76d36046f3`, `675a35eaf9769d4a1f839aa219099a2f25bbe5bc`, `d8a89c0d7512f8bba0ae5d444e4828b622cc08b1`, `876935086b7d86d5edcd4eb628f50785fdd1b919`.
+26. Opening the backpack now freezes gameplay and saves progress so the player cannot be approached while managing supplies.
+27. Commits: `da2be44d7e8f35cfdcaccc5b5dd29f6f3cbc4374`, `b4648c7204b8fe26848b87a28fa6541d28285811`, `ff23e5320ca1e2ff06704f619bedadb98c842f`, `fa7ec19f2881b20b8758f13616428a1296e7a935`, `f42b52293f52f98c5627ace2cef5e780a08052a5`, `6959ad2294118fdf30e4297fe99362b75e481c89`, `b47723ffa206e7a408fa0c8e6f8c1b76d36046f3`, `675a35eaf9769d4a1f839aa219099a2f25bbe5bc`, `d8a89c0d7512f8bba0ae5d444e4828b622cc08b1`, `876935086b7d86d5edcd4eb628f50785fdd1b919`, `b7f1a1508c6179aded26b35d2d97a0742236c18e`.
 
 ## Latest continuation work (2026-11-21)
 
