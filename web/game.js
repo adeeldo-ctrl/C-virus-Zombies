@@ -111,6 +111,36 @@
     const marker=BABYLON.MeshBuilder.CreateCylinder("supplyMarker"+i,{diameter:1.05,height:.035,tessellation:24},scene);marker.material=safeMat;marker.position.set(crate.position.x,.04,crate.position.z);
     pickups.push({mesh:crate,marker,collected:false,phase:i});
   }
+  // First drivable street car: simple original low-poly sedan with enter/exit and mobile controls.
+  const vehicle=BABYLON.MeshBuilder.CreateBox("sedanCollider",{width:1.9,height:.85,depth:3.5},scene);
+  vehicle.position.set(3.3,.58,31);vehicle.material=heroMat;vehicle.visibility=.001;vehicle.checkCollisions=true;
+  const vehicleParts=[];
+  const vehiclePart=(mesh,material,pos)=>{mesh.parent=vehicle;mesh.material=material;mesh.position.copyFrom(pos);vehicleParts.push(mesh);return mesh;};
+  vehiclePart(BABYLON.MeshBuilder.CreateBox("sedanBody",{width:1.85,height:.55,depth:3.35},scene),mat("sedanPaint","#315f78"),new BABYLON.Vector3(0,-.03,0));
+  vehiclePart(BABYLON.MeshBuilder.CreateBox("sedanCabin",{width:1.48,height:.68,depth:1.75},scene),windowMat,new BABYLON.Vector3(0,.53,-.12));
+  vehiclePart(BABYLON.MeshBuilder.CreateBox("sedanRoof",{width:1.52,height:.12,depth:1.82},scene),mat("sedanRoof","#24445a"),new BABYLON.Vector3(0,.9,-.12));
+  for(const side of [-1,1])for(const z of [-1.12,1.12]){
+    const wheel=BABYLON.MeshBuilder.CreateCylinder("sedanWheel",{diameter:.62,height:.2,tessellation:16},scene);wheel.rotation.z=Math.PI/2;
+    vehiclePart(wheel,bootMat,new BABYLON.Vector3(side*.91,-.28,z));
+  }
+  vehiclePart(BABYLON.MeshBuilder.CreateBox("sedanFrontLight",{width:.42,height:.18,depth:.06},scene),shirtMat,new BABYLON.Vector3(-.52,.12,1.7));
+  vehiclePart(BABYLON.MeshBuilder.CreateBox("sedanFrontLight",{width:.42,height:.18,depth:.06},scene),shirtMat,new BABYLON.Vector3(.52,.12,1.7));
+  let driving=false;
+  const driveButton=document.getElementById("drive");
+  function toggleVehicle(){
+    if(state.paused||state.ended)return;
+    if(!driving&&BABYLON.Vector3.Distance(player.position,vehicle.position)<4.3){
+      driving=true;player.setEnabled(false);camera.lockedTarget=vehicle;
+      document.getElementById("status").textContent="Driving sedan — use joystick or WASD, press E / EXIT to leave.";
+      driveButton.textContent="EXIT";
+    }else if(driving){
+      driving=false;player.position.copyFrom(vehicle.position);player.position.x+=1.45;player.position.y=.95;
+      player.rotation.y=vehicle.rotation.y;player.setEnabled(true);camera.lockedTarget=player;
+      document.getElementById("status").textContent="On foot — approach the sedan and press E to drive.";
+      driveButton.textContent="DRIVE";
+    }
+  }
+  driveButton.addEventListener("click",toggleVehicle);
   const SAVE_KEY="cvirus-zombies-save-v1";
   let savedGame=null;
   try{savedGame=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");}catch{savedGame=null;}
@@ -144,7 +174,7 @@
   window.addEventListener("pagehide",saveProgress);
   let saveClock=0, damageTimer=0, touchX=0, touchY=0, verticalVelocity=0, grounded=true, jumpCooldown=0;
   // Read-only debug surface used by the automated browser smoke test.
-  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups};
+  window.__CVIRUS_DEBUG__={engine,scene,player,zombies,safe,state,heroRig,pickups,vehicle,get driving(){return driving;}};
   scene.onBeforeRenderObservable.add(()=>{
     if(state.paused||state.ended)return;
     const dt=Math.min(engine.getDeltaTime()/1000,.04);
@@ -177,7 +207,13 @@
     if(move.lengthSquared()>1)move.normalize();
     jumpCooldown=Math.max(0,jumpCooldown-dt);
     if(move.lengthSquared()>0.001&&!state.safe&&state.health>0){move.normalize();player.rotation.y=Math.atan2(move.x,move.z);}
-    if(!state.safe&&state.health>0){
+    if(driving){
+      const vehicleMove=forward.scale(-state.moveY).add(right.scale(state.moveX));
+      if(vehicleMove.lengthSquared()>1)vehicleMove.normalize();
+      if(vehicleMove.lengthSquared()>.001){vehicle.rotation.y=Math.atan2(vehicleMove.x,vehicleMove.z);const driveSpeed=state.sprint?10:6.2;vehicle.moveWithCollisions(vehicleMove.scale(driveSpeed*dt));}
+      player.position.copyFrom(vehicle.position);
+    }
+    if(!driving&&!state.safe&&state.health>0){
       const wantsSprint=(state.sprint||keys.shift)&&move.lengthSquared()>.01&&state.stamina>1;
       if(wantsSprint)state.stamina=Math.max(0,state.stamina-27*dt);
       else state.stamina=Math.min(100,state.stamina+18*dt);
@@ -191,8 +227,8 @@
     }
     let near=false;
     zombies.forEach(z=>{if(state.safe||state.health<=0)return;const delta=player.position.subtract(z.position);delta.y=0;const dist=delta.length();if(dist>1.25&&dist<28){delta.normalize();z.position.addInPlace(delta.scale(1.45*dt));z.rotation.y=Math.atan2(delta.x,delta.z);}if(dist<1.7)near=true;});
-    if(near&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
-    const reached=BABYLON.Vector3.Distance(player.position,safe.position)<3;
+    if(near&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
+    const reached=BABYLON.Vector3.Distance(driving?vehicle.position:player.position,safe.position)<3;
     if(reached&&!state.safe&&state.supplies===4){state.safe=true;document.getElementById("message").textContent="Safe zone reached — mission complete!";document.getElementById("status").textContent="Mission complete. All 4 supplies secured.";endTitle.textContent="MISSION COMPLETE";endText.textContent="You reached the safe zone with all supplies.";endOverlay.hidden=false;saveProgress();}
     else if(reached&&!state.safe){document.getElementById("message").textContent="Safe zone ahead — collect all 4 supplies first.";document.getElementById("status").textContent="Supplies secured: "+state.supplies+"/4. Find the remaining crates.";}
     if(state.health<=0&&!state.safe&&!state.ended){state.ended=true;document.getElementById("message").textContent="Health depleted — mission failed";document.getElementById("status").textContent="Mission failed. Retry to start again.";endTitle.textContent="MISSION FAILED";endText.textContent="Try a different route and collect the supplies.";endOverlay.hidden=false;}
@@ -210,7 +246,7 @@
   resumeButton.addEventListener("click",()=>setPaused(false));
   document.getElementById("retry-button").addEventListener("click",()=>{localStorage.removeItem(SAVE_KEY);window.location.reload();});
   const doJump=()=>{if(grounded&&jumpCooldown===0&&!state.safe&&state.health>0){verticalVelocity=7.2;grounded=false;jumpCooldown=.22;}};
-  window.addEventListener("keydown",e=>{if(e.key==="Escape"){setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(state.paused)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
+  window.addEventListener("keydown",e=>{if(e.key.toLowerCase()==="e"){toggleVehicle();return;}if(e.key==="Escape"){setPaused(!state.paused);return;}const key=e.key.toLowerCase();if(state.paused)return;if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(key))e.preventDefault();keys[key]=true;if(e.code==="Space")doJump();});
   window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
   window.addEventListener("blur",()=>{for(const key in keys)keys[key]=false;state.sprint=false;});
   engine.runRenderLoop(()=>{const keyX=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);const keyY=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);state.moveX=touchX!==0?touchX:keyX;state.moveY=touchY!==0?touchY:keyY;scene.render();});
