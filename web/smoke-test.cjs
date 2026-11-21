@@ -53,6 +53,15 @@ const server = http.createServer((req,res) => {
     if(!await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.driving))throw new Error("Vehicle enter interaction failed.");
     await desktop.locator("#drive").click();
     if(await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.driving))throw new Error("Vehicle exit interaction failed.");
+    // Vehicle service bay: refuel is free, repairs consume one spare part.
+    await desktop.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.player.position.set(d.serviceCenter.x+2.3,.95,d.serviceCenter.z);d.vehicles[0].fuel=12;d.vehicles[0].condition=42;d.state.inventory.parts=1;});
+    await desktop.waitForFunction(()=>!document.getElementById("service-button").hidden,null,{timeout:5000});
+    await desktop.locator("#service-button").click();
+    await desktop.locator("#refuel-vehicle").click();
+    await desktop.locator("#repair-vehicle").click();
+    const serviced=await desktop.evaluate(()=>({fuel:window.__CVIRUS_DEBUG__.vehicles[0].fuel,condition:window.__CVIRUS_DEBUG__.vehicles[0].condition,parts:window.__CVIRUS_DEBUG__.state.inventory.parts}));
+    if(serviced.fuel!==100||serviced.condition!==100||serviced.parts!==0)throw new Error("Vehicle refuel/repair service failed.");
+    await desktop.locator("#close-service").click();
     // Verify backpack consumables.
     await desktop.locator("#inventory-button").click();
     await desktop.evaluate(()=>{const d=window.__CVIRUS_DEBUG__;d.state.health=50;d.state.inventory.medicine=1;document.getElementById("health").style.width="50%";document.getElementById("use-medicine").disabled=false;});
