@@ -182,3 +182,10 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Extended the existing integrated flow to assert that the rescued NPC remains present for escort. Verification after the changes is pending; no browser-suite or Android-device pass is claimed.
 - APK remains deferred until all approved game features are implemented.
 
+
+
+## 2026-11-21 — Vehicle smoke-flow correction
+- The previous integrated run (`44878631625`) completed dependency installation, Chromium installation and the Vite production build, but timed out waiting for the vehicle prompt.
+- Root cause in the smoke setup: it teleported the player 1.4 units forward into the sedan's collision footprint. The test now places the player 2.3 units to the side (still inside the 4.8-unit interaction radius), explicitly resumes the scene, and uses Playwright's correct wait-options argument.
+- This is a test-position correction, not evidence of a game runtime pass. One consolidated run will be used to catch any remaining integration defects after the current gameplay batch.
+- APK remains deferred until the Master Plan scope and Android release checks are complete.
