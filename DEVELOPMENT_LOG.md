@@ -26,7 +26,8 @@
 28. Normalized two escaped newline sequences in the stylesheet that could interfere with selector parsing; preserved the existing responsive HUD and control styles. Commit: `e6cd370357b0bb9277a4d33da6f48d9296c40cf2`.
 29. Fixed save recovery when the player saved while driving: on reload, the player is restored beside the saved sedan instead of inside its collider. Commit: `f3bfd4c6f2547003eda61f6e9af717faa3c8dd2e`.
 30. Made backpack supplies usable: medicine restores up to 30 health; water restores up to 35 stamina; food restores up to 25 stamina. Buttons disable when the item is unavailable or the relevant meter is full, and consumption updates HUD plus local save. Commits: `0b98cbedb5241b19691ba7275f014de29a759294`, `d9624f1a43621579a5a9d69fe55dc913c54260a6`, `74ed1ad634253848331fa82cb90449f81b90a7d0`.
-31. These source changes have not yet been run through a fresh browser/device check. Keep the project status honest; perform one consolidated build/browser verification after the next coherent implementation milestone, not repeated micro-tests.
+31. Added persistence for stamina and vehicle heading, and restored the saved camera heading so movement direction and camera stay aligned after reload. Commit: `7b776ed781020272f73ccfecbab1cd147a8ca5bc`.
+32. These source changes have not yet been run through a fresh browser/device check. GitHub Actions automatically started a validation run for the previous source commit; allow the newest run to finish before treating any check as passed. Keep testing consolidated rather than repeating micro-tests.
 
 ## Latest continuation work (2026-11-21)
 
