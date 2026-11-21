@@ -34,8 +34,10 @@ const server = http.createServer((req,res) => {
     await desktop.locator("#new-game").click();
     await desktop.waitForLoadState("domcontentloaded");
     await waitScene(desktop);
-    await desktop.waitForFunction(()=>window.__CVIRUS_DEBUG__.heroModelReady,{timeout:12000});
-    const heroBones=await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.heroBoneNames);
+    await desktop.waitForFunction(()=>window.__CVIRUS_DEBUG__.heroModelReady||window.__CVIRUS_DEBUG__.heroModelError,{timeout:15000});
+    const heroLoad=await desktop.evaluate(()=>({ready:window.__CVIRUS_DEBUG__.heroModelReady,error:window.__CVIRUS_DEBUG__.heroModelError,bones:window.__CVIRUS_DEBUG__.heroBoneNames}));
+    if(!heroLoad.ready)throw new Error("Ibrahim GLB load failed: "+heroLoad.error);
+    const heroBones=heroLoad.bones;
     const requiredHeroBones=["thigh_l","thigh_r","calf_l","calf_r","upperarm_l","upperarm_r","lowerarm_l","lowerarm_r"];
     const missingHeroBones=requiredHeroBones.filter(name=>!heroBones.includes(name));
     if(missingHeroBones.length)throw new Error("Ibrahim animation rig is missing expected bones: "+missingHeroBones.join(", ")+"; available: "+heroBones.join(", "));
