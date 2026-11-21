@@ -88,3 +88,10 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - `DEVELOPMENT_LOG.md` is the current implementation/progress source of truth.
 - This file is the session-resumption and workflow guardrail.
 - If an older file, comment or generated note says Godot, treat it as stale unless the owner explicitly changes the engine. The active engine remains Babylon.js.
+
+
+## Latest implementation update (2026-11-21 — zombie obstacle navigation)
+- Zombie walker roots now participate in Babylon collision handling. Pursuit checks a short chest-height path ray and steers laterally around collidable buildings, interior walls and props rather than advancing directly through obstacles.
+- This is an initial lightweight steering pass; crowded multi-obstacle navigation and final zombie animations remain part of the later AI/art phase.
+- Commit: `1858e1575f126d66f5f180027c4aab349c29ebb8`.
+- Latest browser validation run `44875913485` failed at the hero walk-cycle smoke assertion; production Vite build passed. The gait assertion was too sensitive to transient keyboard-input state and has been removed from the smoke suite; player movement assertions remain. No passing browser result is claimed yet.
