@@ -200,3 +200,9 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Follow-up correction: the service smoke scenario now parks the sedan at the service bay before checking the contextual action; exiting a vehicle also immediately hides the driving-only status panel.
 
 - Integrated run `44879112614`: npm install, Vite production build and Chromium installation passed. The browser flow still failed on the vehicle prompt assertion. The next run forces one scene render after the deterministic teleport and captures player position, nearest-vehicle distance and pause state in the failure message, so the remaining mismatch can be diagnosed without another blind timeout.
+
+
+## 2026-11-21 — Babylon collision and ray registration
+- Browser diagnostics exposed a missing Babylon.js side-effect registration: `DefaultCollisionCoordinator`. Added the official collision-coordinator side-effect import before scene creation.
+- Also registered Babylon ray/picking support and exposed `Ray` to the game runtime, which is required by zombie and survivor obstacle-steering code that calls `scene.pickWithRay`.
+- Source guidance confirms collision coordinator and ray registration are required when using Babylon's modular imports. The integrated browser workflow must verify this fix; no pass is claimed yet.
