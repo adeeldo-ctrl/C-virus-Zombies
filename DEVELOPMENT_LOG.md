@@ -1,6 +1,6 @@
 # C virus Zombies — Development Log
 
-**Last updated:** 2026-11-21 (vehicle, archetype and story presentation update)  
+**Last updated:** 2026-11-21 (survival consumables and save recovery fixes)  
 **Repository:** https://github.com/adeeldo-ctrl/C-virus-Zombies  
 **Branch:** `main`  
 **Active engine:** Babylon.js 9 (Vite-bundled browser-first 3D)  
@@ -20,6 +20,13 @@
 - **Inventory:** backpack panel now tracks water, food, medicine and parts from the four crates and persists these counts with the save. A complete expandable inventory/equipment system and safe-house storage remain outstanding.
 - **City, building interiors, safe house, complete audio, final menus and vehicle fleet:** not complete.
 - **Mission/save flow:** local save now persists mission completion. The safe-zone objective requires all four supply crates; reaching it early displays the remaining-supplies requirement. Mission-complete and mission-failed overlays provide a replay action that clears the local save and restarts the level.
+
+## Latest continuation work (2026-11-21 — survival usability and persistence fixes)
+
+28. Normalized two escaped newline sequences in the stylesheet that could interfere with selector parsing; preserved the existing responsive HUD and control styles. Commit: `e6cd370357b0bb9277a4d33da6f48d9296c40cf2`.
+29. Fixed save recovery when the player saved while driving: on reload, the player is restored beside the saved sedan instead of inside its collider. Commit: `f3bfd4c6f2547003eda61f6e9af717faa3c8dd2e`.
+30. Made backpack supplies usable: medicine restores up to 30 health; water restores up to 35 stamina; food restores up to 25 stamina. Buttons disable when the item is unavailable or the relevant meter is full, and consumption updates HUD plus local save. Commits: `0b98cbedb5241b19691ba7275f014de29a759294`, `d9624f1a43621579a5a9d69fe55dc913c54260a6`, `74ed1ad634253848331fa82cb90449f81b90a7d0`.
+31. These source changes have not yet been run through a fresh browser/device check. Keep the project status honest; perform one consolidated build/browser verification after the next coherent implementation milestone, not repeated micro-tests.
 
 ## Latest continuation work (2026-11-21)
 
