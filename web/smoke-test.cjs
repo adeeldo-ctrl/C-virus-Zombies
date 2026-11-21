@@ -48,6 +48,31 @@ const server = http.createServer((req,res) => {
     for(const required of ["SEDAN","MOTORCYCLE","AUTO RICKSHAW","CHINGCHI","MINI BUS","4K BUS"])if(!initial.vehicles.includes(required))throw new Error("Missing drivable transport: "+required);
     const started=await desktop.evaluate(()=>({paused:window.__CVIRUS_DEBUG__.state.paused,menuHidden:document.getElementById("main-menu").hidden}));
     if(started.paused||!started.menuHidden)throw new Error("New Game did not enter active gameplay.");
+    // Assert Ibrahim's skinned gait drives legs, bent elbows and opposite arm swing.
+    await desktop.evaluate(()=>{
+      const d=window.__CVIRUS_DEBUG__;
+      d.player.position.set(0,.95,0);d.state.yaw=0;
+      d.zombies.forEach((z,i)=>{z.position.set(i===0?0:36+i*3,1,i===0?-7:36);z.metadata.speed=0;z.metadata.detectionRange=0;z.metadata.wanderTimer=999;});
+      window.dispatchEvent(new KeyboardEvent("keydown",{key:"w",bubbles:true}));
+    });
+    await desktop.waitForTimeout(340);
+    await desktop.evaluate(()=>window.dispatchEvent(new KeyboardEvent("keyup",{key:"w",bubbles:true})));
+    const gait=await desktop.evaluate(()=>window.__CVIRUS_DEBUG__.heroPose);
+    if(!gait.moving||Math.abs(gait.bones.thigh_l?.[0]||0)<.08||Math.abs(gait.bones.upperarm_l?.[0]||0)<.06||Math.abs(gait.bones.lowerarm_l?.[0]||0)<.2)
+      throw new Error("Ibrahim walk animation did not drive articulated legs and bent arm bones: "+JSON.stringify(gait));
+    // Super Water Gun must launch a zombie into the air, land it and recover it.
+    await desktop.evaluate(()=>{
+      const d=window.__CVIRUS_DEBUG__;d.state.moveX=0;d.state.moveY=0;d.state.yaw=0;d.player.position.set(0,.95,0);d.player.rotation.y=Math.PI;
+      d.zombies.forEach((z,i)=>{z.position.set(i===0?0:36+i*3,1,i===0?-7:36);z.metadata.knockback=null;z.metadata.speed=0;z.metadata.detectionRange=0;z.metadata.wanderTimer=999;});
+      d.scene.render();
+    });
+    await desktop.locator("#water-gun").click();
+    await desktop.waitForFunction(()=>!!window.__CVIRUS_DEBUG__.zombies[0].metadata.knockback,{timeout:5000});
+    const airborne=await desktop.evaluate(()=>({y:window.__CVIRUS_DEBUG__.zombies[0].position.y,knockback:!!window.__CVIRUS_DEBUG__.zombies[0].metadata.knockback}));
+    if(!airborne.knockback||airborne.y<=1.05)throw new Error("Super Water Gun did not launch the zombie into an airborne knockback arc: "+JSON.stringify(airborne));
+    await desktop.waitForTimeout(1900);
+    const landed=await desktop.evaluate(()=>({y:window.__CVIRUS_DEBUG__.zombies[0].position.y,knockback:!!window.__CVIRUS_DEBUG__.zombies[0].metadata.knockback}));
+    if(landed.knockback||Math.abs(landed.y-1)>.02)throw new Error("Zombie did not complete landing and recovery: "+JSON.stringify(landed));
     // Verify vehicle proximity, enter/exit and mobile-facing prompts.
     await desktop.evaluate(()=>{
       const d=window.__CVIRUS_DEBUG__;
