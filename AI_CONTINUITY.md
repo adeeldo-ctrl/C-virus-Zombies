@@ -344,3 +344,11 @@ When the user says **“C virus”** in a new chat:
 - APK SHA-256: `327eb65c09a2c4aa60f72e00c339d63a5ce9facdb5bce5edd1510f878f7c2bb6`. APK is landscape-locked debug build.
 - Physical Android device visual/control testing remains pending. The current hero uses the bundled Quaternius skinned model and this pass is a runtime animation improvement, not completion of final original character art. Zombie models also remain stylised prototypes.
 - Do not change the vehicle joystick behaviour. Continue to preserve the on-foot joystick hit area, camera touch control, audio unlock and shield cooldown.
+
+
+## Latest continuation checkpoint — 2026-11-21 (owner-approved survival needs)
+- The five mandatory owner-approved systems are explicitly locked into `MASTER_PLAN.md`: professional realistic 3D art, open-world Pakistani city/interiors, Pakistani vehicle fleet, advanced zombie AI/archetypes, and complete survival systems.
+- New code commits: `d1a28b86696e28f49a08f59daf6dc1529a579646` (hunger/hydration logic and save/load), `d8122735e8aca2b4fc0c14bb8600708fa31fef57` (HUD meters), `01872082b38b28d952f9cc4ac8f3aca9774fc796` (responsive styling), `ffc3698a2219992a32e1d46eb957ecc83fba2991` (browser regression assertions).
+- Actual hunger and hydration now decrease only during active gameplay, pause during menus, persist in save data, and recover through food and water respectively. If either reaches zero, health gradually declines. This is newly implemented; wait for the integrated browser workflow before calling it verified.
+- Continue directly in this GitHub repository on `main`; do not use Codex or Godot. Preserve existing touch joystick, camera look, vehicle controls, audio unlock, shield cooldown, save compatibility and all existing mission systems.
+- Do not stop after documentation. Continue implementing complete gameplay systems in consolidated batches, run the existing integrated regression suite, and update both logs with real evidence. Physical Android device checks remain separate from browser CI.
