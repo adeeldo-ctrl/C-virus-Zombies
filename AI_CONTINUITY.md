@@ -45,6 +45,7 @@ Read `DEVELOPMENT_LOG.md` for the authoritative full details. The owner has expl
 - Backpack supplies are now consumable: medicine restores health, water and food restore stamina; unavailable/full-meter actions are disabled and item usage is saved.
 - Commits: `e6cd370357b0bb9277a4d33da6f48d9296c40cf2`, `f3bfd4c6f2547003eda61f6e9af717faa3c8dd2e`, `0b98cbedb5241b19691ba7275f014de29a759294`, `d9624f1a43621579a5a9d69fe55dc913c54260a6`, `74ed1ad634253848331fa82cb90449f81b90a7d0`.
 - Added persistence for stamina and vehicle heading, and restored the camera heading on load. Commit: `7b776ed781020272f73ccfecbab1cd147a8ca5bc`.
+- Added a proximity prompt for entering/exiting the sedan, including clear mobile/keyboard instructions. Commits: `1aeee56b2a21f353edace121066dd2d02a54f5bc`, `52504f2c8272c4e601f63aa7d520f259bb80ed64`, `3a1884a636dac4d37c5b447fe14f6e71878aca52`.
 - Not yet verified by a fresh browser/device run.
  
 ## Latest implementation update (2026-11-21)
