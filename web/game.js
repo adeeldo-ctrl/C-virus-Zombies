@@ -374,20 +374,6 @@
   const hornButton=document.getElementById("vehicle-horn");
   const lightsButton=document.getElementById("vehicle-lights");
   const brakeButton=document.getElementById("vehicle-brake");
-  const pushButton=document.getElementById("push-zombie");
-  let pushCooldown=0;
-  pushButton.addEventListener("click",()=>{
-    if(state.paused||state.ended||driving||pushCooldown>0||state.stamina<12)return;
-    const target=zombies.map(z=>({z,d:BABYLON.Vector3.Distance(player.position,z.position)})).sort((a,b)=>a.d-b.d)[0];
-    if(!target||target.d>3.2)return;
-    const away=target.z.position.subtract(player.position);away.y=0;
-    if(away.lengthSquared()<.001)away.set(0,0,1);
-    away.normalize();target.z.position.addInPlace(away.scale(2.4));
-    target.z.metadata.stunnedUntil=Date.now()+1500;
-    state.stamina=Math.max(0,state.stamina-12);document.getElementById("stamina").style.width=state.stamina+"%";
-    pushCooldown=2.2;playCue("success");
-    document.getElementById("message").textContent="Quick push — create space and move away!";
-  });
   brakeButton.addEventListener("pointerdown",()=>{if(driving&&!state.paused&&!state.ended)state.braking=true;});
   ["pointerup","pointercancel","pointerleave"].forEach(eventName=>brakeButton.addEventListener(eventName,()=>{state.braking=false;}));
   function setVehicleLights(on){
@@ -645,7 +631,7 @@
     const right=new BABYLON.Vector3(-forward.z,0,forward.x);
     const move=forward.scale(-state.moveY).add(right.scale(state.moveX));
     if(move.lengthSquared()>1)move.normalize();
-    jumpCooldown=Math.max(0,jumpCooldown-dt);pushCooldown=Math.max(0,pushCooldown-dt);
+    jumpCooldown=Math.max(0,jumpCooldown-dt);
     if(move.lengthSquared()>0.001&&!state.safe&&state.health>0){move.normalize();player.rotation.y=Math.atan2(move.x,move.z);}
     if(driving){
       const throttle=state.braking?0:-state.moveY;
@@ -710,7 +696,7 @@
     }
     let near=false;
     zombies.forEach((z,index)=>{
-      if(state.safe||state.health<=0||z.metadata.stunnedUntil>Date.now())return;
+      if(state.safe||state.health<=0)return;
       const delta=player.position.subtract(z.position);delta.y=0;
       const dist=delta.length();
       if(!driving&&dist>1.25&&dist<z.metadata.detectionRange){
@@ -737,8 +723,6 @@
       if(dist<1.7)near=true;
     });
     if(near&&!driving&&!state.safe&&state.health>0){damageTimer+=dt;if(damageTimer>.45){playCue("alert");state.health=Math.max(0,state.health-3);damageTimer=0;document.getElementById("health").style.width=state.health+"%";}}
-    const closestZombie=zombies.reduce((best,z)=>Math.min(best,BABYLON.Vector3.Distance(player.position,z.position)),Infinity);
-    pushButton.hidden=driving||state.paused||state.ended||closestZombie>3.2||state.stamina<12||pushCooldown>0;
     const nearest=nearestVehicle();
     hornButton.hidden=!driving||state.paused||state.ended;
     lightsButton.hidden=!driving||state.paused||state.ended;
@@ -877,7 +861,7 @@
   canvas.addEventListener("pointermove",e=>{
     if(!look||e.pointerId!==look.id)return;
     const dx=e.clientX-look.x,dy=e.clientY-look.y;
-    state.yaw-=dx*.006;
+    state.yaw-=dx*.006*audioSettings.look;
     camera.rotationOffset=180+state.yaw*180/Math.PI;
     camera.heightOffset=BABYLON.Scalar.Clamp(camera.heightOffset+dy*.018*audioSettings.look,2.2,5.5);
     look={id:e.pointerId,x:e.clientX,y:e.clientY};

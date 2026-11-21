@@ -77,5 +77,3 @@
 #action-buttons #vehicle-horn,#action-buttons #vehicle-lights{width:68px;height:52px;border-radius:14px;border:1px solid #d9c46a;background:#344d60ed;font-size:10px}#action-buttons #vehicle-horn[hidden],#action-buttons #vehicle-lights[hidden]{display:none}
 
 #action-buttons #vehicle-brake{width:68px;height:52px;border-radius:14px;border:1px solid #e18b7e;background:#79372fed;color:#fff;font-size:10px;touch-action:none}#action-buttons #vehicle-brake[hidden]{display:none}
-
-#action-buttons #push-zombie{width:68px;height:52px;border-radius:14px;border:1px solid #83dfb5;background:#17664ded;color:#fff;font-size:10px}#action-buttons #push-zombie[hidden]{display:none}

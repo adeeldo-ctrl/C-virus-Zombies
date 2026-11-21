@@ -258,7 +258,3 @@ When the user says **“C virus”** in a new chat:
 
 ## Latest driving controls
 - Vehicle controls now include touch BRAKE; holding it cuts throttle and illuminates rear brake lamps. Headlight toggling controls the front lamps without static duplicates.
-
-
-## Latest zombie encounter update
-- Added a close-range non-graphic push/stun escape action, with stamina cost, cooldown and contextual visibility. This is a temporary survival move, not a weapon system.
